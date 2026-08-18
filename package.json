@@ -2,6 +2,11 @@
   "name": "@tradimation/core",
   "version": "0.1.0",
   "description": "Framework-neutral traditional-animation effects for the web",
+  "homepage": "https://tradimation.github.io/tradimation/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tradimation/tradimation.git"
+  },
   "type": "module",
   "sideEffects": false,
   "files": [

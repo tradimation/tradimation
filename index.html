@@ -2,561 +2,91 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Tradimation / Continuous Texture Studies</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Tradimation brings the timing and character of traditional animation to real HTML elements.">
+  <title>Tradimation — Traditional motion for the web</title>
   <style>
-    :root {
-      --ink: #171714;
-      --paper: #f2efdf;
-      --signal: #ff4b2b;
-      --acid: #d7ff3f;
-      --blue: #3455ff;
-      --line: rgba(23, 23, 20, .22);
-    }
-    * { box-sizing: border-box; }
-    html { background: var(--ink); color: var(--ink); font-family: Inter, ui-sans-serif, system-ui, sans-serif; }
-    body { margin: 0; background: var(--paper); min-width: 320px; }
-    button { font: inherit; }
-    .masthead { min-height: 84vh; padding: 22px clamp(18px, 4vw, 64px) 56px; display: grid; grid-template-rows: auto 1fr auto; border-bottom: 2px solid var(--ink); position: relative; overflow: hidden; }
-    .masthead::after { content: ""; position: absolute; width: 34vw; height: 34vw; border: 2px solid var(--ink); border-radius: 50%; right: -14vw; top: 12vh; box-shadow: 0 0 0 28px var(--acid), 0 0 0 30px var(--ink); opacity: .9; }
-    nav, .kicker, .footnote { display: flex; justify-content: space-between; gap: 20px; text-transform: uppercase; font: 700 11px/1.2 ui-monospace, SFMono-Regular, monospace; letter-spacing: .12em; position: relative; z-index: 1; }
-    nav { padding-bottom: 16px; border-bottom: 1px solid var(--ink); }
-    nav a { color: inherit; text-decoration: none; border-bottom: 1px solid currentColor; }
-    h1 { align-self: center; margin: 40px 0; font-size: clamp(60px, 12.8vw, 190px); line-height: .75; letter-spacing: -.085em; text-transform: uppercase; position: relative; z-index: 1; max-width: 9ch; }
-    h1 span { display: block; color: var(--signal); margin-left: .42em; }
-    .intro { display: grid; grid-template-columns: 1fr minmax(280px, 560px); gap: 30px; align-items: end; position: relative; z-index: 1; }
-    .intro p { margin: 0; font-size: clamp(18px, 2.1vw, 31px); line-height: 1.12; letter-spacing: -.035em; }
-    .section { padding: 72px clamp(18px, 4vw, 64px); }
-    .section-title { display: grid; grid-template-columns: 1fr 2fr; border-top: 2px solid var(--ink); padding-top: 12px; margin-bottom: 42px; }
-    .section-title h2 { margin: 0; font-size: clamp(34px, 5vw, 72px); line-height: .9; letter-spacing: -.06em; text-transform: uppercase; }
-    .section-title p { margin: 0; max-width: 650px; justify-self: end; font-size: 16px; line-height: 1.45; }
-    .principles { display: grid; grid-template-columns: repeat(5, 1fr); border: 1px solid var(--ink); }
-    .principle { padding: 18px; min-height: 190px; border-right: 1px solid var(--ink); display: flex; flex-direction: column; justify-content: space-between; }
-    .principle:last-child { border: 0; }
-    .principle b { font: 700 12px ui-monospace, monospace; }
-    .principle p { margin: 30px 0 0; font-size: 14px; line-height: 1.35; }
-    .studies { background: var(--ink); color: var(--paper); }
-    .studies .section-title { border-color: var(--paper); }
-    .effect { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(300px, .75fr); border-top: 1px solid rgba(242,239,223,.35); padding: 34px 0 70px; gap: clamp(28px, 5vw, 80px); }
-    .effect + .effect { margin-top: 16px; }
-    .effect-meta { display: flex; justify-content: space-between; margin-bottom: 15px; font: 700 11px ui-monospace, monospace; text-transform: uppercase; letter-spacing: .1em; }
-    .stage { height: 340px; position: relative; overflow: hidden; background: #e8e4d2; color: var(--ink); border-radius: 3px; isolation: isolate; }
-    .stage::before { content: ""; position: absolute; inset: 0; background-image: linear-gradient(rgba(23,23,20,.08) 1px, transparent 1px), linear-gradient(90deg, rgba(23,23,20,.08) 1px, transparent 1px); background-size: 28px 28px; }
-    .stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 4; pointer-events: none; }
-    .stage-label { position: absolute; left: 16px; top: 14px; font: 700 10px ui-monospace, monospace; letter-spacing: .1em; text-transform: uppercase; opacity: .58; }
-    .target { position: absolute; width: 22px; height: 22px; border: 2px solid var(--signal); border-radius: 50%; right: 42px; top: 50%; translate: 0 -50%; z-index: 1; }
-    .target::before, .target::after { content: ""; position: absolute; background: var(--signal); left: 50%; top: 50%; translate: -50% -50%; }
-    .target::before { width: 40px; height: 1px; } .target::after { height: 40px; width: 1px; }
-    .source { left: 42px; right: auto; }
-    .subject { position: absolute; width: 186px; height: 88px; left: 74px; top: 126px; border: 3px solid var(--ink); border-radius: 14px; background: var(--acid); box-shadow: 7px 7px 0 var(--ink); display: grid; place-items: center; z-index: 2; transform-origin: center; }
-    .subject b { font-size: 21px; letter-spacing: -.05em; }
-    .subject small { display: block; font: 700 8px ui-monospace, monospace; letter-spacing: .16em; text-align: center; margin-top: 5px; }
-    .subject.blue { background: #7790ff; }
-    .subject.orange { background: #ff785e; }
-    .phase-rail { position: absolute; bottom: 18px; left: 18px; right: 18px; display: flex; gap: 3px; z-index: 6; }
-    .phase-rail i { height: 4px; background: var(--ink); opacity: .18; flex: var(--span); transition: opacity .1s; }
-    .phase-rail i.on { opacity: 1; background: var(--signal); }
-    .play { position: absolute; right: 16px; top: 14px; z-index: 7; border: 1px solid var(--ink); background: var(--paper); color: var(--ink); border-radius: 999px; padding: 8px 13px; font: 700 10px ui-monospace, monospace; text-transform: uppercase; cursor: pointer; }
-    .play:hover { background: var(--ink); color: var(--paper); }
-    .effect-copy h3 { font-size: clamp(40px, 5vw, 72px); margin: 0 0 14px; letter-spacing: -.07em; line-height: .9; }
-    .effect-copy > p { font-size: 17px; line-height: 1.4; color: rgba(242,239,223,.75); }
-    .tuning-bar { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin: -12px 0 34px; padding: 14px 16px; border: 1px solid rgba(242,239,223,.3); }
-    .tuning-bar p { margin: 0; font: 700 11px/1.4 ui-monospace, monospace; letter-spacing: .06em; text-transform: uppercase; color: rgba(242,239,223,.7); }
-    .tuning-actions { display: flex; align-items: center; gap: 8px; }
-    .tuning-button { border: 1px solid rgba(242,239,223,.55); background: transparent; color: var(--paper); padding: 8px 11px; font: 700 10px ui-monospace, monospace; text-transform: uppercase; cursor: pointer; }
-    .tuning-button:hover { background: var(--paper); color: var(--ink); }
-    .tuning-status { min-width: 74px; font: 700 10px ui-monospace, monospace; color: var(--acid); text-transform: uppercase; }
-    .tuner { margin-top: 12px; padding: 16px; border: 1px solid rgba(242,239,223,.28); background: rgba(242,239,223,.045); }
-    .tuner-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 14px; }
-    .tuner-head b { font: 700 11px ui-monospace, monospace; text-transform: uppercase; letter-spacing: .1em; color: var(--acid); }
-    .tuner-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 18px; }
-    .tuner-control { display: grid; grid-template-columns: 1fr auto; gap: 6px 10px; align-items: center; }
-    .tuner-control label, .tuner-value { font: 700 10px ui-monospace, monospace; text-transform: uppercase; letter-spacing: .04em; }
-    .tuner-control label { color: rgba(242,239,223,.72); }
-    .tuner-value { color: var(--acid); font-variant-numeric: tabular-nums; }
-    .tuner-control input { grid-column: 1 / -1; width: 100%; accent-color: var(--acid); cursor: ew-resize; }
-    .timeline { margin-top: 30px; }
-    .timeline-row { display: grid; grid-template-columns: 50px 92px 1fr; gap: 8px; border-top: 1px solid rgba(242,239,223,.22); padding: 10px 0; font-size: 12px; line-height: 1.35; }
-    .timeline-row b, .timeline-row span:first-child { font-family: ui-monospace, monospace; text-transform: uppercase; }
-    .timeline-row span:first-child { color: var(--acid); }
-    .acceptance { background: var(--blue); color: white; }
-    .checks { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; background: rgba(255,255,255,.25); border: 1px solid rgba(255,255,255,.25); }
-    .check { background: var(--blue); padding: 22px; font-size: 15px; line-height: 1.35; min-height: 105px; }
-    .check b { display: block; font: 700 10px ui-monospace, monospace; margin-bottom: 20px; color: var(--acid); }
-    footer { background: var(--acid); padding: 28px clamp(18px, 4vw, 64px); display: flex; justify-content: space-between; font: 700 11px ui-monospace, monospace; text-transform: uppercase; }
-    @media (max-width: 860px) { .principles { grid-template-columns: 1fr; } .principle { min-height: auto; border: 0; border-bottom: 1px solid var(--ink); } .effect, .section-title, .intro { grid-template-columns: 1fr; } .section-title p { justify-self: start; } .checks, .tuner-grid { grid-template-columns: 1fr; } .stage { height: 300px; } .tuning-bar { align-items: flex-start; flex-direction: column; } }
-    @media (prefers-reduced-motion: reduce) { .phase-rail { display: none; } }
-    body.review-mode > :not(.studies) { display: none; }
-    body.review-mode .studies { padding: 0; min-height: 100vh; }
-    body.review-mode .studies > :not(.review-target) { display: none; }
-    body.review-mode .review-target { display: block; margin: 0; padding: 0; border: 0; }
-    body.review-mode .review-target .effect-meta, body.review-mode .review-target .effect-copy { display: none; }
-    body.review-mode .review-target .tuner { display: none; }
-    body.review-mode .review-target .stage { width: 100vw; height: 100vh; border-radius: 0; }
+    :root{--ink:#141510;--paper:#f2efdf;--acid:#cbff2e;--violet:#8f87ff;--coral:#ff765f;--muted:#aaa99f;--line:rgba(20,21,16,.16);--darkline:rgba(242,239,223,.16)}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--paper);color:var(--ink);font-family:Arial,Helvetica,sans-serif;overflow-x:hidden}button,a{font:inherit}.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;text-transform:uppercase;letter-spacing:.08em}.wrap{width:min(1440px,calc(100% - 48px));margin:auto}
+    nav{height:76px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line)}.brand{display:flex;align-items:center;gap:12px;color:inherit;text-decoration:none;font-weight:900}.brand-mark{width:28px;height:28px;border:2px solid;border-radius:50% 44% 53% 38%;background:var(--acid);transform:rotate(-8deg)}.nav-links{display:flex;align-items:center;gap:28px}.nav-links a{color:inherit;text-decoration:none;font-size:12px;font-weight:800}.nav-links a:hover{text-decoration:underline;text-underline-offset:5px}.nav-cta{border:2px solid var(--ink);padding:10px 14px;box-shadow:4px 4px 0 var(--ink)}
+    .hero{min-height:calc(100vh - 76px);display:grid;grid-template-columns:minmax(0,1.02fr) minmax(420px,.98fr);gap:6vw;align-items:center;padding:80px 0}.kicker{display:flex;gap:10px;align-items:center;font-size:11px;font-weight:900}.kicker:before{content:"";width:32px;height:8px;background:var(--coral);border:2px solid;border-radius:50%}.hero h1{margin:26px 0 28px;font-size:clamp(68px,8.5vw,142px);line-height:.78;letter-spacing:-.085em;max-width:940px}.hero h1 em{font-style:normal;color:var(--violet);display:inline-block;transform:rotate(-2deg)}.hero-copy{max-width:620px;font-size:clamp(18px,1.7vw,25px);line-height:1.42;letter-spacing:-.02em}.actions{display:flex;gap:14px;flex-wrap:wrap;margin-top:38px}.button{display:inline-flex;align-items:center;justify-content:center;gap:14px;min-height:52px;padding:0 20px;border:2px solid var(--ink);color:var(--ink);text-decoration:none;font-weight:900;font-size:12px}.button.primary{background:var(--acid);box-shadow:6px 6px 0 var(--ink)}.button.secondary{background:transparent}.button:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 var(--ink)}
+    .demo-shell{position:relative;border:2px solid var(--ink);background:var(--ink);box-shadow:16px 16px 0 var(--violet);min-width:0}.demo-bar{height:48px;color:var(--paper);display:flex;align-items:center;justify-content:space-between;padding:0 16px;border-bottom:1px solid var(--darkline);font-size:10px}.lights{display:flex;gap:6px}.lights i{width:8px;height:8px;border:1px solid var(--paper);border-radius:50%}.lights i:first-child{background:var(--coral)}.demo-stage{height:420px;position:relative;overflow:hidden;background-color:var(--paper);background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:32px 32px;display:grid;place-items:center}.demo-target{width:210px;height:86px;border:3px solid var(--ink);border-radius:18px;background:var(--acid);box-shadow:9px 9px 0 var(--ink);display:grid;place-items:center;text-align:center;position:relative;z-index:2}.demo-target strong{font-size:21px}.demo-target small{display:block;margin-top:5px;font-size:8px;font-weight:900;letter-spacing:.13em}.demo-controls{display:grid;grid-template-columns:repeat(3,1fr);background:var(--ink)}.demo-controls button{border:0;border-right:1px solid var(--darkline);background:transparent;color:var(--paper);padding:16px 6px;font:800 9px ui-monospace,monospace;text-transform:uppercase;letter-spacing:.07em;cursor:pointer}.demo-controls button:last-child{border:0}.demo-controls button.active{background:var(--acid);color:var(--ink)}
+    .ticker{border-block:2px solid var(--ink);overflow:hidden;background:var(--acid);transform:rotate(-1deg);width:102%;margin-left:-1%}.ticker-track{display:flex;width:max-content;gap:42px;padding:15px 0;animation:ticker 24s linear infinite;font:900 13px ui-monospace,monospace;text-transform:uppercase;letter-spacing:.08em}.ticker-track span:after{content:"✦";margin-left:42px}@keyframes ticker{to{transform:translateX(-50%)}}
+    .section{padding:130px 0}.section-head{display:grid;grid-template-columns:.7fr 1.3fr;gap:50px;align-items:start;margin-bottom:65px}.section-label{font-size:11px;font-weight:900}.section h2{font-size:clamp(48px,7vw,104px);line-height:.88;letter-spacing:-.065em;margin:0}.section-intro{max-width:620px;font-size:18px;line-height:1.5;color:#57584f;margin:28px 0 0}
+    .principles{display:grid;grid-template-columns:repeat(3,1fr);border-top:2px solid;border-left:2px solid}.principle{padding:30px;min-height:290px;border-right:2px solid;border-bottom:2px solid;display:flex;flex-direction:column}.principle-num{font-size:10px;font-weight:900;color:#66675d}.principle-graphic{height:100px;display:flex;align-items:center}.shape{display:block;background:var(--violet);border:2px solid;width:76px;height:48px;border-radius:14px;box-shadow:5px 5px 0}.shape.speed{width:142px;height:30px;border-radius:50% 12px 12px 50%;background:var(--acid)}.shape.pose{transform:rotate(-7deg) scaleX(1.15);background:var(--coral)}.principle h3{font-size:24px;margin:auto 0 10px;letter-spacing:-.035em}.principle p{margin:0;color:#64655c;line-height:1.5;font-size:14px}
+    .dark{background:var(--ink);color:var(--paper)}.dark .wrap{padding-block:120px}.dark .section-head{margin-bottom:50px}.dark .section-intro{color:var(--muted)}.code-window{border:1px solid var(--darkline);display:grid;grid-template-columns:220px 1fr;min-height:410px}.code-aside{border-right:1px solid var(--darkline);padding:26px}.code-aside b{display:block;color:var(--acid);font-size:10px;margin-bottom:25px}.code-step{padding:16px 0;border-top:1px solid var(--darkline);font-size:11px;color:var(--muted)}.code-step.active{color:var(--paper)}pre{margin:0;padding:38px;overflow:auto;font:14px/1.8 ui-monospace,SFMono-Regular,Menlo,monospace;color:#d8d5c8}.token-key{color:var(--violet)}.token-string{color:var(--acid)}.token-comment{color:#73746b}
+    .cta{padding:150px 0;text-align:center;position:relative;overflow:hidden}.cta:before{content:"";position:absolute;width:280px;height:100px;background:var(--coral);border:3px solid;border-radius:50%;left:5%;top:22%;transform:rotate(14deg);z-index:-1}.cta h2{font-size:clamp(62px,10vw,150px);line-height:.8;letter-spacing:-.08em;margin:0 auto 38px;max-width:1200px}.cta h2 span{color:var(--violet)}.cta .actions{justify-content:center}
+    footer{border-top:2px solid;padding:28px 0 42px}.footer-row{display:flex;justify-content:space-between;gap:20px;font-size:11px}.footer-row a{color:inherit}.footer-links{display:flex;gap:20px}
+    @media(max-width:980px){.hero{grid-template-columns:1fr;padding-top:60px}.demo-shell{max-width:700px}.section-head{grid-template-columns:1fr}.principles{grid-template-columns:1fr}.principle{min-height:230px}.code-window{grid-template-columns:1fr}.code-aside{border-right:0;border-bottom:1px solid var(--darkline);display:flex;gap:18px;overflow:auto}.code-aside b{margin:0}.code-step{border:0;padding:0;white-space:nowrap}.nav-links a:not(.nav-cta){display:none}}
+    @media(max-width:600px){.wrap{width:min(100% - 28px,1440px)}.hero h1{font-size:64px}.hero{gap:55px}.demo-stage{height:330px}.demo-target{width:174px;height:74px}.section{padding:90px 0}.principle{padding:24px}pre{padding:24px;font-size:12px}.footer-row{flex-direction:column}.dark .wrap{padding-block:90px}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.ticker-track{animation:none}}
   </style>
 </head>
 <body>
-  <header class="masthead">
-    <nav><span>Tradimation / Study 03</span><a href="./catalog.html">Complete 26-effect catalog ↗</a></nav>
-    <h1>Same art.<span>More force.</span></h1>
-    <div class="intro"><div class="kicker"><span>Smear</span><span>Launch</span><span>Wipe</span><span>Stamp</span></div><p>Six motion studies built from the original HTML surface—not replacement drawings. Every border, glyph, and corner stays on one connected texture while timing does the acting.</p></div>
-  </header>
+  <div class="wrap">
+    <nav aria-label="Primary navigation">
+      <a class="brand mono" href="./index.html"><span class="brand-mark" aria-hidden="true"></span>Tradimation</a>
+      <div class="nav-links mono"><a href="#principles">Principles</a><a href="https://github.com/tradimation/tradimation">GitHub</a><a class="nav-cta" href="./catalog.html">Explore effects ↗</a></div>
+    </nav>
+    <main class="hero">
+      <div>
+        <div class="kicker mono">Framework-free motion library</div>
+        <h1>Make the web <em>act.</em></h1>
+        <p class="hero-copy">Traditional animation timing for real interface elements. One connected texture, authored poses, and movement that never feels like a generic tween.</p>
+        <div class="actions"><a class="button primary mono" href="./catalog.html">Browse 26 effects <span>→</span></a><a class="button secondary mono" href="#start">See how it works</a></div>
+      </div>
+      <div class="demo-shell" aria-label="Interactive effect preview">
+        <div class="demo-bar mono"><span>Live HTML / Canvas</span><span class="lights"><i></i><i></i><i></i></span></div>
+        <div class="demo-stage"><div class="demo-target" id="hero-target"><div><strong>Same HTML.</strong><small>A DIFFERENT PERFORMANCE.</small></div></div></div>
+        <div class="demo-controls"><button class="active" data-effect="smear">Smear</button><button data-effect="anticipation-take">Anticipation</button><button data-effect="stamp-in">Stamp In</button></div>
+      </div>
+    </main>
+  </div>
 
-  <section class="section">
-    <div class="section-title"><h2>Rendering<br>contract</h2><p>The visual swap is invisible. Live DOM becomes a high-resolution texture only after capture is ready, moves through one shared WebGL mesh, and returns at a DOM-compatible pose.</p></div>
+  <div class="ticker" aria-hidden="true"><div class="ticker-track"><span>Authored poses</span><span>Connected texture</span><span>Continuous travel</span><span>Traditional timing</span><span>Framework agnostic</span><span>Authored poses</span><span>Connected texture</span><span>Continuous travel</span><span>Traditional timing</span><span>Framework agnostic</span></div></div>
+
+  <section class="section wrap" id="principles">
+    <div class="section-head"><span class="section-label mono">01 / The difference</span><div><h2>Not smoother.<br>More intentional.</h2><p class="section-intro">Tradimation treats motion as a sequence of readable drawings connected by uninterrupted force—not a start value slowly becoming an end value.</p></div></div>
     <div class="principles">
-      <article class="principle"><b>CT—01</b><p>One visual identity. No simplified duplicate, redrawn label, or synthetic outline.</p></article>
-      <article class="principle"><b>CT—02</b><p>One continuous surface. Shared vertices prevent slice gaps and broken borders.</p></article>
-      <article class="principle"><b>CT—03</b><p>Continuous force, exposed accents. Major deformation follows motion while only small graphic details use held timing.</p></article>
-      <article class="principle"><b>CT—04</b><p>Firm acting. Each force gets one directional response and one registration—never repeated elastic reversals.</p></article>
-      <article class="principle"><b>CT—05</b><p>Safe handoff. Canvas starts and ends on pixel-compatible HTML poses.</p></article>
+      <article class="principle"><span class="principle-num mono">01 / POSE</span><div class="principle-graphic"><i class="shape pose"></i></div><h3>Draw the extremes</h3><p>Anticipation, take, impact, and correction remain distinct enough to read.</p></article>
+      <article class="principle"><span class="principle-num mono">02 / FLOW</span><div class="principle-graphic"><i class="shape speed"></i></div><h3>Connect the force</h3><p>Stretch overlaps travel. Compression starts during braking. No stitched clips.</p></article>
+      <article class="principle"><span class="principle-num mono">03 / SURFACE</span><div class="principle-graphic"><i class="shape"></i></div><h3>Keep the original</h3><p>Connected WebGL deformation preserves the border, type, and identity of your HTML.</p></article>
     </div>
   </section>
 
-  <main class="section studies">
-    <div class="section-title"><h2>Motion<br>studies</h2><p>Replay each study. Stretch now rides the first displacement instead of completing before travel: every speed silhouette arrives quickly while the center of mass is already moving. Timeline labels remain readings, not isolated clips.</p></div>
-    <div class="tuning-bar"><p>Programmable motion lab · sliders update constants and queue a fresh replay</p><div class="tuning-actions"><span class="tuning-status" id="tuning-status"></span><button class="tuning-button" id="copy-values" type="button">Copy values</button><button class="tuning-button" id="reset-values" type="button">Reset all</button></div></div>
+  <section class="dark" id="start"><div class="wrap">
+    <div class="section-head"><span class="section-label mono">02 / Framework agnostic</span><div><h2>One element.<br>One line to play.</h2><p class="section-intro">Use the registry directly from JavaScript, or wrap the same controller lifecycle in the framework of your choice.</p></div></div>
+    <div class="code-window"><aside class="code-aside mono"><b>Quick start</b><span class="code-step active">01 / Select</span><span class="code-step">02 / Play</span><span class="code-step">03 / Control</span></aside><pre><code><span class="token-key">import</span> { playEffect } <span class="token-key">from</span> <span class="token-string">'@tradimation/core'</span>;
 
-    <article class="effect" data-effect="smear">
-      <div class="demo"><div class="effect-meta"><span>01 / Speed</span><span>700 ms · readable take / brake</span></div><div class="stage"><span class="stage-label">quick take → readable carry → firm brake</span><button class="play">Replay ↗</button><div class="subject"><div><b>CEL MOTION</b><small>ORIGINAL HTML</small></div></div><canvas></canvas><div class="phase-rail"><i style="--span:3"></i><i style="--span:13"></i><i style="--span:18"></i><i style="--span:20"></i><i style="--span:46"></i></div></div></div>
-      <div class="effect-copy"><h3>Smear</h3><p>The speed drawing arrives during the first displacement, carries for only a few drawings, then restores through one short rear-led brake. The original silhouette is back before the final registration window.</p><div class="timeline"><div class="timeline-row"><span>00–03</span><b>Start</b><em>Translation and deformation begin together.</em></div><div class="timeline-row"><span>03–13</span><b>Take</b><em>Most spacing and stretch arrive immediately.</em></div><div class="timeline-row"><span>13–25</span><b>Carry</b><em>The long silhouette reads without further inflation.</em></div><div class="timeline-row"><span>25–40</span><b>Brake</b><em>Short rear-to-front compression removes velocity.</em></div><div class="timeline-row"><span>40–100</span><b>Register</b><em>Direct restoration leaves a quiet final pose.</em></div></div></div>
-    </article>
+<span class="token-key">const</span> button = document.querySelector(<span class="token-string">'.checkout'</span>);
 
-    <article class="effect" data-effect="suck">
-      <div class="demo"><div class="effect-meta"><span>02 / Capture</span><span>900 ms · readable wedge / close</span></div><div class="stage"><span class="stage-label">capture → carry the wedge → close</span><button class="play">Replay ↗</button><div class="target"></div><div class="subject blue"><div><b>SAME OBJECT</b><small>CONNECTED TEXTURE</small></div></div><canvas></canvas><div class="phase-rail"><i style="--span:18"></i><i style="--span:16"></i><i style="--span:34"></i><i style="--span:20"></i><i style="--span:12"></i></div></div></div>
-      <div class="effect-copy"><h3>Suck In</h3><p>The whole block starts traveling on the first pull drawing while its destination edge stretches ahead. Translation and elongation share one progress curve, then broad wedge and spear drawings close into the point.</p><div class="timeline"><div class="timeline-row"><span>00–18</span><b>Pull</b><em>The body moves immediately as its leading edge lengthens.</em></div><div class="timeline-row"><span>18–38</span><b>Capture</b><em>Travel and axial stretch build together.</em></div><div class="timeline-row"><span>38–72</span><b>Funnel</b><em>Block and wedge drawings hand the moving texture forward.</em></div><div class="timeline-row"><span>72–100</span><b>Tail / close</b><em>One thin spear follows the same trajectory into the point.</em></div></div></div>
-    </article>
+<span class="token-comment">// Same API in vanilla JS, React, Vue, Svelte, or anywhere else.</span>
+<span class="token-key">const</span> motion = playEffect(button, <span class="token-string">'smear'</span>, {
+  duration: 700,
+  cleanup: <span class="token-string">'restore'</span>
+});
 
-    <article class="effect" data-effect="spit">
-      <div class="demo"><div class="effect-meta"><span>03 / Release</span><span>900 ms · spear / flight / landing</span></div><div class="stage"><span class="stage-label">spear → readable flight → firm landing</span><button class="play">Replay ↗</button><div class="target source"></div><div class="subject orange" style="left:250px"><div><b>FULL ENERGY</b><small>ORIGINAL HTML</small></div></div><canvas></canvas><div class="phase-rail"><i style="--span:12"></i><i style="--span:16"></i><i style="--span:28"></i><i style="--span:20"></i><i style="--span:14"></i><i style="--span:10"></i></div></div></div>
-      <div class="effect-copy"><h3>Spit Out</h3><p>A compact point fires into a spear, opens through a wedge, and resolves into the original block. Once the silhouette arrives, it registers directly—there is no landing bounce or secondary compression.</p><div class="timeline"><div class="timeline-row"><span>00–18</span><b>Pressure / jet</b><em>A stable compact source releases as a spear.</em></div><div class="timeline-row"><span>18–58</span><b>Unfurl</b><em>Spear and wedge restore the texture front-to-back.</em></div><div class="timeline-row"><span>58–76</span><b>Catch</b><em>The full silhouette arrives without overshooting.</em></div><div class="timeline-row"><span>76–100</span><b>Register</b><em>The original block holds directly at destination.</em></div></div></div>
-    </article>
+motion.finished.then(() => motion.destroy());</code></pre></div>
+  </div></section>
 
-    <article class="effect" data-effect="launch">
-      <div class="demo"><div class="effect-meta"><span>04 / Exit</span><span>700 ms · speed drawing / clearance</span></div><div class="stage"><span class="stage-label">take → carry speed drawing → clear</span><button class="play">Replay ↗</button><div class="subject"><div><b>LAUNCH AWAY</b><small>ORIGINAL HTML</small></div></div><canvas></canvas><div class="phase-rail"><i style="--span:16"></i><i style="--span:56"></i><i style="--span:28"></i></div></div></div>
-      <div class="effect-copy"><h3>Launch Away</h3><p>Travel, axial stretch, height compression, taper, and rear follow now share one distance-driven progress value. The silhouette keeps lengthening while it moves, instead of completing its stretch before a separate clearance phase.</p><div class="timeline"><div class="timeline-row"><span>00–28</span><b>Moving stretch</b><em>Both boundaries advance while their spacing continues to open.</em></div><div class="timeline-row"><span>28–72</span><b>Coupled carry</b><em>Rear follow increases through the same stretch progression.</em></div><div class="timeline-row"><span>72–100</span><b>Clear</b><em>The completed speed drawing exits without another handoff.</em></div></div></div>
-    </article>
+  <section class="cta wrap"><h2>Give interfaces<br><span>a performance.</span></h2><div class="actions"><a class="button primary mono" href="./catalog.html">Open effect collection →</a><a class="button secondary mono" href="https://github.com/tradimation/tradimation">View source ↗</a></div></section>
+  <footer><div class="wrap footer-row mono"><span>Tradimation / 2026</span><span class="footer-links"><a href="./catalog.html">Effects</a><a href="https://github.com/tradimation/tradimation">GitHub</a></span></div></footer>
 
-    <article class="effect" data-effect="wipe">
-      <div class="demo"><div class="effect-meta"><span>05 / Reveal</span><span>850 ms · enter / overlapping brake</span></div><div class="stage"><span class="stage-label">offscreen entry → shrink while stopping → register</span><button class="play">Replay ↗</button><div class="target source"></div><div class="subject blue" style="left:250px"><div><b>STRETCH WIPE</b><small>SAME HTML SURFACE</small></div></div><canvas></canvas><div class="phase-rail"><i style="--span:12"></i><i style="--span:31"></i><i style="--span:31"></i><i style="--span:26"></i></div></div></div>
-      <div class="effect-copy"><h3>Stretch Wipe</h3><p>The Launch Away silhouette begins restoring before its leading edge stops. Center deceleration, width recovery, height recovery, front overshoot, and rear catch now share the same interval instead of handing off between two scenes.</p><div class="timeline"><div class="timeline-row"><span>00–12</span><b>Offscreen entry</b><em>The same long, low Launch Away drawing begins outside.</em></div><div class="timeline-row"><span>12–43</span><b>Launch carry</b><em>Center, front, and rear boundaries share forward velocity.</em></div><div class="timeline-row"><span>43–59</span><b>Overlapping brake</b><em>The silhouette shrinks while the leading edge is still moving.</em></div><div class="timeline-row"><span>59–74</span><b>Resolve</b><em>Travel and deformation lose their remaining energy together.</em></div><div class="timeline-row"><span>74–100</span><b>Register</b><em>The original HTML silhouette holds without a secondary bounce.</em></div></div></div>
-    </article>
-
-    <article class="effect" data-effect="stamp">
-      <div class="demo"><div class="effect-meta"><span>06 / Entrance</span><span>800 ms · hang / contact / settle</span></div><div class="stage"><span class="stage-label">read the hang → accelerate → stamp</span><button class="play">Replay ↗</button><div class="subject orange" style="left:250px"><div><b>STAMP IN</b><small>CONNECTED TEXTURE</small></div></div><canvas></canvas><div class="phase-rail"><i style="--span:22"></i><i style="--span:28"></i><i style="--span:20"></i><i style="--span:18"></i><i style="--span:12"></i></div></div></div>
-      <div class="effect-copy"><h3>Stamp In</h3><p>The contact drawing starts compressing during the final downward spacing. The bottom still plants at impact, but width, height, and registration already carry that momentum into one uninterrupted squash.</p><div class="timeline"><div class="timeline-row"><span>00–16</span><b>Hang</b><em>Rigid drawing waits above the stage.</em></div><div class="timeline-row"><span>16–46</span><b>Drop</b><em>Spacing accelerates while the contact stretch begins.</em></div><div class="timeline-row"><span>40–66</span><b>Contact / stamp</b><em>Impact and compression overlap around the planted bottom.</em></div><div class="timeline-row"><span>66–100</span><b>Register</b><em>Compression releases once into the final pose.</em></div></div></div>
-    </article>
-  </main>
-
-  <section class="section acceptance"><div class="section-title"><h2>Acceptance<br>checks</h2><p>Maximum deformation is not permission to lose the artwork. Slow playback should reveal authored poses, edge priority, and uninterrupted texture flow.</p></div><div class="checks"><div class="check"><b>01 / SURFACE</b>Border corners and glyph strokes remain connected at maximum stretch.</div><div class="check"><b>02 / TIMING</b>Shape change overlaps translation; no intermediate pose becomes a dead stop.</div><div class="check"><b>03 / DIRECTION</b>Front and rear edges respond in the order required by each action.</div><div class="check"><b>04 / HANDOFF</b>First and final canvas poses visually align with the live DOM element.</div></div></section>
-  <footer><span>Tradimation / Authored Drawings v5</span><span>Connected texture · Traditional performance</span></footer>
-
-  <script>
-    const clamp = (value, min = 0, max = 1) => Math.min(max, Math.max(min, value));
-    const mix = (a, b, amount) => a + (b - a) * amount;
-    const ease = value => { value = clamp(value); return value * value * (3 - 2 * value); };
-    const smoother = value => { value = clamp(value); return value * value * value * (value * (value * 6 - 15) + 10); };
-    const outCubic = value => 1 - Math.pow(1 - clamp(value), 3);
-    const outBack = value => { value = clamp(value); const c = 1.70158; return 1 + (c + 1) * Math.pow(value - 1, 3) + c * Math.pow(value - 1, 2); };
-    const segment = (value, from, to) => clamp((value - from) / (to - from));
-    const motionCurve = (time, keys) => {
-      if (time <= keys[0][0]) return keys[0][1];
-      if (time >= keys.at(-1)[0]) return keys.at(-1)[1];
-      let index = 0;
-      while (time > keys[index + 1][0]) index++;
-      const [timeA, valueA, slopeA = 0] = keys[index], [timeB, valueB, slopeB = 0] = keys[index + 1];
-      const span = timeB - timeA, amount = (time - timeA) / span, amount2 = amount * amount, amount3 = amount2 * amount;
-      return (2*amount3-3*amount2+1)*valueA + (amount3-2*amount2+amount)*span*slopeA + (-2*amount3+3*amount2)*valueB + (amount3-amount2)*span*slopeB;
-    };
-    const softPulse = (time, start, peak, end) => time < peak ? smoother(segment(time,start,peak)) : 1-smoother(segment(time,peak,end));
-    const celExposure = (time, duration, fps = 18, transition = .38) => {
-      if (time >= 1) return 1;
-      const drawingCount = duration / 1000 * fps, frame = time * drawingCount;
-      const drawing = Math.floor(frame), phase = frame - drawing;
-      const inbetween = smoother(segment(phase, 1 - transition, 1));
-      return clamp((drawing + inbetween) / drawingCount);
-    };
-    const celShapeTime = (time, duration, fps = 18) => mix(time, celExposure(time, duration, fps, .62), .68);
-    const peak = (value, center, radius) => Math.max(0, 1 - Math.abs(value - center) / radius);
-    const drawingTrack = (time, keys) => {
-      if (time <= keys[0][0]) return keys[0][1];
-      if (time >= keys.at(-1)[0]) return keys.at(-1)[1];
-      let index = 0;
-      while (time > keys[index + 1][0]) index++;
-      const [timeA, valueA] = keys[index], [timeB, valueB] = keys[index + 1];
-      return mix(valueA, valueB, (time - timeA) / (timeB - timeA));
-    };
-    const flowTrack = (time, keys) => {
-      const slopes = keys.map((key, index) => {
-        if (index === 0) return (keys[1][1] - key[1]) / (keys[1][0] - key[0]);
-        if (index === keys.length - 1) return (key[1] - keys[index - 1][1]) / (key[0] - keys[index - 1][0]);
-        const before = (key[1] - keys[index - 1][1]) / (key[0] - keys[index - 1][0]);
-        const after = (keys[index + 1][1] - key[1]) / (keys[index + 1][0] - key[0]);
-        if (before * after <= 0) return 0;
-        return 2 / (1 / before + 1 / after);
-      });
-      return motionCurve(time, keys.map((key, index) => [key[0], key[1], slopes[index]]));
-    };
-
-    const CONTROL_SCHEMA = {
-      smear: [
-        { key:'duration', label:'Duration', min:400, max:1400, step:10, value:670, unit:'ms' },
-        { key:'distance', label:'Travel distance', min:120, max:360, step:2, value:230, unit:'px' },
-        { key:'stretch', label:'Axial stretch', min:1, max:2.4, step:.01, value:1.64, unit:'×' },
-        { key:'height', label:'Speed height', min:.45, max:1, step:.01, value:.72, unit:'×' },
-        { key:'takeEnd', label:'Take end', min:.08, max:.30, step:.01, value:.18, unit:'t' },
-        { key:'brakeStart', label:'Brake start', min:.18, max:.50, step:.01, value:.27, unit:'t' },
-        { key:'restoreEnd', label:'Restore end', min:.40, max:.90, step:.01, value:.58, unit:'t' },
-        { key:'brakeForce', label:'Brake force', min:0, max:1.2, step:.01, value:.65, unit:'f' }
-      ],
-      suck: [
-        { key:'duration', label:'Duration', min:500, max:1600, step:10, value:830, unit:'ms' },
-        { key:'pullForce', label:'Pull force', min:.5, max:1.8, step:.01, value:1.24, unit:'f' },
-        { key:'bodyTravel', label:'Body travel', min:.10, max:.70, step:.01, value:.52, unit:'×' },
-        { key:'tongue', label:'Leading stretch', min:.20, max:1.2, step:.01, value:.44, unit:'×' },
-        { key:'columnLag', label:'Column lag', min:.05, max:.45, step:.01, value:.31, unit:'t' },
-        { key:'pinch', label:'Pinch force', min:.50, max:1.3, step:.01, value:.90, unit:'f' },
-        { key:'minHeight', label:'Minimum height', min:.04, max:.50, step:.01, value:.05, unit:'×' },
-        { key:'cadence', label:'Drawing cadence', min:8, max:30, step:1, value:16, unit:'fps' }
-      ],
-      spit: [
-        { key:'duration', label:'Duration', min:500, max:1600, step:10, value:840, unit:'ms' },
-        { key:'releaseForce', label:'Release force', min:.5, max:1.8, step:.01, value:1.40, unit:'f' },
-        { key:'releaseEnd', label:'Release end', min:.35, max:.80, step:.01, value:.58, unit:'t' },
-        { key:'columnLag', label:'Column lag', min:.05, max:.45, step:.01, value:.30, unit:'t' },
-        { key:'pointSize', label:'Source point', min:1, max:12, step:.5, value:7, unit:'px' },
-        { key:'spear', label:'Spear compression', min:0, max:.50, step:.01, value:.24, unit:'f' },
-        { key:'tilt', label:'Directional tilt', min:0, max:8, step:.1, value:4, unit:'px' },
-        { key:'cadence', label:'Drawing cadence', min:8, max:30, step:1, value:18, unit:'fps' }
-      ],
-      launch: [
-        { key:'duration', label:'Duration', min:400, max:1400, step:10, value:690, unit:'ms' },
-        { key:'distanceBonus', label:'Clearance', min:50, max:400, step:5, value:120, unit:'px' },
-        { key:'accelCurve', label:'Acceleration curve', min:.5, max:1.8, step:.01, value:1.15, unit:'pow' },
-        { key:'takeDistance', label:'Impulse distance', min:80, max:320, step:2, value:112, unit:'px' },
-        { key:'stretchDistance', label:'Stretch distance', min:120, max:700, step:5, value:165, unit:'px' },
-        { key:'rearFollow', label:'Rear follow', min:.05, max:1, step:.01, value:.32, unit:'×' },
-        { key:'stretch', label:'Axial stretch', min:1, max:2.5, step:.01, value:1.90, unit:'×' },
-        { key:'height', label:'Speed height', min:.45, max:1, step:.01, value:.62, unit:'×' },
-        { key:'tilt', label:'Directional tilt', min:0, max:8, step:.1, value:2, unit:'px' }
-      ],
-      wipe: [
-        { key:'duration', label:'Duration', min:500, max:1600, step:10, value:820, unit:'ms' },
-        { key:'entryForce', label:'Entry force', min:.5, max:1.6, step:.01, value:.90, unit:'f' },
-        { key:'stretch', label:'Entry stretch', min:1, max:2.5, step:.01, value:1.60, unit:'×' },
-        { key:'height', label:'Entry height', min:.45, max:1, step:.01, value:.56, unit:'×' },
-        { key:'brakeStart', label:'Brake start', min:.05, max:.60, step:.01, value:.37, unit:'t' },
-        { key:'restoreEnd', label:'Restore end', min:.55, max:.95, step:.01, value:.75, unit:'t' },
-        { key:'momentum', label:'Center momentum', min:.5, max:1.5, step:.01, value:.92, unit:'f' },
-        { key:'rearCatch', label:'Rear catch', min:0, max:.25, step:.01, value:.15, unit:'f' },
-        { key:'ridge', label:'Compression ridge', min:0, max:.8, step:.01, value:.58, unit:'f' }
-      ],
-      stamp: [
-        { key:'duration', label:'Duration', min:500, max:1500, step:10, value:770, unit:'ms' },
-        { key:'dropHeight', label:'Drop height', min:20, max:160, step:2, value:76, unit:'px' },
-        { key:'hang', label:'Hang end', min:.03, max:.30, step:.01, value:.17, unit:'t' },
-        { key:'contact', label:'Contact time', min:.30, max:.65, step:.01, value:.42, unit:'t' },
-        { key:'squashWidth', label:'Squash width', min:1, max:1.8, step:.01, value:1.36, unit:'×' },
-        { key:'squashHeight', label:'Squash height', min:.35, max:1, step:.01, value:.62, unit:'×' },
-        { key:'restoreEnd', label:'Restore end', min:.65, max:.98, step:.01, value:.78, unit:'t' },
-        { key:'impact', label:'Impact belly', min:0, max:.25, step:.01, value:.08, unit:'f' }
-      ]
-    };
-    const CONTROL_DEFAULTS = Object.fromEntries(Object.entries(CONTROL_SCHEMA).map(([type, controls]) => [type, Object.fromEntries(controls.map(control => [control.key, control.value]))]));
-    const readStoredControls = () => { try { return JSON.parse(localStorage.getItem('tradimation-controls') || localStorage.getItem('cel-motion-controls') || '{}'); } catch { return {}; } };
-    const storedControls = readStoredControls();
-    const controlState = Object.fromEntries(Object.entries(CONTROL_SCHEMA).map(([type, controls]) => [type, Object.fromEntries(controls.map(control => {
-      const stored = Number(storedControls[type]?.[control.key]);
-      return [control.key, clamp(Number.isFinite(stored) ? stored : control.value, control.min, control.max)];
-    }))]));
-    const persistControls = () => { try { localStorage.setItem('tradimation-controls', JSON.stringify(controlState)); } catch {} };
-    const formatControl = (control, value) => `${Number(value).toFixed(control.step < .1 ? 2 : control.step < 1 ? 1 : 0)}${control.unit}`;
-
-    class TextureMesh {
-      constructor(stage) {
-        this.stage = stage;
-        this.canvas = stage.querySelector('canvas');
-        this.element = stage.querySelector('.subject');
-        this.gl = this.canvas.getContext('webgl', { alpha: true, antialias: true, premultipliedAlpha: true });
-        this.cols = 32; this.rows = 14;
-        this.program = this.createProgram();
-        this.positionBuffer = this.gl.createBuffer();
-        this.uvBuffer = this.gl.createBuffer();
-        this.indexBuffer = this.gl.createBuffer();
-        this.texture = this.gl.createTexture();
-        this.buildGrid();
-      }
-      shader(type, source) { const shader = this.gl.createShader(type); this.gl.shaderSource(shader, source); this.gl.compileShader(shader); return shader; }
-      createProgram() {
-        const vertex = this.shader(this.gl.VERTEX_SHADER, 'attribute vec2 p; attribute vec2 uv; varying vec2 v; void main(){gl_Position=vec4(p,0.,1.);v=uv;}');
-        const fragment = this.shader(this.gl.FRAGMENT_SHADER, 'precision mediump float; uniform sampler2D tex; varying vec2 v; void main(){gl_FragColor=texture2D(tex,v);}');
-        const program = this.gl.createProgram(); this.gl.attachShader(program, vertex); this.gl.attachShader(program, fragment); this.gl.linkProgram(program); return program;
-      }
-      buildGrid() {
-        const uvs = [], indices = [];
-        for (let row = 0; row <= this.rows; row++) for (let col = 0; col <= this.cols; col++) uvs.push(col / this.cols, row / this.rows);
-        for (let row = 0; row < this.rows; row++) for (let col = 0; col < this.cols; col++) { const a = row * (this.cols + 1) + col, b = a + 1, c = a + this.cols + 1, d = c + 1; indices.push(a, c, b, b, c, d); }
-        this.indices = new Uint16Array(indices);
-        const gl = this.gl; gl.bindBuffer(gl.ARRAY_BUFFER, this.uvBuffer); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(uvs), gl.STATIC_DRAW); gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer); gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.indices, gl.STATIC_DRAW);
-      }
-      resize() { const dpr = Math.min(2, devicePixelRatio || 1), rect = this.stage.getBoundingClientRect(); this.width = rect.width; this.height = rect.height; this.canvas.width = Math.round(rect.width * dpr); this.canvas.height = Math.round(rect.height * dpr); this.gl.viewport(0, 0, this.canvas.width, this.canvas.height); }
-      async capture() {
-        this.resize(); const stageRect = this.stage.getBoundingClientRect(), rect = this.element.getBoundingClientRect();
-        const padding = 12, textureWidth = rect.width + padding * 2, textureHeight = rect.height + padding * 2;
-        this.base = { x: rect.left - stageRect.left - padding, y: rect.top - stageRect.top - padding, w: textureWidth, h: textureHeight };
-        const computed = getComputedStyle(this.element), clone = this.element.cloneNode(true);
-        const sourceChildren = [...this.element.querySelectorAll('*')], cloneChildren = [...clone.querySelectorAll('*')];
-        sourceChildren.forEach((source, index) => {
-          const styles = getComputedStyle(source);
-          cloneChildren[index].style.cssText = [...styles].map(name => `${name}:${styles.getPropertyValue(name)};`).join('');
-        });
-        const html = clone.innerHTML, renderScale = Math.min(3, Math.max(2, (devicePixelRatio || 1) * 1.5));
-        const body = `<div xmlns="http://www.w3.org/1999/xhtml" style="width:${textureWidth}px;height:${textureHeight}px;padding:${padding}px;box-sizing:border-box;"><div style="width:${rect.width}px;height:${rect.height}px;display:grid;place-items:center;box-sizing:border-box;border:${computed.border};border-radius:${computed.borderRadius};background:${computed.backgroundColor};box-shadow:${computed.boxShadow};color:${computed.color};font-family:${computed.fontFamily};">${html}</div></div>`;
-        const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${textureWidth * renderScale}" height="${textureHeight * renderScale}" viewBox="0 0 ${textureWidth} ${textureHeight}"><foreignObject width="100%" height="100%">${body}</foreignObject></svg>`;
-        const image = new Image(); image.decoding = 'async'; image.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg); await image.decode();
-        const gl = this.gl; gl.bindTexture(gl.TEXTURE_2D, this.texture); gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
-      }
-      draw(mapper, alpha = 1) {
-        const positions = [];
-        for (let row = 0; row <= this.rows; row++) for (let col = 0; col <= this.cols; col++) { const u = col / this.cols, v = row / this.rows, point = mapper(u, v, this.base); positions.push(point.x / this.width * 2 - 1, 1 - point.y / this.height * 2); }
-        const gl = this.gl; gl.clearColor(0,0,0,0); gl.clear(gl.COLOR_BUFFER_BIT); if (alpha <= .001) return; gl.useProgram(this.program);
-        const p = gl.getAttribLocation(this.program, 'p'), uv = gl.getAttribLocation(this.program, 'uv'); gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.DYNAMIC_DRAW); gl.enableVertexAttribArray(p); gl.vertexAttribPointer(p, 2, gl.FLOAT, false, 0, 0); gl.bindBuffer(gl.ARRAY_BUFFER, this.uvBuffer); gl.enableVertexAttribArray(uv); gl.vertexAttribPointer(uv, 2, gl.FLOAT, false, 0, 0); gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer); gl.bindTexture(gl.TEXTURE_2D, this.texture); gl.drawElements(gl.TRIANGLES, this.indices.length, gl.UNSIGNED_SHORT, 0);
-      }
+  <script type="module">
+    import { createEffect } from './dist/index.js';
+    const target=document.querySelector('#hero-target');
+    const controls=[...document.querySelectorAll('.demo-controls button')];
+    let activeController;
+    async function preview(effect,button){
+      if(activeController)activeController.destroy();
+      controls.forEach(control=>control.classList.toggle('active',control===button));
+      target.style.visibility='visible';target.style.transform='none';
+      activeController=createEffect(target,effect,{cleanup:'restore'});
+      await activeController.play();
+      activeController.destroy();activeController=null;
     }
-
-    const maps = {
-      smear(t, u, v, b, stage, p) {
-        const take=clamp(p.takeEnd,.06,.38), brake=clamp(p.brakeStart,take+.03,.62), restore=clamp(p.restoreEnd,brake+.10,.95);
-        const q=amount=>mix(brake,restore,amount), pose=celExposure(t,p.duration,24,.50), shapeT=celShapeTime(t,p.duration,18);
-        const frontOffset=motionCurve(t,[[0,0,p.distance*.32],[take*.19,p.distance*.018,p.distance*1.2],[take,p.distance*.84,p.distance*6.25],[mix(take,brake,.67),p.distance*.995,p.distance*1.15],[brake,p.distance*1.025,p.distance*.20],[q(.34),p.distance*1.010,-p.distance*.24],[q(.62),p.distance,0],[1,p.distance,0]]);
-        const width=flowTrack(shapeT,[[0,1],[take*.20,1.04],[take*.56,1.22],[take,p.stretch],[brake,p.stretch],[q(.20),mix(p.stretch,1,.40)],[q(.46),mix(p.stretch,1,.76)],[q(.72),1.015],[restore,1],[1,1]])*b.w;
-        const height=flowTrack(shapeT,[[0,1],[take*.50,.95],[take,p.height],[brake,p.height],[q(.20),mix(p.height,1,.40)],[q(.46),mix(p.height,1,.76)],[q(.72),.995],[restore,1],[1,1]]);
-        const speedDrawing=flowTrack(shapeT,[[0,0],[take*.25,.10],[take,1],[brake,1],[q(.25),.22],[q(.47),0],[1,0]]);
-        const rearPack=flowTrack(shapeT,[[0,0],[mix(take,brake,.75),0],[q(.12),p.brakeForce*.07],[q(.47),p.brakeForce*.18],[q(.75),p.brakeForce*.04],[restore,0],[1,0]]);
-        const ridgeCenter=flowTrack(shapeT,[[0,.16],[brake,.16],[q(.19),.27],[q(.47),.55],[q(.75),.78],[1,.78]]);
-        const ridgeAmount=flowTrack(shapeT,[[0,0],[brake,0],[q(.16),p.brakeForce*.14],[q(.47),p.brakeForce*.48],[q(.75),p.brakeForce*.09],[restore,0],[1,0]]);
-        const front=b.x+b.w+frontOffset;
-        const mappedU=clamp(u+rearPack*(1-u)*(.78+.22*u));
-        const x=front-width*(1-mappedU);
-        const ridge=peak(u,ridgeCenter,.13)*ridgeAmount;
-        const endTaper=1-speedDrawing*(Math.pow(1-u,3)*.25+Math.pow(u,5)*.05);
-        const line=drawingTrack(pose,[[0,0],[.14,3],[.30,3],[.48,0],[1,0]])*(u-.5);
-        return{x,y:b.y+b.h/2+line+(v-.5)*b.h*height*endTaper*(1+ridge*.10)};
-      },
-      suck(t, u, v, b, stage, p) {
-        const target = stage.clientWidth - 53, centerY = stage.clientHeight / 2;
-        const pose=celExposure(t,p.duration,p.cadence,.56), shapeT=celShapeTime(t,p.duration,p.cadence);
-        const pull=motionCurve(t,[[0,0,1.1*p.pullForce],[.06,.10,1.8*p.pullForce],[.18,.31,1.9*p.pullForce],[.38,.64,1.7*p.pullForce],[.64,.91,.85*p.pullForce],[.82,1,.15],[1,1,0]]);
-        const lead=flowTrack(shapeT,[[0,0],[.10,.12],[.28,.62],[.42,1],[1,1]]);
-        const close=flowTrack(shapeT,[[0,0],[.42,0],[.62,.10],[.80,.34],[1,.72]]);
-        const ingest=flowTrack(shapeT,[[0,0],[.54,0],[.70,.24],[.86,.72],[1,1]]);
-        const travelDistance=target-(b.x+b.w);
-        const bodyShift=travelDistance*p.bodyTravel*pull;
-        const tongue=Math.min(travelDistance*p.tongue,b.w*1.15)*lead;
-        const rearStart=b.x+bodyShift, frontStart=b.x+b.w+bodyShift+tongue;
-        const frontX=mix(frontStart,target,outCubic(close));
-        const rearX=mix(rearStart,target,Math.pow(close,1.20+p.columnLag));
-        const wedgeX=mix(rearX,frontX,u);
-        const localIngest=clamp((ingest-(1-u)*p.columnLag)/(1-p.columnLag));
-        const x=mix(wedgeX,target,smoother(localIngest));
-        const wedgeProfile=mix(1,p.minHeight,smoother(u));
-        const openHeight=mix(1,wedgeProfile,lead);
-        const collapseHeight=mix(mix(openHeight,p.minHeight,clamp(close*p.pinch*.55)),p.minHeight,smoother(localIngest));
-        const tailSnap=drawingTrack(pose,[[0,0],[.58,0],[.74,-3],[.88,0],[1,0]])*(1-u);
-        const funnelBend=Math.sin(Math.PI*u)*b.h*.055*lead*(1-ingest);
-        return{x,y:mix(b.y+b.h/2,centerY,close)+(v-.5)*b.h*collapseHeight+tailSnap*(v-.5)-funnelBend};
-      },
-      spit(t, u, v, b, stage, p) {
-        const pose=celExposure(t,p.duration,p.cadence,.56),shapeT=celShapeTime(t,p.duration,p.cadence),source=53,centerY=stage.clientHeight/2,releaseEnd=p.releaseEnd;
-        const releaseAt=time=>motionCurve(time,[[0,0,.08*p.releaseForce],[releaseEnd*.10,.01,.30*p.releaseForce],[releaseEnd*.28,.18,2.0*p.releaseForce],[releaseEnd*.55,.56,2.2*p.releaseForce],[releaseEnd*.82,.86,1.1*p.releaseForce],[releaseEnd,1,0],[1,1,0]]);
-        const release=releaseAt(t),shapeRelease=releaseAt(shapeT);
-        if(pose<.07){return{x:source+(u-.5)*p.pointSize,y:centerY+(v-.5)*p.pointSize};}
-        const localRelease=clamp((shapeRelease-(1-u)*p.columnLag)/(1-p.columnLag));
-        const open=flowTrack(localRelease,[[0,0],[.10,.025],[.26,.16],[.52,.56],[.78,.90],[1,1]]);
-        const continuousCenter=mix(source,b.x+b.w/2,flowTrack(release,[[0,0],[.18,.08],[.48,.48],[.78,.84],[1,1]]));
-        const normalX=b.x+u*b.w;
-        const boundaryX=mix(source,normalX,open);
-        const centerCorrection=(continuousCenter-mix(source,b.x+b.w/2,flowTrack(shapeRelease,[[0,0],[.18,.08],[.48,.48],[.78,.84],[1,1]])))*(1-open);
-        const x=boundaryX+centerCorrection;
-        const frontBulb=Math.pow(u,2)*softPulse(shapeRelease,.12,.34,.70);
-        const heightOpen=flowTrack(open,[[0,.08],[.20,.10],[.48,.28],[.72,.68],[1,1]]);
-        const spearHeight=heightOpen*(1-p.spear*(1-u)*(1-open))*(1+frontBulb*.22*(1-open));
-        const line=drawingTrack(pose,[[0,0],[.14,-p.tilt],[.34,-p.tilt],[.56,0],[1,0]])*(u-.5);
-        const bodyY=mix(centerY,b.y+b.h/2,open);
-        const y=bodyY+line+(v-.5)*b.h*spearHeight;
-        return { x, y };
-      },
-      launch(t, u, v, b, stage, p) {
-        const shapeT=celShapeTime(t,p.duration,18),distance=stage.clientWidth-b.x+p.distanceBonus,impulse=clamp(p.takeDistance/distance,.06,.32);
-        const progressAt=time=>motionCurve(time,[[0,0,.08],[.06,.012,.35],[.24,impulse,1.20],[.52,.50,1.25],[.80,.86,.92],[1,1,.45]]);
-        const travel=distance*progressAt(Math.pow(t,p.accelCurve));
-        const shapeTravel=distance*progressAt(Math.pow(shapeT,p.accelCurve));
-        const take=clamp(travel*(1-p.rearFollow)/p.stretchDistance);
-        const shapeTake=clamp(shapeTravel*(1-p.rearFollow)/p.stretchDistance);
-        const width=flowTrack(shapeTake,[[0,1],[.03,1.02],[.24,mix(1,p.stretch,.26)],[.58,mix(1,p.stretch,.63)],[1,p.stretch]])*b.w;
-        const height=flowTrack(shapeTake,[[0,1],[.18,.96],[.55,mix(1,p.height,.53)],[1,p.height]]);
-        const speedDrawing=flowTrack(shapeTake,[[0,0],[.12,.08],[.48,.54],[1,1]]);
-        const catchUp=smoother(segment(take,.55,1));
-        const rearFollow=mix(p.rearFollow,1,catchUp);
-        const rear=b.x+travel*rearFollow;
-        const endTaper=1-speedDrawing*(Math.pow(1-u,3)*.18+Math.pow(u,5)*.07);
-        const line=p.tilt*(u-.5)*speedDrawing;
-        return {x:rear+width*u,y:b.y+b.h/2+line+(v-.5)*b.h*height*endTaper};
-      },
-      wipe(t, u, v, b, stage, p) {
-        const brake=clamp(p.brakeStart,.04,.64),restore=clamp(p.restoreEnd,brake+.14,.97),q=amount=>mix(brake,restore,amount),shapeT=celShapeTime(t,p.duration,18);
-        const stretchedWidth=p.stretch*b.w;
-        const finalCenter=b.x+b.w/2;
-        const brakeCenter=b.x+b.w*.90-stretchedWidth/2;
-        const travelFront=motionCurve(t,[[0,-12,260*p.entryForce],[brake*.28,60,420*p.entryForce],[brake*.70,b.x+b.w*.72,700*p.entryForce],[brake,b.x+b.w*.90,420*p.entryForce]]);
-        const center=t<=brake
-          ? travelFront-stretchedWidth/2
-          : motionCurve(t,[[brake,brakeCenter,420*p.momentum],[q(.29),b.x+b.w*.25,360*p.momentum],[q(.57),b.x+b.w*.425,190*p.momentum],[q(.86),finalCenter,0],[1,finalCenter,0]]);
-        const width=flowTrack(shapeT,[[0,p.stretch],[brake,p.stretch],[q(.24),mix(p.stretch,1,.32)],[q(.56),mix(p.stretch,1,.72)],[restore,1],[1,1]])*b.w;
-        const height=flowTrack(shapeT,[[0,p.height],[brake,p.height],[q(.24),mix(p.height,1,.32)],[q(.56),mix(p.height,1,.72)],[restore,1],[1,1]]);
-        const speedDrawing=flowTrack(shapeT,[[0,1],[brake,1],[q(.24),.68],[q(.56),.28],[restore,0],[1,0]]);
-        const rearPack=flowTrack(shapeT,[[0,0],[q(.06),0],[q(.32),p.rearCatch*.24],[q(.58),p.rearCatch*.55],[q(.81),p.rearCatch*.12],[restore,0],[1,0]]);
-        const ridgeCenter=flowTrack(shapeT,[[0,.16],[q(.06),.16],[q(.32),.34],[q(.58),.58],[q(.81),.76],[1,.76]]);
-        const ridgeAmount=flowTrack(shapeT,[[0,0],[q(.06),0],[q(.32),p.ridge*.20],[q(.58),p.ridge*.45],[q(.81),p.ridge*.06],[restore,0],[1,0]]);
-        const mappedU=clamp(u+rearPack*(1-u)*(.78+.22*u));
-        const ridge=peak(u,ridgeCenter,.13)*ridgeAmount;
-        const endTaper=1-speedDrawing*(Math.pow(1-u,3)*.18+Math.pow(u,5)*.07);
-        const line=3*(u-.5)*speedDrawing;
-        const boundaryPulse=softPulse(shapeT,brake,q(.38),q(.80));
-        const front=center+width/2+b.w*.10*boundaryPulse;
-        const rear=center-width/2-b.w*p.rearCatch*.34*boundaryPulse;
-        return{x:mix(rear,front,mappedU),y:b.y+b.h/2+line+(v-.5)*b.h*height*endTaper*(1+ridge*.10)};
-      },
-      stamp(t, u, v, b, stage, p) {
-        const contact=clamp(p.contact,p.hang+.10,.72),restore=clamp(p.restoreEnd,contact+.16,.98),pre=contact-.07,squashPeak=mix(contact,restore,.16),squashHold=mix(contact,restore,.32),shapeT=celShapeTime(t,p.duration,18);
-        const hangingBottom=b.y+b.h-p.dropHeight;
-        const bottom=motionCurve(t,[[0,hangingBottom,0],[p.hang,hangingBottom,70],[pre,b.y+b.h-8,720],[contact,b.y+b.h,0],[1,b.y+b.h,0]]);
-        const width=flowTrack(shapeT,[[0,1],[Math.max(p.hang,contact-.19),.98],[pre,.95],[contact-.01,1.03],[squashPeak,p.squashWidth],[squashHold,p.squashWidth],[restore,1],[1,1]]);
-        const height=flowTrack(shapeT,[[0,1],[Math.max(p.hang,contact-.19),1.03],[pre,1.10],[contact-.01,.94],[squashPeak,p.squashHeight],[squashHold,p.squashHeight],[restore,1],[1,1]]);
-        const register=flowTrack(shapeT,[[0,0],[pre,0],[contact,-2],[squashHold,-3],[mix(contact,restore,.82),0],[1,0]]);
-        const impact=flowTrack(shapeT,[[0,0],[pre,0],[contact,.65],[squashPeak,1],[squashHold,1],[mix(contact,restore,.68),0],[1,0]]);
-        const contactLean=flowTrack(shapeT,[[0,0],[Math.max(p.hang,contact-.19),-1],[pre,-3],[contact+.01,-1],[squashPeak+.02,0],[1,0]])*(1-v);
-        const belly=1+(1-Math.abs(v-.5)*2)*impact*p.impact;
-        const centerX=b.x+b.w/2+register;
-        return{x:centerX+(u-.5)*b.w*width*belly+contactLean,y:bottom-(1-v)*b.h*height};
-      }
-    };
-
-    async function play(article) {
-      if (article.running) return; article.running = true;
-      const stage = article.querySelector('.stage'), subject = article.querySelector('.subject'), button = article.querySelector('.play'), rails = [...article.querySelectorAll('.phase-rail i')], type = article.dataset.effect;
-      const params = { ...controlState[type] };
-      if (!article.mesh) article.mesh = new TextureMesh(stage);
-      button.textContent = 'Playing…';
-      const reusableSmearTexture = type === 'smear' && article.mesh.base && Math.abs(article.mesh.width - stage.clientWidth) < 1;
-      subject.style.visibility = 'hidden';
-      subject.style.transform = 'none';
-      if (reusableSmearTexture) {
-        article.mesh.gl.clear(article.mesh.gl.COLOR_BUFFER_BIT);
-        await new Promise(resolve => setTimeout(resolve, 90));
-        article.mesh.resize();
-      } else {
-        subject.style.visibility = 'visible';
-        await article.mesh.capture();
-        subject.style.visibility = 'hidden';
-      }
-      const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches, duration = reduced ? 240 : params.duration, start = performance.now();
-      await new Promise(resolve => {
-        function frame(now) {
-          const raw = clamp((now - start) / duration), t = raw;
-          article.mesh.draw((u,v,b) => maps[type](t,u,v,b,stage,params));
-          let sum = 0, active = 0; const total = rails.reduce((a,i)=>a+Number(i.style.getPropertyValue('--span')),0); rails.forEach((rail,index)=>{ sum += Number(rail.style.getPropertyValue('--span')) / total; if(raw >= sum) active=index+1; rail.classList.toggle('on', index === active); });
-          if (raw < 1) requestAnimationFrame(frame); else resolve();
-        } requestAnimationFrame(frame);
-      });
-      if (type === 'smear') subject.style.transform = `translateX(${params.distance}px)`;
-      subject.style.visibility = type === 'suck' || type === 'launch' ? 'hidden' : 'visible';
-      article.mesh.gl.clear(article.mesh.gl.COLOR_BUFFER_BIT); rails.forEach(i=>i.classList.remove('on')); button.textContent = 'Replay ↗'; article.running = false;
-      if (article.replayQueued) { article.replayQueued = false; scheduleReplay(article); }
-    }
-    const studies = [...document.querySelectorAll('.effect')];
-    const scheduleReplay = article => {
-      clearTimeout(article.tuneTimer);
-      article.tuneTimer = setTimeout(() => {
-        if (article.running) { article.replayQueued = true; return; }
-        play(article);
-      }, 160);
-    };
-    const updateTuner = article => {
-      const type=article.dataset.effect;
-      article.querySelectorAll('.tuner-control').forEach(row => {
-        const control=CONTROL_SCHEMA[type].find(item => item.key === row.dataset.key), value=controlState[type][control.key];
-        row.querySelector('input').value=value;
-        row.querySelector('output').textContent=formatControl(control,value);
-      });
-    };
-    studies.forEach(article => {
-      const type=article.dataset.effect, tuner=document.createElement('section');
-      const timingLabel=article.querySelector('.effect-meta span:last-child');
-      timingLabel.textContent=timingLabel.textContent.replace(/^\d+ ms/, `${CONTROL_DEFAULTS[type].duration} ms`);
-      tuner.className='tuner';
-      tuner.innerHTML=`<div class="tuner-head"><b>${type} constants</b><button class="tuning-button tuner-reset" type="button">Reset effect</button></div><div class="tuner-grid"></div>`;
-      const grid=tuner.querySelector('.tuner-grid');
-      CONTROL_SCHEMA[type].forEach(control => {
-        const row=document.createElement('div');
-        row.className='tuner-control'; row.dataset.key=control.key;
-        row.innerHTML=`<label for="${type}-${control.key}">${control.label}</label><output class="tuner-value">${formatControl(control,controlState[type][control.key])}</output><input id="${type}-${control.key}" type="range" min="${control.min}" max="${control.max}" step="${control.step}" value="${controlState[type][control.key]}">`;
-        row.querySelector('input').addEventListener('input', event => {
-          controlState[type][control.key]=Number(event.currentTarget.value);
-          row.querySelector('output').textContent=formatControl(control,controlState[type][control.key]);
-          persistControls(); scheduleReplay(article);
-        });
-        grid.append(row);
-      });
-      tuner.querySelector('.tuner-reset').addEventListener('click', () => {
-        controlState[type]={...CONTROL_DEFAULTS[type]}; persistControls(); updateTuner(article); scheduleReplay(article);
-      });
-      article.querySelector('.demo').append(tuner);
-      article.querySelector('.play').addEventListener('click', () => play(article));
-    });
-    const tuningStatus=document.querySelector('#tuning-status');
-    document.querySelector('#reset-values').addEventListener('click', () => {
-      Object.keys(controlState).forEach(type => controlState[type]={...CONTROL_DEFAULTS[type]});
-      persistControls(); studies.forEach(article => { updateTuner(article); scheduleReplay(article); });
-      tuningStatus.textContent='Defaults'; setTimeout(()=>tuningStatus.textContent='',1200);
-    });
-    document.querySelector('#copy-values').addEventListener('click', async () => {
-      try { await navigator.clipboard.writeText(JSON.stringify(controlState,null,2)); tuningStatus.textContent='Copied'; }
-      catch { tuningStatus.textContent='Copy failed'; }
-      setTimeout(()=>tuningStatus.textContent='',1200);
-    });
-    const inspection = new URLSearchParams(location.search);
-    const inspectionType = inspection.get('inspect');
-    const reviewType = inspection.get('review');
-    if (reviewType) {
-      const article = studies.find(study => study.dataset.effect === reviewType);
-      if (article) {
-        document.body.classList.add('review-mode');
-        article.classList.add('review-target');
-        requestAnimationFrame(() => setTimeout(() => play(article), 2500));
-      }
-    } else if (inspectionType) {
-      const article = studies.find(study => study.dataset.effect === inspectionType), time = clamp(Number(inspection.get('time')) || 0);
-      if (article) requestAnimationFrame(async () => {
-        article.scrollIntoView({ block: 'center' });
-        article.mesh = new TextureMesh(article.querySelector('.stage'));
-        const subject = article.querySelector('.subject');
-        subject.style.transform = 'none';
-        await article.mesh.capture();
-        subject.style.visibility = 'hidden';
-        article.mesh.draw((u,v,b) => maps[inspectionType](time,u,v,b,article.querySelector('.stage'),controlState[inspectionType]));
-      });
-    } else {
-      const autoPlayObserver = new IntersectionObserver(entries => {
-        entries.forEach(entry => {
-          if (!entry.isIntersecting || entry.intersectionRatio < .58 || entry.target.autoPlayed) return;
-          entry.target.autoPlayed = true;
-          autoPlayObserver.unobserve(entry.target);
-          play(entry.target);
-        });
-      }, { threshold: [.58] });
-      studies.forEach(article => autoPlayObserver.observe(article));
-    }
+    controls.forEach(button=>button.addEventListener('click',()=>preview(button.dataset.effect,button)));
+    if(!matchMedia('(prefers-reduced-motion: reduce)').matches)setTimeout(()=>preview('smear',controls[0]),650);
   </script>
 </body>
 </html>
