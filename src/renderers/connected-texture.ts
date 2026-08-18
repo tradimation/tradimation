@@ -15,6 +15,8 @@ export class ConnectedTextureSurface {
   private readonly indices: Uint16Array;
   private width = 0;
   private height = 0;
+  private readonly viewportMode: boolean;
+  private readonly originalRootPosition: string;
 
   constructor(
     private readonly target: HTMLElement,
@@ -22,7 +24,13 @@ export class ConnectedTextureSurface {
   ) {
     this.canvas = target.ownerDocument.createElement("canvas");
     this.canvas.setAttribute("aria-hidden", "true");
-    this.canvas.style.cssText = "position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:2147483646;";
+    const documentElement = target.ownerDocument.documentElement;
+    this.viewportMode = overlayRoot === target.ownerDocument.body || overlayRoot === documentElement;
+    this.originalRootPosition = overlayRoot.style.position;
+    if (!this.viewportMode && getComputedStyle(overlayRoot).position === "static") overlayRoot.style.position = "relative";
+    this.canvas.style.cssText = this.viewportMode
+      ? "position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:2147483646;"
+      : "position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2147483646;";
     const gl = this.canvas.getContext("webgl", {
       alpha: true,
       antialias: true,
@@ -47,24 +55,35 @@ export class ConnectedTextureSurface {
     if (!this.canvas.isConnected) this.overlayRoot.append(this.canvas);
     this.resize();
     const rect = this.target.getBoundingClientRect();
+    const origin = this.origin();
     const padding = 12;
     const textureWidth = rect.width + padding * 2;
     const textureHeight = rect.height + padding * 2;
-    this.base = { x: rect.left - padding, y: rect.top - padding, w: textureWidth, h: textureHeight };
+    this.base = { x: rect.left - origin.x - padding, y: rect.top - origin.y - padding, w: textureWidth, h: textureHeight };
 
-    const computed = getComputedStyle(this.target);
     const clone = this.target.cloneNode(true) as HTMLElement;
-    const sourceChildren = [...this.target.querySelectorAll<HTMLElement>("*")];
-    const cloneChildren = [...clone.querySelectorAll<HTMLElement>("*")];
-    sourceChildren.forEach((source, index) => {
-      const cloneChild = cloneChildren[index];
-      if (!cloneChild) return;
+    const sourceElements = [this.target, ...this.target.querySelectorAll<HTMLElement>("*")];
+    const cloneElements = [clone, ...clone.querySelectorAll<HTMLElement>("*")];
+    sourceElements.forEach((source, index) => {
+      const cloneElement = cloneElements[index];
+      if (!cloneElement) return;
       const styles = getComputedStyle(source);
-      cloneChild.style.cssText = [...styles].map((name) => `${name}:${styles.getPropertyValue(name)};`).join("");
+      cloneElement.style.cssText = [...styles]
+        .map((name) => `${name}:${styles.getPropertyValue(name)};`)
+        .join("");
+      this.copyElementState(source, cloneElement);
     });
 
+    clone.style.setProperty("position", "relative", "important");
+    clone.style.setProperty("inset", "auto", "important");
+    clone.style.setProperty("margin", "0", "important");
+    clone.style.setProperty("transform", "none", "important");
+    clone.style.setProperty("width", `${rect.width}px`, "important");
+    clone.style.setProperty("height", `${rect.height}px`, "important");
+    clone.style.setProperty("box-sizing", "border-box", "important");
+
     const renderScale = Math.min(3, Math.max(2, (devicePixelRatio || 1) * 1.5));
-    const body = `<div xmlns="http://www.w3.org/1999/xhtml" style="width:${textureWidth}px;height:${textureHeight}px;padding:${padding}px;box-sizing:border-box;"><div style="width:${rect.width}px;height:${rect.height}px;display:grid;place-items:center;box-sizing:border-box;border:${computed.border};border-radius:${computed.borderRadius};background:${computed.backgroundColor};box-shadow:${computed.boxShadow};color:${computed.color};font-family:${computed.fontFamily};">${clone.innerHTML}</div></div>`;
+    const body = `<div xmlns="http://www.w3.org/1999/xhtml" style="width:${textureWidth}px;height:${textureHeight}px;padding:${padding}px;box-sizing:border-box;overflow:visible;">${clone.outerHTML}</div>`;
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${textureWidth * renderScale}" height="${textureHeight * renderScale}" viewBox="0 0 ${textureWidth} ${textureHeight}"><foreignObject width="100%" height="100%">${body}</foreignObject></svg>`;
     const image = new Image();
     image.decoding = "async";
@@ -79,6 +98,25 @@ export class ConnectedTextureSurface {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+  }
+
+  private copyElementState(source: HTMLElement, clone: HTMLElement): void {
+    if (source instanceof HTMLInputElement && clone instanceof HTMLInputElement) {
+      clone.value = source.value;
+      clone.checked = source.checked;
+      if (source.checked) clone.setAttribute("checked", "");
+      else clone.removeAttribute("checked");
+      return;
+    }
+    if (source instanceof HTMLTextAreaElement && clone instanceof HTMLTextAreaElement) {
+      clone.textContent = source.value;
+      return;
+    }
+    if (source instanceof HTMLSelectElement && clone instanceof HTMLSelectElement) {
+      [...clone.options].forEach((option, index) => {
+        option.selected = source.options[index]?.selected ?? false;
+      });
+    }
   }
 
   draw(mapper: (u: number, v: number, base: MeshBase) => MeshPoint): void {
@@ -116,6 +154,7 @@ export class ConnectedTextureSurface {
 
   destroy(): void {
     this.canvas.remove();
+    if (!this.viewportMode) this.overlayRoot.style.position = this.originalRootPosition;
     this.gl.deleteBuffer(this.positionBuffer);
     this.gl.deleteBuffer(this.uvBuffer);
     this.gl.deleteBuffer(this.indexBuffer);
@@ -125,11 +164,26 @@ export class ConnectedTextureSurface {
 
   private resize(): void {
     const dpr = Math.min(2, devicePixelRatio || 1);
-    this.width = this.target.ownerDocument.documentElement.clientWidth;
-    this.height = this.target.ownerDocument.documentElement.clientHeight;
+    this.width = this.viewportMode ? this.target.ownerDocument.documentElement.clientWidth : this.overlayRoot.clientWidth;
+    this.height = this.viewportMode ? this.target.ownerDocument.documentElement.clientHeight : this.overlayRoot.clientHeight;
     this.canvas.width = Math.round(this.width * dpr);
     this.canvas.height = Math.round(this.height * dpr);
     this.gl.viewport(0, 0, this.canvas.width, this.canvas.height);
+  }
+
+  toLocalPoint(point: DOMPoint): DOMPoint {
+    const origin = this.origin();
+    return new DOMPoint(point.x - origin.x, point.y - origin.y);
+  }
+
+  get coordinateSpace(): HTMLElement {
+    return this.viewportMode ? this.target.ownerDocument.documentElement : this.overlayRoot;
+  }
+
+  private origin(): DOMPoint {
+    if (this.viewportMode) return new DOMPoint(0, 0);
+    const rect = this.overlayRoot.getBoundingClientRect();
+    return new DOMPoint(rect.left + this.overlayRoot.clientLeft, rect.top + this.overlayRoot.clientTop);
   }
 
   private shader(type: number, source: string): WebGLShader {

@@ -81,7 +81,9 @@ motion.finished.then(() => motion.destroy());</code></pre></div>
       if(activeController)activeController.destroy();
       controls.forEach(control=>control.classList.toggle('active',control===button));
       target.style.visibility='visible';target.style.transform='none';
-      activeController=createEffect(target,effect,{cleanup:'restore'});
+      const options={cleanup:'restore'};
+      if(effect==='smear')options.overlayRoot=target.parentElement;
+      activeController=createEffect(target,effect,options);
       await activeController.play();
       activeController.destroy();activeController=null;
     }

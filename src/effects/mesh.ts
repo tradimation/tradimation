@@ -41,14 +41,19 @@ const createMeshController = <Name extends MeshEffectName>(
   const target = context.target;
   const originalStyle = target.style.cssText;
   const rect = target.getBoundingClientRect();
+  const space = surface.coordinateSpace;
+  const spaceRect = space.getBoundingClientRect();
+  const viewportSpace = space === context.document.documentElement;
   if (name === "suck") {
-    const point = resolvePoint(context.options.destination, new DOMPoint(context.window.innerWidth - 24, rect.top + rect.height / 2));
+    const fallbackX = viewportSpace ? context.window.innerWidth - 24 : spaceRect.right - 24;
+    const point = surface.toLocalPoint(resolvePoint(context.options.destination, new DOMPoint(fallbackX, rect.top + rect.height / 2)));
     const suckParams = params as MeshParameterMap["suck"];
     suckParams.targetX = point.x;
     suckParams.targetY = point.y;
   }
   if (name === "spit") {
-    const point = resolvePoint(context.options.source, new DOMPoint(24, rect.top + rect.height / 2));
+    const fallbackX = viewportSpace ? 24 : spaceRect.left + 24;
+    const point = surface.toLocalPoint(resolvePoint(context.options.source, new DOMPoint(fallbackX, rect.top + rect.height / 2)));
     const spitParams = params as MeshParameterMap["spit"];
     spitParams.sourceX = point.x;
     spitParams.sourceY = point.y;
@@ -72,7 +77,7 @@ const createMeshController = <Name extends MeshEffectName>(
           stage: HTMLElement,
           params: MeshParameterMap[Name],
         ) => { x: number; y: number };
-        surface.draw((u, v, base) => mapper(progress, u, v, base, context.document.documentElement, params));
+        surface.draw((u, v, base) => mapper(progress, u, v, base, surface.coordinateSpace, params));
       },
       complete() {
         surface.clear();

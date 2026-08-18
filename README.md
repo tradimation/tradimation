@@ -39,13 +39,16 @@ const cart = document.querySelector<HTMLElement>(".cart-icon");
 if (card && cart) {
   playEffect(card, "suck-in", {
     destination: cart,
+    overlayRoot: card.closest<HTMLElement>(".motion-stage"),
     bodyTravel: 0.5,
     columnLag: 0.3,
   });
 }
 ```
 
-The element is captured as one texture, rendered on one shared 32×14 WebGL mesh, and never split into independent DOM slices.
+The element is captured as one texture, rendered on one shared 32×14 WebGL mesh, and never split into independent DOM slices. Pass `overlayRoot` to keep coordinates, clipping, and travel relative to a component or preview stage; omit it for viewport-wide motion.
+
+Existing transforms are preserved by default. Set `preserveTransform: false` only when an effect should replace the target's current transform completely.
 
 ## Explicit control
 
@@ -76,5 +79,5 @@ The manifest layer is framework-neutral, so a React, Vue, Svelte, Web Component,
 
 ## Catalogs
 
-- `catalog.html`: complete 26-effect live catalog
-- `index.html`: detailed six-effect connected-texture tuning lab
+- `index.html`: project landing page and interactive preview
+- `catalog.html`: searchable 26-effect live collection

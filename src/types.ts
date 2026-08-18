@@ -55,6 +55,7 @@ export interface EffectOptions {
   direction?: "left" | "right" | "up" | "down";
   intensity?: number;
   cleanup?: CleanupMode;
+  preserveTransform?: boolean;
   source?: Element | DOMPoint | null;
   destination?: Element | DOMPoint | null;
   overlayRoot?: HTMLElement | null;

@@ -1,5 +1,5 @@
 import { CompositeController, FrameController, createKeyframeController } from "../controller.js";
-import { clamp, mix, outCubic, smoother } from "../math.js";
+import { drawingTrack, mix } from "../math.js";
 import { shouldReduceMotion } from "../context.js";
 import type { EffectContext, EffectController, EffectDefinition, EffectId, EffectManifest, EffectOptions } from "../types.js";
 
@@ -35,6 +35,7 @@ const keyframeEffect = (definition: KeyframeDefinitionOptions): EffectDefinition
     return createKeyframeController(context.target, keyframes, {
       duration: Number(context.options.duration ?? definition.duration),
       cleanup: context.options.cleanup ?? definition.cleanup ?? "commit",
+      preserveTransform: context.options.preserveTransform !== false,
       reducedMotion: shouldReduceMotion(context.options, context.window),
       ...(definition.easing ? { easing: definition.easing } : {}),
       ...(context.options.playbackRate !== undefined ? { playbackRate: context.options.playbackRate } : {}),
@@ -52,6 +53,8 @@ const directionAmount = (direction: EffectOptions["direction"], distance: number
 
 const createConcentrationLines = (context: EffectContext): EffectController => {
   const root = context.options.overlayRoot ?? context.document.body;
+  const viewportMode = root === context.document.body || root === context.document.documentElement;
+  const originalRootPosition = root.style.position;
   const overlay = context.document.createElement("div");
   const lines = Array.from({ length: 12 }, (_, index) => {
     const line = context.document.createElement("i");
@@ -60,34 +63,50 @@ const createConcentrationLines = (context: EffectContext): EffectController => {
     overlay.append(line);
     return line;
   });
-  const originalPosition = overlay.style.cssText;
+  const positionOverlay = () => {
+    const rect = context.target.getBoundingClientRect();
+    const rootRect = viewportMode ? new DOMRect(0, 0) : root.getBoundingClientRect();
+    overlay.style.left = `${rect.left - rootRect.left}px`;
+    overlay.style.top = `${rect.top - rootRect.top}px`;
+    overlay.style.width = `${rect.width}px`;
+    overlay.style.height = `${rect.height}px`;
+  };
+  const restoreRoot = () => {
+    if (!viewportMode) root.style.position = originalRootPosition;
+  };
 
   return new FrameController(
     {
       prepare() {
-        const rect = context.target.getBoundingClientRect();
-        overlay.style.cssText = `${originalPosition}position:fixed;pointer-events:none;z-index:2147483646;color:${getComputedStyle(context.target).color};left:${rect.left}px;top:${rect.top}px;width:${rect.width}px;height:${rect.height}px;`;
+        if (!viewportMode && context.window.getComputedStyle(root).position === "static") root.style.position = "relative";
+        overlay.style.cssText = `position:${viewportMode ? "fixed" : "absolute"};pointer-events:none;z-index:2147483646;color:${context.window.getComputedStyle(context.target).color};`;
+        positionOverlay();
         root.append(overlay);
       },
       render(progress) {
-        const exposed = Math.round(progress * 8) / 8;
-        const arrival = smoother(clamp(exposed / 0.42));
-        const collapse = smoother(clamp((exposed - 0.68) / 0.32));
-        const scale = mix(0.08, 1.18, arrival) * mix(1, 0.03, collapse);
+        positionOverlay();
+        const opacity = drawingTrack(progress, [[0, 0], [0.22, 1], [0.66, 1], [1, 0]]);
+        const distance = drawingTrack(progress, [[0, 42], [0.22, 38], [0.45, 30], [0.66, 34], [1, 50]]);
+        const scale = drawingTrack(progress, [[0, 0.08], [0.22, 0.35], [0.45, 1.18], [0.66, 0.92], [1, 0.04]]);
         lines.forEach((line) => {
           const angle = Number(line.dataset.angle);
-          line.style.opacity = String(clamp(arrival * (1 - collapse)));
-          line.style.transform = `rotate(${angle}deg) translateX(${mix(46, 28, arrival)}px) scaleX(${scale})`;
+          line.style.opacity = String(opacity);
+          line.style.transform = `rotate(${angle}deg) translateX(${distance}px) scaleX(${scale})`;
         });
       },
       complete() {
-        if ((context.options.cleanup ?? "restore") !== "commit") overlay.remove();
+        if ((context.options.cleanup ?? "restore") !== "commit") {
+          overlay.remove();
+          restoreRoot();
+        }
       },
       cancel() {
         overlay.remove();
+        restoreRoot();
       },
       destroy() {
         overlay.remove();
+        restoreRoot();
       },
     },
     {
@@ -107,31 +126,46 @@ const createSwap = (context: EffectContext, compress = false): EffectController 
   const sourceStyle = source.style.cssText;
   const destinationStyle = secondary.style.cssText;
   const duration = Number(context.options.duration ?? (compress ? 620 : 540));
+  const sourceBase = getComputedStyle(source).transform;
+  const destinationBase = getComputedStyle(secondary).transform;
+  const sourcePrefix = sourceBase === "none" ? "" : `${sourceBase} `;
+  const destinationPrefix = destinationBase === "none" ? "" : `${destinationBase} `;
   return new FrameController(
     {
       prepare() {
         secondary.style.visibility = "hidden";
       },
       render(progress) {
-        const switchAt = compress ? 0.43 : 0.48;
-        if (progress < switchAt) {
-          source.style.visibility = "visible";
-          secondary.style.visibility = "hidden";
-          const local = smoother(progress / switchAt);
-          source.style.transform = compress
-            ? `scale(${mix(1, 1.12, local)}, ${mix(1, 0.06, local)})`
-            : `scale(${mix(1, 1.18, local)}, ${mix(1, 0.05, local)})`;
-        } else {
+        if (compress) {
+          const switchAt = 260 / 620;
+          if (progress < switchAt) {
+            source.style.visibility = "visible";
+            secondary.style.visibility = "hidden";
+            const local = progress / switchAt;
+            source.style.transform = `${sourcePrefix}scale(${mix(1, 1.12, local)}, ${mix(1, 0.06, local)})`;
+            return;
+          }
           source.style.visibility = "hidden";
           secondary.style.visibility = "visible";
-          const local = smoother((progress - switchAt) / (1 - switchAt));
-          const scaleX = local < 0.72 ? mix(0.06, 1.09, outCubic(local / 0.72)) : mix(1.09, 1, smoother((local - 0.72) / 0.28));
-          const scaleY = local < 0.72 ? mix(1.2, 0.95, outCubic(local / 0.72)) : mix(0.95, 1, smoother((local - 0.72) / 0.28));
-          secondary.style.transform = `scale(${scaleX}, ${scaleY})`;
+          const local = (progress - switchAt) / (1 - switchAt);
+          const scaleX = drawingTrack(local, [[0, 0.06], [0.58, 1.1], [1, 1]]);
+          const scaleY = drawingTrack(local, [[0, 1.22], [0.58, 0.94], [1, 1]]);
+          secondary.style.transform = `${destinationPrefix}scale(${scaleX}, ${scaleY})`;
+        } else {
+          source.style.visibility = "visible";
+          secondary.style.visibility = "visible";
+          const sourceX = drawingTrack(progress, [[0, 1], [0.48, 1.18], [1, 0.05]]);
+          const sourceY = drawingTrack(progress, [[0, 1], [0.48, 0.05], [1, 1.14]]);
+          const destinationX = drawingTrack(progress, [[0, 0.05], [0.48, 0.05], [0.76, 1.08], [1, 1]]);
+          const destinationY = drawingTrack(progress, [[0, 1.14], [0.48, 1.14], [0.76, 0.96], [1, 1]]);
+          source.style.transform = `${sourcePrefix}scale(${sourceX}, ${sourceY})`;
+          secondary.style.transform = `${destinationPrefix}scale(${destinationX}, ${destinationY})`;
         }
       },
       complete() {
-        secondary.style.transform = "scale(1)";
+        source.style.visibility = "hidden";
+        secondary.style.visibility = "visible";
+        secondary.style.transform = `${destinationPrefix}scale(1)`;
       },
       cancel() {
         source.style.cssText = sourceStyle;
@@ -160,12 +194,12 @@ export const domEffects: EffectDefinition[] = [
     techniques: ["anticipation", "take", "overlap"],
     duration: 620,
     keyframes: (context) => {
-      const [distanceX, distanceY] = directionAmount(context.options.direction, 28 * Number(context.options.intensity ?? 1));
+      const [distanceX, distanceY] = directionAmount(context.options.direction, 26 * Number(context.options.intensity ?? 1));
       return [
         { transform: "translate(0, 0) scale(1)" },
-        { offset: 0.16, transform: `translate(${-distanceX * 0.35}px, ${-distanceY * 0.35}px) scale(1.05, .95)` },
-        { offset: 0.48, transform: `translate(${distanceX * 1.22}px, ${distanceY * 1.22}px) scale(.92, 1.07)` },
-        { offset: 0.74, transform: `translate(${distanceX * 0.94}px, ${distanceY * 0.94}px) scale(1.03, .98)` },
+        { offset: 0.16, transform: `translate(${-distanceX * (10 / 26)}px, ${-distanceY * (10 / 26)}px) scale(1.06, .94)` },
+        { offset: 0.46, transform: `translate(${distanceX * (34 / 26)}px, ${distanceY * (34 / 26)}px) scale(.92, 1.07)` },
+        { offset: 0.72, transform: `translate(${distanceX * (24 / 26)}px, ${distanceY * (24 / 26)}px) scale(1.03, .98)` },
         { transform: `translate(${distanceX}px, ${distanceY}px) scale(1)` },
       ];
     },
@@ -308,12 +342,13 @@ export const domEffects: EffectDefinition[] = [
     duration: 560,
     keyframes: (context) => {
       const distance = Number(context.options.distance ?? 68);
+      const left = context.options.direction === "left";
       return [
-        { transform: "translateX(0) scale(1)" },
-        { offset: 0.16, transform: "translateX(-5px) scale(.88, 1.08)" },
-        { offset: 0.56, transform: `translateX(${distance}px) scale(1.2, .84)` },
-        { offset: 0.78, transform: `translateX(${distance - 3}px) scale(.92, 1.08)` },
-        { transform: `translateX(${distance}px) scale(1)` },
+        { transform: `translateX(${left ? distance : 0}px) scale(1)` },
+        { offset: 0.16, transform: `translateX(${left ? distance + 5 : -5}px) scale(.88, 1.08)` },
+        { offset: 0.56, transform: `translateX(${left ? 0 : distance}px) scale(1.2, .84)` },
+        { offset: 0.78, transform: `translateX(${left ? 3 : distance - 3}px) scale(.92, 1.08)` },
+        { transform: `translateX(${left ? 0 : distance}px) scale(1)` },
       ];
     },
   }),
@@ -341,14 +376,17 @@ export const domEffects: EffectDefinition[] = [
     description: "Contact precedes maximum squash so falling and compression overlap.",
     techniques: ["spacing", "contact", "squash"],
     duration: 760,
-    keyframes: [
-      { transformOrigin: "center bottom", transform: "translateY(-170px) scale(1)" },
-      { offset: 0.18, transform: "translateY(-155px) scale(.98, 1.03)" },
-      { offset: 0.54, transform: "translateY(0) scale(.92, 1.12)" },
-      { offset: 0.6, transform: "translateY(6px) scale(1.04, .94)" },
-      { offset: 0.72, transform: "translateY(6px) scale(1.34, .62)" },
-      { transform: "translateY(6px) scale(1)" },
-    ],
+    keyframes: (context) => {
+      const landing = Number(context.options.distance ?? 46);
+      return [
+        { transformOrigin: "center bottom", transform: `translateY(${landing - 216}px) scale(1)` },
+        { offset: 0.18, transform: `translateY(${landing - 201}px) scale(.98, 1.03)` },
+        { offset: 0.54, transform: `translateY(${landing - 6}px) scale(.92, 1.12)` },
+        { offset: 0.6, transform: `translateY(${landing}px) scale(1.04, .94)` },
+        { offset: 0.72, transform: `translateY(${landing}px) scale(1.34, .62)` },
+        { transform: `translateY(${landing}px) scale(1)` },
+      ];
+    },
   }),
   keyframeEffect({
     id: "tab-underline-take",
@@ -360,12 +398,13 @@ export const domEffects: EffectDefinition[] = [
     duration: 610,
     keyframes: (context) => {
       const distance = Number(context.options.distance ?? 92);
+      const left = context.options.direction === "left";
       return [
-        { transformOrigin: "left center", transform: "translateX(0) scaleX(1)" },
-        { offset: 0.14, transform: "translateX(-8px) scaleX(.78)" },
-        { offset: 0.58, transform: `translateX(${distance * 0.83}px) scaleX(1.7)` },
-        { offset: 0.8, transform: `translateX(${distance + 2}px) scaleX(.92)` },
-        { transform: `translateX(${distance}px) scaleX(1)` },
+        { transformOrigin: "left center", transform: `translateX(${left ? distance : 0}px) scaleX(1)` },
+        { offset: 0.14, transform: `translateX(${left ? distance + 8 : -8}px) scaleX(.78)` },
+        { offset: 0.58, transform: `translateX(${left ? distance - 76 : distance * 0.83}px) scaleX(1.7)` },
+        { offset: 0.8, transform: `translateX(${left ? -2 : distance + 2}px) scaleX(.92)` },
+        { transform: `translateX(${left ? 0 : distance}px) scaleX(1)` },
       ];
     },
   }),

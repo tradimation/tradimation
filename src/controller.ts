@@ -125,6 +125,7 @@ export interface KeyframeControllerOptions {
   easing?: string;
   fill?: FillMode;
   cleanup?: CleanupMode;
+  preserveTransform?: boolean;
   playbackRate?: number;
   reducedMotion?: boolean;
   signal?: AbortSignal;
@@ -136,14 +137,21 @@ export class KeyframeController implements EffectController {
 
   private animation: Animation | null = null;
   private readonly originalStyle: string;
+  private readonly animatedKeyframes: Keyframe[];
 
   constructor(
     private readonly target: HTMLElement,
-    private readonly keyframes: Keyframe[],
+    keyframes: Keyframe[],
     private readonly options: KeyframeControllerOptions,
   ) {
     this.playbackRate = options.playbackRate ?? 1;
     this.originalStyle = target.style.cssText;
+    const underlyingTransform = getComputedStyle(target).transform;
+    const transformPrefix = options.preserveTransform !== false && underlyingTransform !== "none" ? `${underlyingTransform} ` : "";
+    this.animatedKeyframes = keyframes.map((keyframe) => {
+      if (!transformPrefix || typeof keyframe.transform !== "string") return keyframe;
+      return { ...keyframe, transform: `${transformPrefix}${keyframe.transform}` };
+    });
     options.signal?.addEventListener("abort", () => this.cancel(), { once: true });
   }
 
@@ -212,7 +220,8 @@ export class KeyframeController implements EffectController {
   }
 
   private createAnimation(): void {
-    this.animation = this.target.animate(this.keyframes, {
+    if (getComputedStyle(this.target).display === "inline") this.target.style.display = "inline-block";
+    this.animation = this.target.animate(this.animatedKeyframes, {
       duration: this.duration,
       easing: this.options.easing ?? "linear",
       fill: this.options.fill ?? "both",
