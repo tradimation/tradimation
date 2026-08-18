@@ -1,0 +1,37 @@
+{
+  "name": "@tradimation/core",
+  "version": "0.1.0",
+  "description": "Framework-neutral traditional-animation effects for the web",
+  "type": "module",
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./registry": {
+      "types": "./dist/registry.d.ts",
+      "import": "./dist/registry.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "node --test tests/*.test.mjs"
+  },
+  "keywords": [
+    "animation",
+    "webgl",
+    "waapi",
+    "framework-agnostic",
+    "traditional-animation"
+  ],
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
+}
