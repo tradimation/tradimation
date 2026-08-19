@@ -1,5 +1,5 @@
 import { CompositeController, FrameController, createKeyframeController } from "../controller.js";
-import { drawingTrack, mix } from "../math.js";
+import { drawingTrack } from "../math.js";
 import { shouldReduceMotion } from "../context.js";
 import type { EffectContext, EffectController, EffectDefinition, EffectId, EffectManifest, EffectOptions } from "../types.js";
 
@@ -44,17 +44,18 @@ const keyframeEffect = (definition: KeyframeDefinitionOptions): EffectDefinition
   },
 });
 
-const directionAmount = (direction: EffectOptions["direction"], distance: number): [number, number] => {
-  if (direction === "left") return [-distance, 0];
-  if (direction === "up") return [0, -distance];
-  if (direction === "down") return [0, distance];
-  return [distance, 0];
+const directionalPoint = (direction: EffectOptions["direction"], x: number, y: number, intensity: number): [number, number] => {
+  if (direction === "left") return [-x * intensity, y * intensity];
+  if (direction === "up") return [y * intensity, -x * intensity];
+  if (direction === "down") return [-y * intensity, x * intensity];
+  return [x * intensity, y * intensity];
 };
 
 const createConcentrationLines = (context: EffectContext): EffectController => {
   const root = context.options.overlayRoot ?? context.document.body;
   const viewportMode = root === context.document.body || root === context.document.documentElement;
   const originalRootPosition = root.style.position;
+  const originalTargetStyle = context.target.style.cssText;
   const overlay = context.document.createElement("div");
   const lines = Array.from({ length: 12 }, (_, index) => {
     const line = context.document.createElement("i");
@@ -85,9 +86,12 @@ const createConcentrationLines = (context: EffectContext): EffectController => {
       },
       render(progress) {
         positionOverlay();
-        const opacity = drawingTrack(progress, [[0, 0], [0.22, 1], [0.66, 1], [1, 0]]);
-        const distance = drawingTrack(progress, [[0, 42], [0.22, 38], [0.45, 30], [0.66, 34], [1, 50]]);
-        const scale = drawingTrack(progress, [[0, 0.08], [0.22, 0.35], [0.45, 1.18], [0.66, 0.92], [1, 0.04]]);
+        const opacity = drawingTrack(progress, [[0, 0], [0.08, 1], [0.82, 1], [0.83, 0], [1, 0]]);
+        const distance = 47;
+        const scale = drawingTrack(progress, [[0, 0.04], [0.08, 0.22], [0.18, 1.18], [0.27, 0.94], [0.34, 1], [0.67, 1], [0.73, 0.68], [0.82, 0.2], [0.83, 0.04], [1, 0.04]]);
+        const targetScaleX = drawingTrack(progress, [[0, 1], [0.16, 1.13], [0.27, 0.96], [0.38, 1], [0.72, 1], [0.82, 1.025], [1, 1]]);
+        const targetScaleY = drawingTrack(progress, [[0, 1], [0.16, 0.89], [0.27, 1.055], [0.38, 1], [0.72, 1], [0.82, 0.985], [1, 1]]);
+        context.target.style.transform = `scale(${targetScaleX}, ${targetScaleY})`;
         lines.forEach((line) => {
           const angle = Number(line.dataset.angle);
           line.style.opacity = String(opacity);
@@ -95,22 +99,73 @@ const createConcentrationLines = (context: EffectContext): EffectController => {
         });
       },
       complete() {
+        overlay.remove();
         if ((context.options.cleanup ?? "restore") !== "commit") {
-          overlay.remove();
-          restoreRoot();
+          context.target.style.cssText = originalTargetStyle;
         }
+        restoreRoot();
       },
       cancel() {
         overlay.remove();
+        context.target.style.cssText = originalTargetStyle;
         restoreRoot();
       },
       destroy() {
         overlay.remove();
+        context.target.style.cssText = originalTargetStyle;
         restoreRoot();
       },
     },
     {
-      duration: Number(context.options.duration ?? 620),
+      duration: Number(context.options.duration ?? 1050),
+      ...(context.options.playbackRate !== undefined ? { playbackRate: context.options.playbackRate } : {}),
+      ...(context.options.signal ? { signal: context.options.signal } : {}),
+    },
+  );
+};
+
+const createDrawingSequence = (
+  context: EffectContext,
+  selector: string,
+  duration: number,
+  exposureEnds: number[],
+  fallback: Keyframe[],
+): EffectController => {
+  const drawings = Array.from(context.target.querySelectorAll<HTMLElement | SVGElement>(selector));
+  if (drawings.length < 2) {
+    return createKeyframeController(context.target, fallback, {
+      duration: Number(context.options.duration ?? duration),
+      easing: "steps(1, end)",
+      cleanup: context.options.cleanup ?? "commit",
+      preserveTransform: context.options.preserveTransform !== false,
+      reducedMotion: shouldReduceMotion(context.options, context.window),
+      ...(context.options.playbackRate !== undefined ? { playbackRate: context.options.playbackRate } : {}),
+      ...(context.options.signal ? { signal: context.options.signal } : {}),
+    });
+  }
+  const originalStyles = drawings.map((drawing) => drawing.getAttribute("style"));
+  drawings.forEach((drawing, index) => { drawing.style.opacity = index === 0 ? "1" : "0"; });
+  const cleanup = context.options.cleanup ?? "commit";
+  const restore = () => drawings.forEach((drawing, index) => {
+    const style = originalStyles[index];
+    if (style == null) drawing.removeAttribute("style");
+    else drawing.setAttribute("style", style);
+  });
+  return new FrameController(
+    {
+      render(progress) {
+        const foundIndex = exposureEnds.findIndex((end) => progress <= end);
+        const activeIndex = Math.min(drawings.length - 1, foundIndex < 0 ? drawings.length - 1 : foundIndex);
+        drawings.forEach((drawing, index) => { drawing.style.opacity = index === activeIndex ? "1" : "0"; });
+      },
+      complete() {
+        if (cleanup === "restore") restore();
+      },
+      cancel: restore,
+      destroy: restore,
+    },
+    {
+      duration: shouldReduceMotion(context.options, context.window) ? 180 : Number(context.options.duration ?? duration),
       ...(context.options.playbackRate !== undefined ? { playbackRate: context.options.playbackRate } : {}),
       ...(context.options.signal ? { signal: context.options.signal } : {}),
     },
@@ -125,7 +180,7 @@ const createSwap = (context: EffectContext, compress = false): EffectController 
   const source = context.target;
   const sourceStyle = source.style.cssText;
   const destinationStyle = secondary.style.cssText;
-  const duration = Number(context.options.duration ?? (compress ? 620 : 540));
+  const duration = Number(context.options.duration ?? (compress ? 780 : 720));
   const sourceBase = getComputedStyle(source).transform;
   const destinationBase = getComputedStyle(secondary).transform;
   const sourcePrefix = sourceBase === "none" ? "" : `${sourceBase} `;
@@ -137,27 +192,27 @@ const createSwap = (context: EffectContext, compress = false): EffectController 
       },
       render(progress) {
         if (compress) {
-          const switchAt = 260 / 620;
+          const switchAt = 0.43;
           if (progress < switchAt) {
             source.style.visibility = "visible";
             secondary.style.visibility = "hidden";
-            const local = progress / switchAt;
-            source.style.transform = `${sourcePrefix}scale(${mix(1, 1.12, local)}, ${mix(1, 0.06, local)})`;
+            const sourceX = drawingTrack(progress, [[0, 1], [0.24, 1], [0.42, 1.14]]);
+            const sourceY = drawingTrack(progress, [[0, 1], [0.24, 1], [0.42, 0.06]]);
+            source.style.transform = `${sourcePrefix}scale(${sourceX}, ${sourceY})`;
             return;
           }
           source.style.visibility = "hidden";
           secondary.style.visibility = "visible";
-          const local = (progress - switchAt) / (1 - switchAt);
-          const scaleX = drawingTrack(local, [[0, 0.06], [0.58, 1.1], [1, 1]]);
-          const scaleY = drawingTrack(local, [[0, 1.22], [0.58, 0.94], [1, 1]]);
+          const scaleX = drawingTrack(progress, [[0.43, 0.08], [0.64, 1.12], [0.82, 0.96], [1, 1]]);
+          const scaleY = drawingTrack(progress, [[0.43, 1.3], [0.64, 0.92], [0.82, 1.05], [1, 1]]);
           secondary.style.transform = `${destinationPrefix}scale(${scaleX}, ${scaleY})`;
         } else {
-          source.style.visibility = "visible";
-          secondary.style.visibility = "visible";
-          const sourceX = drawingTrack(progress, [[0, 1], [0.48, 1.18], [1, 0.05]]);
-          const sourceY = drawingTrack(progress, [[0, 1], [0.48, 0.05], [1, 1.14]]);
-          const destinationX = drawingTrack(progress, [[0, 0.05], [0.48, 0.05], [0.76, 1.08], [1, 1]]);
-          const destinationY = drawingTrack(progress, [[0, 1.14], [0.48, 1.14], [0.76, 0.96], [1, 1]]);
+          source.style.visibility = progress <= 0.4 ? "visible" : "hidden";
+          secondary.style.visibility = progress <= 0.4 ? "hidden" : "visible";
+          const sourceX = drawingTrack(progress, [[0, 1], [0.2, 1], [0.4, 1.24], [1, 1.24]]);
+          const sourceY = drawingTrack(progress, [[0, 1], [0.2, 1], [0.4, 0.25], [1, 0.25]]);
+          const destinationX = drawingTrack(progress, [[0, 0.25], [0.41, 0.25], [0.68, 1.08], [1, 1]]);
+          const destinationY = drawingTrack(progress, [[0, 1.28], [0.41, 1.28], [0.68, 0.94], [1, 1]]);
           source.style.transform = `${sourcePrefix}scale(${sourceX}, ${sourceY})`;
           secondary.style.transform = `${destinationPrefix}scale(${destinationX}, ${destinationY})`;
         }
@@ -192,15 +247,29 @@ export const domEffects: EffectDefinition[] = [
     lifecycle: "interaction",
     description: "Opposing preparation flows directly into a directional take.",
     techniques: ["anticipation", "take", "overlap"],
-    duration: 620,
+    duration: 900,
+    easing: "linear",
     keyframes: (context) => {
-      const [distanceX, distanceY] = directionAmount(context.options.direction, 26 * Number(context.options.intensity ?? 1));
+      const intensity = Number(context.options.intensity ?? 1);
+      const position = (x: number, y: number) => directionalPoint(context.options.direction, x, y, intensity);
+      const pose = (x: number, y: number, shape: string) => {
+        const [positionX, positionY] = position(x, y);
+        return `translate(${positionX}px, ${positionY}px) ${shape}`;
+      };
       return [
-        { transform: "translate(0, 0) scale(1)" },
-        { offset: 0.16, transform: `translate(${-distanceX * (10 / 26)}px, ${-distanceY * (10 / 26)}px) scale(1.06, .94)` },
-        { offset: 0.46, transform: `translate(${distanceX * (34 / 26)}px, ${distanceY * (34 / 26)}px) scale(.92, 1.07)` },
-        { offset: 0.72, transform: `translate(${distanceX * (24 / 26)}px, ${distanceY * (24 / 26)}px) scale(1.03, .98)` },
-        { transform: `translate(${distanceX}px, ${distanceY}px) scale(1)` },
+        { transform: "translate(0, 0) scale(1) rotate(0deg)" },
+        { offset: 0.07, transform: pose(-2, 1, "scale(1.012, .988) rotate(-.2deg)") },
+        { offset: 0.14, transform: pose(-6, 2.5, "scale(1.035, .965) rotate(-.7deg)") },
+        { offset: 0.2, transform: pose(-9, 3.5, "scale(1.055, .947) rotate(-1deg)") },
+        { offset: 0.24, transform: pose(-8, 3, "scale(1.045, .955) rotate(-.8deg)") },
+        { offset: 0.3, transform: "translate(0, 0) scale(1.01, .99) rotate(0deg)" },
+        { offset: 0.38, transform: pose(19, -7, "scale(.95, 1.06) rotate(-1.5deg)") },
+        { offset: 0.48, transform: pose(45, -16, "scale(.91, 1.1) rotate(-2.3deg)") },
+        { offset: 0.58, transform: pose(61, -21, "scale(.95, 1.055) rotate(-1.3deg)") },
+        { offset: 0.66, transform: pose(64, -22, "scale(.985, 1.018) rotate(-.5deg)") },
+        { offset: 0.76, transform: pose(56, -18, "scale(1.018, .985) rotate(.3deg)") },
+        { offset: 0.88, transform: pose(51, -16, "scale(.995, 1.005) rotate(0deg)") },
+        { transform: pose(52, -16, "scale(1) rotate(0deg)") },
       ];
     },
   }),
@@ -211,12 +280,14 @@ export const domEffects: EffectDefinition[] = [
     lifecycle: "interaction",
     description: "Wide contact and tall release preserve one readable mass.",
     techniques: ["squash", "stretch", "volume"],
-    duration: 650,
+    duration: 760,
+    easing: "cubic-bezier(.18,.8,.2,1)",
     keyframes: [
       { transform: "scale(1)" },
-      { offset: 0.2, transform: "scale(1.24, .76)" },
-      { offset: 0.48, transform: "scale(.84, 1.18)" },
-      { offset: 0.72, transform: "scale(1.04, .98)" },
+      { offset: 0.22, transform: "scale(1.34, .66)" },
+      { offset: 0.48, transform: "scale(.76, 1.35)" },
+      { offset: 0.69, transform: "scale(1.1, .92)" },
+      { offset: 0.84, transform: "scale(.97, 1.04)" },
       { transform: "scale(1)" },
     ],
   }),
@@ -235,23 +306,31 @@ export const domEffects: EffectDefinition[] = [
     },
     create: createConcentrationLines,
   },
-  keyframeEffect({
-    id: "line-boil",
-    name: "Line Boil",
-    group: "core",
-    lifecycle: "ambient",
-    description: "Restrained contour drawings cycle without drifting the target.",
-    techniques: ["line boil", "held exposure"],
-    duration: 760,
-    easing: "steps(4, end)",
-    keyframes: [
-      { outlineOffset: "4px", borderRadius: "12px", transform: "translate(0, 0)" },
-      { offset: 0.25, outlineOffset: "2px", borderRadius: "15px", transform: "translate(1px, -1px)" },
-      { offset: 0.5, outlineOffset: "5px", borderRadius: "10px", transform: "translate(-1px, 0)" },
-      { offset: 0.75, outlineOffset: "3px", borderRadius: "14px", transform: "translate(0, 1px)" },
-      { outlineOffset: "4px", borderRadius: "12px", transform: "translate(0, 0)" },
-    ],
-  }),
+  {
+    manifest: {
+      id: "line-boil",
+      name: "Line Boil",
+      level: "technique",
+      group: "core",
+      lifecycle: "ambient",
+      techniques: ["replacement drawing", "held exposure"],
+      renderers: ["svg", "dom"],
+      description: "Three restrained redraws replace one another on held thirds.",
+      motionRisk: "low",
+    },
+    create: (context) => createDrawingSequence(
+      context,
+      ":scope > [data-tradimation-drawing], :scope > svg",
+      1500,
+      [0.32, 0.65, 1],
+      [
+        { outlineOffset: "4px", borderRadius: "18px", transform: "translate(0, 0)" },
+        { offset: 0.33, outlineOffset: "3px", borderRadius: "17px", transform: "translate(1.5px, -1.5px)" },
+        { offset: 0.66, outlineOffset: "5px", borderRadius: "19px", transform: "translate(-1px, 1px)" },
+        { outlineOffset: "4px", borderRadius: "18px", transform: "translate(0, 0)" },
+      ],
+    ),
+  },
   keyframeEffect({
     id: "iris",
     name: "Iris",
@@ -260,12 +339,13 @@ export const domEffects: EffectDefinition[] = [
     description: "A circular aperture overshoots and corrects once.",
     techniques: ["mask", "overshoot"],
     renderer: "mask",
-    duration: 700,
+    duration: 1300,
+    easing: "ease-in-out",
     keyframes: [
       { clipPath: "circle(0% at 50% 50%)" },
-      { offset: 0.58, clipPath: "circle(78% at 50% 50%)" },
-      { offset: 0.76, clipPath: "circle(68% at 50% 50%)" },
-      { clipPath: "circle(72% at 50% 50%)" },
+      { offset: 0.42, clipPath: "circle(80% at 50% 50%)" },
+      { offset: 0.58, clipPath: "circle(80% at 50% 50%)" },
+      { clipPath: "circle(0% at 50% 50%)" },
     ],
   }),
   keyframeEffect({
@@ -275,11 +355,20 @@ export const domEffects: EffectDefinition[] = [
     lifecycle: "state",
     description: "One endpoint passes through overlong and correction drawings.",
     techniques: ["take", "correction"],
-    duration: 540,
+    duration: 760,
+    easing: "linear",
     keyframes: [
-      { transformOrigin: "left center", transform: "scaleX(.04)" },
-      { offset: 0.52, transform: "scaleX(1.18)" },
-      { offset: 0.75, transform: "scaleX(.93)" },
+      { transformOrigin: "left center", transform: "scaleX(0)" },
+      { offset: 0.07, transform: "scaleX(.035)" },
+      { offset: 0.15, transform: "scaleX(.17)" },
+      { offset: 0.26, transform: "scaleX(.47)" },
+      { offset: 0.38, transform: "scaleX(.84)" },
+      { offset: 0.49, transform: "scaleX(1.105)" },
+      { offset: 0.56, transform: "scaleX(1.18)" },
+      { offset: 0.64, transform: "scaleX(1.115)" },
+      { offset: 0.74, transform: "scaleX(.93)" },
+      { offset: 0.84, transform: "scaleX(.965)" },
+      { offset: 0.92, transform: "scaleX(1.012)" },
       { transform: "scaleX(1)" },
     ],
   }),
@@ -290,32 +379,42 @@ export const domEffects: EffectDefinition[] = [
     lifecycle: "entrance",
     description: "A point expands through unequal wide and tall drawings.",
     techniques: ["squash", "stretch", "entrance"],
-    duration: 610,
+    duration: 760,
+    easing: "cubic-bezier(.18,.8,.2,1)",
     keyframes: [
       { transform: "scale(.05)" },
-      { offset: 0.32, transform: "scale(1.22, .42)" },
-      { offset: 0.58, transform: "scale(.88, 1.14)" },
-      { offset: 0.78, transform: "scale(1.04, .98)" },
+      { offset: 0.2, transform: "scale(1.18, .24)" },
+      { offset: 0.42, transform: "scale(.74, 1.25)" },
+      { offset: 0.65, transform: "scale(1.08, .95)" },
+      { offset: 0.82, transform: "scale(.98, 1.03)" },
       { transform: "scale(1)" },
     ],
   }),
-  keyframeEffect({
-    id: "cartoon-check",
-    name: "CartoonCheck",
-    group: "interaction",
-    lifecycle: "state",
-    description: "A check resolves through discrete mark drawings.",
-    techniques: ["replacement drawing", "SVG"],
-    renderer: "svg",
-    duration: 580,
-    easing: "steps(6, end)",
-    keyframes: [
-      { strokeDashoffset: 120, transform: "scale(.8)" },
-      { offset: 0.54, strokeDashoffset: 0, transform: "scale(1.12)" },
-      { offset: 0.74, strokeDashoffset: 8, transform: "scale(.96)" },
-      { strokeDashoffset: 0, transform: "scale(1)" },
-    ],
-  }),
+  {
+    manifest: {
+      id: "cartoon-check",
+      name: "CartoonCheck",
+      level: "recipe",
+      group: "interaction",
+      lifecycle: "state",
+      techniques: ["replacement drawing", "SVG"],
+      renderers: ["svg"],
+      description: "Three authored check drawings replace one another instead of tracing one path.",
+      motionRisk: "low",
+    },
+    create: (context) => createDrawingSequence(
+      context,
+      "[data-tradimation-drawing], svg > path",
+      760,
+      [0.34, 0.59, 1],
+      [
+        { strokeDashoffset: 120, transform: "scale(.8)" },
+        { offset: 0.35, strokeDashoffset: 56, transform: "scale(.94)" },
+        { offset: 0.6, strokeDashoffset: 0, transform: "scale(1.08)" },
+        { strokeDashoffset: 0, transform: "scale(1)" },
+      ],
+    ),
+  },
   keyframeEffect({
     id: "badge-punch",
     name: "BadgePunch",
@@ -323,12 +422,14 @@ export const domEffects: EffectDefinition[] = [
     lifecycle: "state",
     description: "A value change lands through wide and tall impact drawings.",
     techniques: ["impact", "squash", "correction"],
-    duration: 600,
+    duration: 650,
+    easing: "cubic-bezier(.2,.8,.2,1)",
     keyframes: [
       { transform: "scale(1)" },
-      { offset: 0.28, transform: "scale(1.28, .72)" },
-      { offset: 0.52, transform: "scale(.9, 1.22)" },
-      { offset: 0.74, transform: "scale(1.06)" },
+      { offset: 0.22, transform: "scale(1.35, .68)" },
+      { offset: 0.46, transform: "scale(1.24)" },
+      { offset: 0.66, transform: "scale(.88, 1.2)" },
+      { offset: 0.83, transform: "scale(1.06, .96)" },
       { transform: "scale(1)" },
     ],
   }),
@@ -339,15 +440,16 @@ export const domEffects: EffectDefinition[] = [
     lifecycle: "state",
     description: "The knob backsteps, stretches through travel, and compresses on landing.",
     techniques: ["anticipation", "take", "landing"],
-    duration: 560,
+    duration: 620,
+    easing: "cubic-bezier(.2,.8,.2,1)",
     keyframes: (context) => {
       const distance = Number(context.options.distance ?? 68);
       const left = context.options.direction === "left";
       return [
         { transform: `translateX(${left ? distance : 0}px) scale(1)` },
-        { offset: 0.16, transform: `translateX(${left ? distance + 5 : -5}px) scale(.88, 1.08)` },
-        { offset: 0.56, transform: `translateX(${left ? 0 : distance}px) scale(1.2, .84)` },
-        { offset: 0.78, transform: `translateX(${left ? 3 : distance - 3}px) scale(.92, 1.08)` },
+        { offset: 0.14, transform: `translateX(${left ? distance + 4 : -4}px) scale(1.08, 1)` },
+        { offset: 0.5, transform: `translateX(${left ? 2 : distance - 2}px) scale(1.34, .8)` },
+        { offset: 0.7, transform: `translateX(${left ? -3 : distance + 3}px) scale(.88, 1.16)` },
         { transform: `translateX(${left ? 0 : distance}px) scale(1)` },
       ];
     },
@@ -359,12 +461,13 @@ export const domEffects: EffectDefinition[] = [
     lifecycle: "state",
     description: "The indicator passes through horizontal squash and vertical stretch.",
     techniques: ["squash", "stretch"],
-    duration: 560,
+    duration: 650,
+    easing: "cubic-bezier(.2,.8,.2,1)",
     keyframes: [
       { transform: "scale(.08)" },
-      { offset: 0.32, transform: "scale(1.25, .35)" },
-      { offset: 0.58, transform: "scale(.72, 1.22)" },
-      { offset: 0.78, transform: "scale(1.08)" },
+      { offset: 0.25, transform: "scale(1.45, .34)" },
+      { offset: 0.53, transform: "scale(.72, 1.48)" },
+      { offset: 0.76, transform: "scale(1.12, .92)" },
       { transform: "scale(1)" },
     ],
   }),
@@ -375,16 +478,22 @@ export const domEffects: EffectDefinition[] = [
     lifecycle: "entrance",
     description: "Contact precedes maximum squash so falling and compression overlap.",
     techniques: ["spacing", "contact", "squash"],
-    duration: 760,
+    duration: 980,
+    easing: "linear",
     keyframes: (context) => {
-      const landing = Number(context.options.distance ?? 46);
+      const dropHeight = Number(context.options.distance ?? 148);
       return [
-        { transformOrigin: "center bottom", transform: `translateY(${landing - 216}px) scale(1)` },
-        { offset: 0.18, transform: `translateY(${landing - 201}px) scale(.98, 1.03)` },
-        { offset: 0.54, transform: `translateY(${landing - 6}px) scale(.92, 1.12)` },
-        { offset: 0.6, transform: `translateY(${landing}px) scale(1.04, .94)` },
-        { offset: 0.72, transform: `translateY(${landing}px) scale(1.34, .62)` },
-        { transform: `translateY(${landing}px) scale(1)` },
+        { transformOrigin: "center bottom", transform: `translateY(${-dropHeight}px) scale(.94, 1.12)` },
+        { offset: 0.12, transform: `translateY(${-dropHeight * (133 / 148)}px) scale(.93, 1.15)` },
+        { offset: 0.25, transform: `translateY(${-dropHeight * (101 / 148)}px) scale(.92, 1.18)` },
+        { offset: 0.38, transform: `translateY(${-dropHeight * (58 / 148)}px) scale(.9, 1.22)` },
+        { offset: 0.5, transform: `translateY(${-dropHeight * (14 / 148)}px) scale(.89, 1.24)` },
+        { offset: 0.53, transform: "translateY(0) scale(.89, 1.24)" },
+        { offset: 0.58, transform: "translateY(0) scale(1.16, .83)" },
+        { offset: 0.64, transform: "translateY(0) scale(1.36, .61)" },
+        { offset: 0.75, transform: "translateY(-10px) scale(.91, 1.14)" },
+        { offset: 0.86, transform: "translateY(2px) scale(1.055, .965)" },
+        { transform: "translateY(0) scale(1)" },
       ];
     },
   }),
@@ -395,15 +504,16 @@ export const domEffects: EffectDefinition[] = [
     lifecycle: "state",
     description: "A shared underline backsteps and stretches across tab geometry.",
     techniques: ["shared layer", "anticipation", "take"],
-    duration: 610,
+    duration: 650,
+    easing: "cubic-bezier(.18,.8,.2,1)",
     keyframes: (context) => {
-      const distance = Number(context.options.distance ?? 92);
+      const distance = Number(context.options.distance ?? 101);
       const left = context.options.direction === "left";
       return [
         { transformOrigin: "left center", transform: `translateX(${left ? distance : 0}px) scaleX(1)` },
-        { offset: 0.14, transform: `translateX(${left ? distance + 8 : -8}px) scaleX(.78)` },
-        { offset: 0.58, transform: `translateX(${left ? distance - 76 : distance * 0.83}px) scaleX(1.7)` },
-        { offset: 0.8, transform: `translateX(${left ? -2 : distance + 2}px) scaleX(.92)` },
+        { offset: 0.15, transform: `translateX(${left ? distance + 6 : -6}px) scaleX(.92)` },
+        { offset: 0.5, transform: `translateX(${left ? 10 : distance * (36 / 101)}px) scaleX(1.576)` },
+        { offset: 0.76, transform: `translateX(${left ? 0 : distance}px) scaleX(1.033)` },
         { transform: `translateX(${left ? 0 : distance}px) scaleX(1)` },
       ];
     },
@@ -415,13 +525,14 @@ export const domEffects: EffectDefinition[] = [
     lifecycle: "interaction",
     description: "Press, take, and elevated hold form one interruptible response.",
     techniques: ["anticipation", "take", "hold"],
-    duration: 520,
+    duration: 650,
+    easing: "cubic-bezier(.18,.8,.2,1)",
     keyframes: [
       { transform: "translateY(0) scale(1)" },
-      { offset: 0.18, transform: "translateY(3px) scale(1.04, .96)" },
-      { offset: 0.48, transform: "translateY(-12px) scale(.96, 1.04)" },
-      { offset: 0.7, transform: "translateY(-8px) scale(1.02, .99)" },
-      { transform: "translateY(-9px) scale(1)" },
+      { offset: 0.17, transform: "translateY(4px) scale(1.03, .97)" },
+      { offset: 0.48, transform: "translateY(-13px) scale(.98, 1.03)" },
+      { offset: 0.68, transform: "translateY(-9px) scale(1)" },
+      { transform: "translateY(-10px) scale(1)" },
     ],
   }),
   {
@@ -445,12 +556,13 @@ export const domEffects: EffectDefinition[] = [
     lifecycle: "interaction",
     description: "A glyph block keeps its content through opposing wide and tall extremes.",
     techniques: ["typography", "impact"],
-    duration: 570,
+    duration: 650,
+    easing: "cubic-bezier(.2,.8,.2,1)",
     keyframes: [
       { transform: "scale(1)" },
-      { offset: 0.22, transform: "scale(1.24, .76)" },
-      { offset: 0.48, transform: "scale(.88, 1.17)" },
-      { offset: 0.72, transform: "scale(1.05, .98)" },
+      { offset: 0.25, transform: "scale(1.32, .74)" },
+      { offset: 0.5, transform: "scale(.78, 1.28)" },
+      { offset: 0.72, transform: "scale(1.08, .95)" },
       { transform: "scale(1)" },
     ],
   }),
@@ -461,13 +573,15 @@ export const domEffects: EffectDefinition[] = [
     lifecycle: "interaction",
     description: "A directional icon uses one opposing preparation and one correction.",
     techniques: ["anticipation", "direction", "secondary action"],
-    duration: 560,
+    duration: 730,
+    easing: "cubic-bezier(.18,.8,.2,1)",
     keyframes: [
       { transform: "translateX(0) rotate(0)" },
-      { offset: 0.18, transform: "translateX(-12px) rotate(-9deg) scaleX(.92)" },
-      { offset: 0.5, transform: "translateX(32px) rotate(7deg) scaleX(1.15)" },
-      { offset: 0.76, transform: "translateX(22px) rotate(-2deg) scaleX(.98)" },
-      { transform: "translateX(24px) rotate(0) scale(1)" },
+      { offset: 0.18, transform: "translateX(-8px) rotate(-7deg)" },
+      { offset: 0.48, transform: "translateX(26px) rotate(4deg) scale(1.16, .9)" },
+      { offset: 0.68, transform: "translateX(-3px) rotate(-2deg) scale(1)" },
+      { offset: 0.82, transform: "translateX(2px) rotate(1deg) scale(1)" },
+      { transform: "translateX(0) rotate(0) scale(1)" },
     ],
   }),
   {
@@ -487,11 +601,12 @@ export const domEffects: EffectDefinition[] = [
         context.target,
         [
           { transform: "scale(.05)" },
-          { offset: 0.32, transform: "scale(1.18, .72)" },
-          { offset: 0.58, transform: "scale(.94, 1.1)" },
+          { offset: 0.22, transform: "scale(1.2, .3)" },
+          { offset: 0.45, transform: "scale(.82, 1.24)" },
+          { offset: 0.68, transform: "scale(1.06, .97)" },
           { transform: "scale(1)" },
         ],
-        { duration: Number(context.options.duration ?? 610), reducedMotion: shouldReduceMotion(context.options, context.window) },
+        { duration: Number(context.options.duration ?? 760), easing: "cubic-bezier(.18,.8,.2,1)", reducedMotion: shouldReduceMotion(context.options, context.window) },
       );
       const tail = context.target.querySelector<HTMLElement>("[data-cel-tail]");
       if (!tail) return body;
@@ -500,12 +615,12 @@ export const domEffects: EffectDefinition[] = [
         createKeyframeController(
           tail,
           [
-            { transform: "scale(0)" },
-            { offset: 0.46, transform: "scale(0)" },
-            { offset: 0.72, transform: "scale(1.24)" },
-            { transform: "scale(1)" },
+            { opacity: 0, transform: "rotate(45deg) scale(0)" },
+            { offset: 0.68, opacity: 0, transform: "rotate(45deg) scale(0)" },
+            { offset: 0.78, opacity: 1, transform: "rotate(45deg) scale(1.25)" },
+            { opacity: 1, transform: "rotate(45deg) scale(1)" },
           ],
-          { duration: Number(context.options.duration ?? 610), reducedMotion: shouldReduceMotion(context.options, context.window) },
+          { duration: Number(context.options.duration ?? 760), easing: "ease", reducedMotion: shouldReduceMotion(context.options, context.window) },
         ),
       ]);
     },
@@ -517,13 +632,15 @@ export const domEffects: EffectDefinition[] = [
     lifecycle: "entrance",
     description: "An offscreen speed drawing overlaps one firm landing compression.",
     techniques: ["smear", "entrance", "landing"],
-    duration: 700,
+    duration: 950,
+    easing: "cubic-bezier(.18,.82,.2,1)",
     motionRisk: "medium",
     keyframes: [
-      { transform: "translateX(-330px) scale(1.65, .68)" },
-      { offset: 0.4, transform: "translateX(24px) scale(1.1, .9)" },
-      { offset: 0.58, transform: "translateX(0) scale(1.18, .78)" },
-      { offset: 0.78, transform: "translateX(0) scale(.98, 1.03)" },
+      { opacity: 0, transform: "translateX(190px) scale(1.6, .7)" },
+      { offset: 0.22, opacity: 1, transform: "translateX(88px) scale(1.7, .62)" },
+      { offset: 0.52, opacity: 1, transform: "translateX(-9px) scale(.94, 1.08)" },
+      { offset: 0.68, opacity: 1, transform: "translateX(5px) scale(1.09, .93)" },
+      { offset: 0.84, opacity: 1, transform: "translateX(-2px) scale(.98, 1.02)" },
       { transform: "translateX(0) scale(1)" },
     ],
   }),

@@ -50,6 +50,18 @@ The element is captured as one texture, rendered on one shared 32×14 WebGL mesh
 
 Existing transforms are preserved by default. Set `preserveTransform: false` only when an effect should replace the target's current transform completely.
 
+## Replacement drawings
+
+`line-boil` and `cartoon-check` use held replacement drawings rather than morphing one path. Mark two or more child drawings with `data-tradimation-drawing`; Tradimation exposes them in sequence while keeping the parent's layout stable.
+
+```html
+<svg class="check" viewBox="0 0 100 100">
+  <path data-tradimation-drawing d="M22 55 L39 71 L70 30" />
+  <path data-tradimation-drawing d="M12 52 L39 78 L88 20" />
+  <path data-tradimation-drawing d="M16 52 L39 74 L84 24" />
+</svg>
+```
+
 ## Explicit control
 
 ```ts
@@ -81,4 +93,4 @@ The manifest layer is framework-neutral, so a React, Vue, Svelte, Web Component,
 
 - `index.html`: project landing page and interactive preview
 - `cel-motion-gallery-v2.html`: canonical searchable 26-effect live collection
-- `catalog.html`: previous experimental collection retained for comparison
+- `catalog.html`: actual-library verification collection
