@@ -2,7 +2,7 @@
 
 Framework-neutral traditional-animation effects for existing web elements. Tradimation uses Web Animations API for DOM/SVG effects and a connected WebGL texture mesh for deformation effects. It has no React dependency and no runtime package dependency.
 
-**Website:** [tradimation.github.io/tradimation](https://tradimation.github.io/tradimation/) · **Effect collection:** [Browse all 26 effects](https://tradimation.github.io/tradimation/catalog.html)
+**Website:** [tradimation.github.io/tradimation](https://tradimation.github.io/tradimation/) · **Effect collection:** [Browse all 26 effects](https://tradimation.github.io/tradimation/cel-motion-gallery-v2.html)
 
 ## Install and build
 
@@ -80,4 +80,5 @@ The manifest layer is framework-neutral, so a React, Vue, Svelte, Web Component,
 ## Catalogs
 
 - `index.html`: project landing page and interactive preview
-- `catalog.html`: searchable 26-effect live collection
+- `cel-motion-gallery-v2.html`: canonical searchable 26-effect live collection
+- `catalog.html`: previous experimental collection retained for comparison
