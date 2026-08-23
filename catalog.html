@@ -79,7 +79,7 @@
   </div>
   <footer class="catalog-footer"><span>Connected texture · authored poses · continuous travel</span><span><a href="./index.html">Tradimation</a> / 2026</span></footer>
   <script type="module">
-    import { createEffect } from './dist/index.js?v=gallery-v2';
+    import { createEffect } from './dist/index.js?v=settlement-v1';
     const reviewParams=new URLSearchParams(location.search),reviewRate=Number(reviewParams.get('rate'));
     const clamp=(value,min=0,max=1)=>Math.min(max,Math.max(min,value));
     const mix=(a,b,amount)=>a+(b-a)*amount;
@@ -183,9 +183,9 @@
       article.querySelectorAll('.tab').forEach(tab=>tab.addEventListener('click',()=>triggerEffect(effect,tab)));
       if(effect.id==='tab-underline-take')requestAnimationFrame(()=>settleTabLine(article,article.querySelector('.tab.active')));
       if(effect.id==='hover-take'){
-        const target=article.querySelector('.demo-button');
-        target.addEventListener('pointerenter',()=>runEffect(effect,{target,options:{preserveTransform:false},after:()=>{target.style.transform='translateY(-10px)'}}));
-        target.addEventListener('pointerleave',()=>{target.style.transform=''});
+        const target=article.querySelector('.demo-button'),hitArea=target.closest('.center');
+        hitArea.addEventListener('pointerenter',()=>runEffect(effect,{target,options:{preserveTransform:false},after:()=>{target.style.transform='translateY(-10px)'}}));
+        hitArea.addEventListener('pointerleave',()=>{target.style.transform=''});
       }
     });
     async function runMesh(effect){const article=effect.article,stage=article.querySelector('.stage'),subject=article.querySelector('.subject'),button=article.querySelector('.play'),params=meshParams[effect.mesh];subject.style.visibility='visible';subject.style.transform='none';if(!article.mesh)article.mesh=new TextureMesh(stage);await article.mesh.capture();subject.style.visibility='hidden';const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches,duration=reduced?220:params.duration,start=performance.now();await new Promise(resolve=>{function frame(now){const t=clamp((now-start)/duration);article.mesh.draw((u,v,b)=>maps[effect.mesh](t,u,v,b,stage,params));if(t<1)requestAnimationFrame(frame);else resolve()}requestAnimationFrame(frame)});if(effect.mesh==='smear'){subject.style.transform='translateX('+params.distance+'px)';subject.style.visibility='visible'}else if(effect.mesh==='suck'||effect.mesh==='launch')subject.style.visibility='hidden';else subject.style.visibility='visible';article.mesh.clear();button.textContent='Replay ↗'}
@@ -193,27 +193,36 @@
       'anticipation-take':'.demo-button','squash-stretch':'.demo-button',smear:'.subject','concentration-lines':'.demo-button','line-boil':'.line-boil',iris:'.iris-mask','underline-snap':'.underline','pop-out':'.badge','cartoon-check':'.check-svg','badge-punch':'.badge','toggle-snap':'.knob','radio-pop':'.radio-dot','slam-down':'.subject',launch:'.subject',wipe:'.subject',stamp:'.subject','tab-underline-take':'.tab-line','hover-take':'.demo-button','label-flip-take':'.label-a','text-punch':'.text-only','icon-kick':'.icon','speech-bubble-pop':'.bubble','toast-take':'.toast','compress-swap':'.swap-a',suck:'.subject',spit:'.subject'
     };
     let previewRate=Number.isFinite(reviewRate)&&reviewRate>0?reviewRate:1;
+    const managedElements=(target,options)=>{
+      const roots=[target];if(options.secondary instanceof Element)roots.push(options.secondary);
+      return [...new Set(roots.flatMap(root=>[root,...root.querySelectorAll('*')]))];
+    };
+    const snapshotStyles=elements=>elements.map(element=>[element,element.getAttribute('style')]);
+    const restoreStyles=snapshot=>snapshot.forEach(([element,style])=>{if(style==null)element.removeAttribute('style');else element.setAttribute('style',style)});
     async function runEffect(effect,config={}){
       if(effect.running)return;
       effect.running=true;
       const button=effect.article.querySelector('.play'),target=config.target||effect.article.querySelector(targetSelectors[effect.id]),libraryId=libraryIds[effect.id]||effect.id;
       button.textContent='Playing…';
-      let completed=false;
+      let completed=false,finalStyles=[];
       try{
-        effect.controller?.destroy();
-        const options={cleanup:'restore',playbackRate:previewRate,...config.options};
+        const options={playbackRate:previewRate,...config.options};
         if(effect.mesh||effect.id==='concentration-lines')options.overlayRoot=effect.article.querySelector('.stage');
         if(effect.id==='suck')options.destination=effect.article.querySelector('.target');
         if(effect.id==='spit')options.source=effect.article.querySelector('.target');
         if(effect.id==='label-flip-take'&&!options.secondary)options.secondary=effect.article.querySelector('.label-b');
         if(effect.id==='compress-swap'&&!options.secondary)options.secondary=effect.article.querySelector('.swap-b');
+        const elements=managedElements(target,options);effect.baseStyles??=new Map();elements.forEach(element=>{if(!effect.baseStyles.has(element))effect.baseStyles.set(element,element.getAttribute('style'))});
+        if(config.reset!==false)restoreStyles(elements.map(element=>[element,effect.baseStyles.get(element)]));
         effect.controller=createEffect(target,libraryId,options);
         await effect.controller.play();
+        config.after?.();
+        finalStyles=snapshotStyles(managedElements(target,options));
         completed=true;
       }finally{
         effect.controller?.destroy();
         effect.controller=null;
-        if(completed)config.after?.();
+        if(completed)restoreStyles(finalStyles);
         button.textContent='Replay ↗';
         effect.running=false;
       }
@@ -234,13 +243,13 @@
       if(effect.id==='toggle-snap'){
         const toggle=article.querySelector('.toggle'),on=toggle.getAttribute('aria-checked')!=='true',distance=switchTravel(toggle);
         toggle.style.setProperty('--toggle-distance',distance+'px');toggle.classList.toggle('is-on',on);toggle.setAttribute('aria-checked',String(on));toggle.querySelector('.sr-only').textContent='Motion '+(on?'on':'off');
-        return runEffect(effect,{options:{direction:on?'right':'left',preserveTransform:false},after:()=>{toggle.dataset.position=on?'on':'off'}});
+        return runEffect(effect,{reset:false,options:{direction:on?'right':'left',preserveTransform:false},after:()=>{toggle.dataset.position=on?'on':'off'}});
       }
       if(effect.id==='tab-underline-take'){
         const tabs=[...article.querySelectorAll('.tab')],current=tabs.findIndex(tab=>tab.getAttribute('aria-selected')==='true'),next=requestedTarget||tabs[(current+1)%tabs.length];
         if(next===tabs[current])return;
         tabs.forEach(tab=>{const active=tab===next;tab.classList.toggle('active',active);tab.setAttribute('aria-selected',String(active))});
-        return runEffect(effect,{target:article.querySelector('.tab-line'),options:{destination:next,preserveTransform:false},after:()=>settleTabLine(article,next)});
+        return runEffect(effect,{reset:false,target:article.querySelector('.tab-line'),options:{destination:next,preserveTransform:false}});
       }
       if(effect.id==='badge-punch'){
         const value=article.querySelector('.badge span');value.textContent=String(Number(value.textContent)%9+1);
@@ -252,7 +261,7 @@
       if(effect.id==='label-flip-take'||effect.id==='compress-swap'){
         const label=effect.id==='label-flip-take',control=article.querySelector(label?'.label-stack':'.swap-stack'),state=control.dataset.state||'a',source=article.querySelector(label?(state==='a'?'.label-a':'.label-b'):(state==='a'?'.swap-a':'.swap-b')),secondary=article.querySelector(label?(state==='a'?'.label-b':'.label-a'):(state==='a'?'.swap-b':'.swap-a'));
         source.style.visibility='visible';secondary.style.visibility='hidden';
-        return runEffect(effect,{target:source,options:{secondary},after:()=>{source.style.visibility='hidden';secondary.style.visibility='visible';control.dataset.state=state==='a'?'b':'a'}});
+        return runEffect(effect,{reset:false,target:source,options:{secondary},after:()=>{source.style.visibility='hidden';secondary.style.visibility='visible';control.dataset.state=state==='a'?'b':'a'}});
       }
       if(effect.id==='cartoon-check'){
         const drawings=[...article.querySelectorAll('.check-svg path')];drawings.forEach(drawing=>drawing.style.opacity='');

@@ -220,6 +220,7 @@ const createSwap = (context: EffectContext, compress = false): EffectController 
       },
       complete() {
         source.style.visibility = "hidden";
+        source.style.transform = `${sourcePrefix}scale(1)`;
         secondary.style.visibility = "visible";
         secondary.style.transform = `${destinationPrefix}scale(1)`;
       },
@@ -639,7 +640,15 @@ export const domEffects: EffectDefinition[] = [
           { offset: 0.68, transform: "scale(1.06, .97)" },
           { transform: "scale(1)" },
         ],
-        { duration: Number(context.options.duration ?? 760), easing: "cubic-bezier(.18,.8,.2,1)", reducedMotion: shouldReduceMotion(context.options, context.window) },
+        {
+          duration: Number(context.options.duration ?? 760),
+          easing: "cubic-bezier(.18,.8,.2,1)",
+          cleanup: context.options.cleanup ?? "commit",
+          preserveTransform: context.options.preserveTransform !== false,
+          reducedMotion: shouldReduceMotion(context.options, context.window),
+          ...(context.options.playbackRate !== undefined ? { playbackRate: context.options.playbackRate } : {}),
+          ...(context.options.signal ? { signal: context.options.signal } : {}),
+        },
       );
       const tail = context.target.querySelector<HTMLElement>("[data-cel-tail]");
       if (!tail) return body;
@@ -656,8 +665,11 @@ export const domEffects: EffectDefinition[] = [
           {
             duration: Number(context.options.duration ?? 760),
             easing: "ease",
+            cleanup: context.options.cleanup ?? "commit",
             preserveTransform: false,
             reducedMotion: shouldReduceMotion(context.options, context.window),
+            ...(context.options.playbackRate !== undefined ? { playbackRate: context.options.playbackRate } : {}),
+            ...(context.options.signal ? { signal: context.options.signal } : {}),
           },
         ),
       ]);
