@@ -16,6 +16,7 @@ interface KeyframeDefinitionOptions {
   cleanup?: "restore" | "commit" | "hide";
   renderer?: "dom" | "svg" | "mask";
   motionRisk?: EffectManifest["motionRisk"];
+  preserveTransform?: boolean;
 }
 
 const keyframeEffect = (definition: KeyframeDefinitionOptions): EffectDefinition => ({
@@ -35,7 +36,7 @@ const keyframeEffect = (definition: KeyframeDefinitionOptions): EffectDefinition
     return createKeyframeController(context.target, keyframes, {
       duration: Number(context.options.duration ?? definition.duration),
       cleanup: context.options.cleanup ?? definition.cleanup ?? "commit",
-      preserveTransform: context.options.preserveTransform !== false,
+      preserveTransform: context.options.preserveTransform ?? definition.preserveTransform ?? true,
       reducedMotion: shouldReduceMotion(context.options, context.window),
       ...(definition.easing ? { easing: definition.easing } : {}),
       ...(context.options.playbackRate !== undefined ? { playbackRate: context.options.playbackRate } : {}),
@@ -442,9 +443,16 @@ export const domEffects: EffectDefinition[] = [
     techniques: ["anticipation", "take", "landing"],
     duration: 620,
     easing: "cubic-bezier(.2,.8,.2,1)",
+    preserveTransform: false,
     keyframes: (context) => {
-      const distance = Number(context.options.distance ?? 68);
       const left = context.options.direction === "left";
+      const parentRect = context.target.parentElement?.getBoundingClientRect();
+      const targetRect = context.target.getBoundingClientRect();
+      const edgeInset = parentRect
+        ? left ? parentRect.right - targetRect.right : targetRect.left - parentRect.left
+        : 0;
+      const measuredDistance = parentRect ? parentRect.width - targetRect.width - edgeInset * 2 : 68;
+      const distance = Number(context.options.distance ?? Math.max(0, measuredDistance));
       return [
         { transform: `translateX(${left ? distance : 0}px) scale(1)` },
         { offset: 0.14, transform: `translateX(${left ? distance + 4 : -4}px) scale(1.08, 1)` },
@@ -506,7 +514,32 @@ export const domEffects: EffectDefinition[] = [
     techniques: ["shared layer", "anticipation", "take"],
     duration: 650,
     easing: "cubic-bezier(.18,.8,.2,1)",
+    preserveTransform: false,
     keyframes: (context) => {
+      const destination = context.options.destination;
+      if (destination && "getBoundingClientRect" in destination && context.target.parentElement) {
+        const parentRect = context.target.parentElement.getBoundingClientRect();
+        const currentRect = context.target.getBoundingClientRect();
+        const destinationRect = destination.getBoundingClientRect();
+        const currentLeft = currentRect.left - parentRect.left;
+        const destinationLeft = destinationRect.left - parentRect.left;
+        const currentWidth = currentRect.width;
+        const destinationWidth = destinationRect.width;
+        const movingRight = destinationLeft > currentLeft;
+        const bridgeLeft = movingRight
+          ? currentLeft + currentWidth * 0.22
+          : destinationLeft + destinationWidth * 0.18;
+        const bridgeRight = movingRight
+          ? destinationLeft + destinationWidth * 0.82
+          : currentLeft + currentWidth * 0.78;
+        return [
+          { left: `${currentLeft}px`, width: `${currentWidth}px`, transform: "scaleX(1)" },
+          { offset: 0.15, left: `${currentLeft + (movingRight ? -6 : 6)}px`, width: `${currentWidth * 0.92}px`, transform: "scaleX(1)" },
+          { offset: 0.5, left: `${bridgeLeft}px`, width: `${Math.max(4, bridgeRight - bridgeLeft)}px`, transform: "scaleX(1)" },
+          { offset: 0.76, left: `${destinationLeft + (movingRight ? 3 : -3)}px`, width: `${destinationWidth * 1.03}px`, transform: "scaleX(1)" },
+          { left: `${destinationLeft}px`, width: `${destinationWidth}px`, transform: "scaleX(1)" },
+        ];
+      }
       const distance = Number(context.options.distance ?? 101);
       const left = context.options.direction === "left";
       return [
@@ -620,7 +653,12 @@ export const domEffects: EffectDefinition[] = [
             { offset: 0.78, opacity: 1, transform: "rotate(45deg) scale(1.25)" },
             { opacity: 1, transform: "rotate(45deg) scale(1)" },
           ],
-          { duration: Number(context.options.duration ?? 760), easing: "ease", reducedMotion: shouldReduceMotion(context.options, context.window) },
+          {
+            duration: Number(context.options.duration ?? 760),
+            easing: "ease",
+            preserveTransform: false,
+            reducedMotion: shouldReduceMotion(context.options, context.window),
+          },
         ),
       ]);
     },

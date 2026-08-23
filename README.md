@@ -50,6 +50,15 @@ The element is captured as one texture, rendered on one shared 32×14 WebGL mesh
 
 Existing transforms are preserved by default. Set `preserveTransform: false` only when an effect should replace the target's current transform completely.
 
+## Stateful controls
+
+Tradimation animates control geometry while the application owns logical state. `toggle-snap` measures the knob's available travel from its track, and `tab-underline-take` measures the destination tab instead of assuming equal-width labels.
+
+```ts
+playEffect(toggleKnob, "toggle-snap", { direction: checked ? "right" : "left" });
+playEffect(tabUnderline, "tab-underline-take", { destination: selectedTab });
+```
+
 ## Replacement drawings
 
 `line-boil` and `cartoon-check` use held replacement drawings rather than morphing one path. Mark two or more child drawings with `data-tradimation-drawing`; Tradimation exposes them in sequence while keeping the parent's layout stable.
