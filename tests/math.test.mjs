@@ -3,6 +3,7 @@ import test from "node:test";
 import { celShapeTime, flowTrack, motionCurve } from "../dist/math.js";
 import { listEffects } from "../dist/registry.js";
 import { meshDefaults, meshMaps } from "../dist/effects/mesh-maps.js";
+import { effectDocs } from "../site/effects.js";
 
 test("motionCurve reaches exact endpoints", () => {
   const keys = [[0, 0, 0], [0.5, 10, 20], [1, 20, 0]];
@@ -27,6 +28,23 @@ test("curated registry contains 17 unique effects", () => {
   const ids = listEffects().map((effect) => effect.id);
   assert.equal(ids.length, 17);
   assert.equal(new Set(ids).size, 17);
+});
+
+test("every effect page exposes valid live parameters", () => {
+  const runtimeIds = listEffects().map((effect) => effect.id).sort();
+  const documentedIds = effectDocs.map((effect) => effect.id).sort();
+  assert.deepEqual(documentedIds, runtimeIds);
+
+  for (const effect of effectDocs) {
+    const keys = effect.controls.map((control) => control.key);
+    assert.ok(keys.includes("duration"), `${effect.id} exposes duration`);
+    assert.ok(keys.includes("playbackRate"), `${effect.id} exposes playback rate`);
+    assert.equal(new Set(keys).size, keys.length, `${effect.id} parameter keys are unique`);
+    effect.controls.filter((control) => control.type === "range").forEach((control) => {
+      assert.ok(control.value >= control.min && control.value <= control.max, `${effect.id}.${control.key} default is in range`);
+      assert.ok(control.step > 0, `${effect.id}.${control.key} has a positive step`);
+    });
+  }
 });
 
 test("connected mesh maps remain finite and connected through every pose", () => {

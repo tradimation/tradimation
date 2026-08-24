@@ -15,11 +15,13 @@ const template = (effect) => `<!doctype html>
   <div class="detail-shell">
     <aside class="detail-nav" id="effect-nav"><p class="detail-nav-label mono">Effects & recipes</p></aside>
     <main class="detail-main">
-      <div class="detail-title"><h1 id="effect-name"></h1><span class="pill" id="effect-kind"></span></div>
+      <h1 id="effect-name"></h1>
       <p class="detail-summary" id="effect-summary"></p>
-      <section class="demo-stage" id="stage" aria-label="Interactive effect preview"><button class="replay" id="replay" type="button">Replay ↗</button></section>
-      <div class="docs-grid"><section class="doc-panel"><h2>When to use</h2><p id="effect-why"></p></section><section class="doc-panel"><h2>Category</h2><p id="effect-group"></p></section></div>
-      <section class="code-block"><button class="copy" id="copy" type="button">Copy</button><pre><code id="effect-code"></code></pre></section>
+      <section aria-labelledby="playground-title">
+        <div class="section-heading"><h2 id="playground-title">Playground</h2><p id="playground-status" role="status" aria-live="polite">Ready.</p></div>
+        <div class="playground"><div class="demo-stage" id="stage" aria-label="Effect preview"><div id="demo-root"></div></div><form class="control-panel" id="playground-controls"><p>Changes replay automatically.</p><div id="parameter-controls"></div><div class="control-actions"><button class="primary-action" id="replay" type="button">Replay effect</button><button class="secondary-action" id="reset" type="button">Reset parameters</button></div></form></div>
+      </section>
+      <section class="usage"><div><h2>Use when</h2><p id="effect-why"></p></div><div><div class="code-heading"><h2>Usage</h2><button class="copy" id="copy" type="button">Copy code</button></div><pre><code id="effect-code"></code></pre></div></section>
       <a class="next-link" id="next-effect" href="#"><span class="mono">Next</span><strong></strong><span>→</span></a>
     </main>
   </div>

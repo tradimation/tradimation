@@ -110,8 +110,8 @@ The manifest layer is framework-neutral, so a React, Vue, Svelte, Web Component,
 ## Catalogs
 
 - `index.html`: project landing page and interactive preview
-- `cel-motion-gallery-v2.html`: canonical motion-reference collection
+- `cel-motion-gallery-v2.html`: archived internal motion-reference collection; not deployed
 - `catalog.html`: searchable effect and recipe index
-- `effects/*.html`: one focused preview and integration page per definition
+- `effects/*.html`: one focused playground per definition with live parameters and generated usage
 
 See `EFFECTS.md` for the retention criteria and the effects removed during the 17-effect curation pass.

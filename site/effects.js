@@ -1,5 +1,9 @@
 const button = (label) => `<div class="demo-center"><button class="demo-button" type="button">${label}</button></div>`;
 const card = (label, tone = "acid") => `<div class="demo-card ${tone}"><b>${label}</b><small>ORIGINAL HTML</small></div>`;
+const range = (key, label, value, min, max, step, suffix = "") => ({ type: "range", key, label, value, min, max, step, suffix });
+const select = (key, label, value, options) => ({ type: "select", key, label, value, options });
+const duration = (value, max = 1800) => range("duration", "Duration", value, 200, max, 10, "ms");
+const playback = () => range("playbackRate", "Playback", 1, 0.25, 2, 0.05, "×");
 
 export const effectDocs = [
   {
@@ -11,6 +15,7 @@ export const effectDocs = [
     why: "Use it when an action needs a readable sense of intent rather than a generic translate.",
     target: ".demo-button",
     markup: button("TAKE"),
+    controls: [duration(900), playback(), range("intensity", "Intensity", 1, 0.35, 1.5, 0.05), select("direction", "Direction", "right", ["left", "right", "up", "down"])],
     code: `playEffect(target, "anticipation-take", { direction: "right", intensity: 0.8 });`,
   },
   {
@@ -22,6 +27,7 @@ export const effectDocs = [
     why: "This is the reusable base effect; badge, radio, and text-specific duplicates were removed.",
     target: ".demo-button",
     markup: button("MASS"),
+    controls: [duration(760), playback(), range("intensity", "Intensity", 1, 0.35, 1.5, 0.05)],
     code: `playEffect(target, "squash-stretch", { intensity: 0.9 });`,
   },
   {
@@ -34,6 +40,8 @@ export const effectDocs = [
     target: ".demo-card",
     markup: card("CEL MOTION"),
     options: { overlay: true },
+    restoreAfterPlay: true,
+    controls: [duration(670), playback(), range("distance", "Distance", 180, 60, 240, 5, "px"), range("stretch", "Stretch", 1.64, 1.1, 2.5, 0.02), range("height", "Height", 0.72, 0.35, 1, 0.01)],
     code: `playEffect(target, "smear", { overlayRoot: stage });`,
   },
   {
@@ -46,6 +54,7 @@ export const effectDocs = [
     target: ".demo-button",
     markup: button("FOCUS"),
     options: { overlay: true },
+    controls: [duration(1050), playback(), range("intensity", "Intensity", 1, 0.4, 1.6, 0.05), range("distance", "Ray distance", 47, 28, 90, 1, "px")],
     code: `playEffect(target, "concentration-lines", { overlayRoot: stage });`,
   },
   {
@@ -57,6 +66,7 @@ export const effectDocs = [
     why: "Use authored child drawings when a static outline should feel hand-drawn without drifting.",
     target: ".line-boil",
     markup: `<div class="demo-center"><div class="line-boil"><span data-tradimation-drawing>DRAWN</span><span data-tradimation-drawing>DRAWN</span><span data-tradimation-drawing>DRAWN</span></div></div>`,
+    controls: [duration(1500, 3000), playback()],
     code: `playEffect(target, "line-boil");`,
   },
   {
@@ -67,7 +77,8 @@ export const effectDocs = [
     summary: "Open and close a circular aperture around existing content.",
     why: "Use it for an intentionally graphic scene transition, not a routine content reveal.",
     target: ".iris",
-    markup: `<div class="iris"><b>IRIS</b></div>`,
+    markup: `<div class="iris-context">Scene transition</div><div class="iris"><b>IRIS</b></div>`,
+    controls: [duration(1300, 2600), playback()],
     code: `playEffect(target, "iris");`,
   },
   {
@@ -79,6 +90,7 @@ export const effectDocs = [
     why: "A practical recipe for badges, markers, and compact floating UI.",
     target: ".demo-badge",
     markup: `<div class="demo-center"><div class="demo-badge">NEW</div></div>`,
+    controls: [duration(760), playback(), range("intensity", "Intensity", 1, 0.5, 1.35, 0.05)],
     code: `playEffect(badge, "pop-out");`,
   },
   {
@@ -90,6 +102,7 @@ export const effectDocs = [
     why: "Use it when the artwork, rather than a generic path trace, carries the character.",
     target: ".check",
     markup: `<div class="demo-center"><svg class="check" viewBox="0 0 100 100"><path data-tradimation-drawing d="M22 55 L39 71 L70 30"/><path data-tradimation-drawing d="M12 52 L39 78 L88 20"/><path data-tradimation-drawing d="M16 52 L39 74 L84 24"/></svg></div>`,
+    controls: [duration(760), playback()],
     code: `playEffect(check, "cartoon-check");`,
   },
   {
@@ -102,6 +115,7 @@ export const effectDocs = [
     target: ".knob",
     markup: `<div class="demo-center"><button class="toggle" type="button" role="switch" aria-checked="false"><span class="knob"></span><span class="sr-only">Toggle motion</span></button></div>`,
     interactive: "toggle",
+    controls: [duration(620), playback()],
     code: `playEffect(knob, "toggle-snap", { direction: checked ? "right" : "left" });`,
   },
   {
@@ -114,6 +128,8 @@ export const effectDocs = [
     target: ".demo-card",
     markup: card("LAUNCH AWAY", "orange"),
     options: { overlay: true },
+    restoreAfterPlay: true,
+    controls: [duration(690), playback(), range("stretch", "Stretch", 1.9, 1.2, 2.8, 0.05), range("height", "Height", 0.62, 0.3, 1, 0.02), range("accelCurve", "Acceleration", 1.15, 0.65, 1.8, 0.05)],
     code: `playEffect(target, "launch-away", { overlayRoot: stage });`,
   },
   {
@@ -126,6 +142,7 @@ export const effectDocs = [
     target: ".demo-card",
     markup: card("STRETCH WIPE", "blue"),
     options: { overlay: true },
+    controls: [duration(820), playback(), range("stretch", "Stretch", 1.6, 1.15, 2.5, 0.05), range("height", "Height", 0.56, 0.3, 1, 0.02), range("rearCatch", "Rear catch", 0.15, 0, 0.45, 0.01)],
     code: `playEffect(target, "stretch-wipe", { overlayRoot: stage });`,
   },
   {
@@ -138,6 +155,7 @@ export const effectDocs = [
     target: ".demo-card",
     markup: card("STAMP IN", "orange"),
     options: { overlay: true },
+    controls: [duration(770), playback(), range("dropHeight", "Drop", 76, 35, 180, 1, "px"), range("squashWidth", "Squash width", 1.36, 1.05, 1.8, 0.02), range("squashHeight", "Squash height", 0.62, 0.35, 0.9, 0.01)],
     code: `playEffect(target, "stamp-in", { overlayRoot: stage });`,
   },
   {
@@ -150,6 +168,7 @@ export const effectDocs = [
     target: ".tab-line",
     markup: `<div class="demo-center"><div class="tabs" role="tablist"><button class="tab active" role="tab" aria-selected="true">Overview</button><button class="tab" role="tab" aria-selected="false">Motion lab</button><button class="tab" role="tab" aria-selected="false">API</button><div class="tab-line"></div></div></div>`,
     interactive: "tabs",
+    controls: [duration(650), playback()],
     code: `playEffect(underline, "tab-underline-take", { destination: selectedTab });`,
   },
   {
@@ -161,6 +180,7 @@ export const effectDocs = [
     why: "Use it for transient feedback that can support a deliberately playful tone.",
     target: ".toast",
     markup: `<div class="demo-center"><div class="toast">PROJECT SAVED</div></div>`,
+    controls: [duration(950), playback()],
     code: `playEffect(toast, "toast-take");`,
   },
   {
@@ -173,6 +193,7 @@ export const effectDocs = [
     target: ".swap-a",
     markup: `<div class="demo-center"><button class="swap" type="button"><span class="swap-a">DAY</span><span class="swap-b">NIGHT</span></button></div>`,
     interactive: "swap",
+    controls: [duration(780), playback()],
     code: `playEffect(current, "compress-swap", { secondary: next });`,
   },
   {
@@ -185,6 +206,8 @@ export const effectDocs = [
     target: ".demo-card",
     markup: `${card("SAME OBJECT", "blue")}<span class="spatial-target right"></span>`,
     options: { overlay: true, destination: ".spatial-target" },
+    restoreAfterPlay: true,
+    controls: [duration(830), playback(), range("bodyTravel", "Body travel", 0.52, 0.2, 0.8, 0.02), range("tongue", "Lead stretch", 0.44, 0.15, 0.8, 0.02), range("columnLag", "Column lag", 0.31, 0.08, 0.6, 0.01)],
     code: `playEffect(card, "suck-in", { destination: cart, overlayRoot: stage });`,
   },
   {
@@ -197,6 +220,7 @@ export const effectDocs = [
     target: ".demo-card",
     markup: `<span class="spatial-target left"></span>${card("FULL ENERGY", "orange")}`,
     options: { overlay: true, source: ".spatial-target" },
+    controls: [duration(840), playback(), range("releaseForce", "Release force", 1.4, 0.6, 2.4, 0.05), range("columnLag", "Column lag", 0.3, 0.08, 0.6, 0.01), range("spear", "Spear", 0.24, 0, 0.65, 0.01)],
     code: `playEffect(card, "spit-out", { source: origin, overlayRoot: stage });`,
   },
 ];

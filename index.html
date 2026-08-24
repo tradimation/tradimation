@@ -3,92 +3,28 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="description" content="Tradimation brings the timing and character of traditional animation to real HTML elements.">
-  <title>Tradimation — Traditional motion for the web</title>
-  <style>
-    :root{--ink:#141510;--paper:#f2efdf;--acid:#cbff2e;--violet:#8f87ff;--coral:#ff765f;--muted:#aaa99f;--line:rgba(20,21,16,.16);--darkline:rgba(242,239,223,.16)}
-    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--paper);color:var(--ink);font-family:Arial,Helvetica,sans-serif;overflow-x:hidden}button,a{font:inherit}.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;text-transform:uppercase;letter-spacing:.08em}.wrap{width:min(1440px,calc(100% - 48px));margin:auto}
-    nav{height:76px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line)}.brand{display:flex;align-items:center;gap:12px;color:inherit;text-decoration:none;font-weight:900}.brand-mark{width:28px;height:28px;border:2px solid;border-radius:50% 44% 53% 38%;background:var(--acid);transform:rotate(-8deg)}.nav-links{display:flex;align-items:center;gap:28px}.nav-links a{color:inherit;text-decoration:none;font-size:12px;font-weight:800}.nav-links a:hover{text-decoration:underline;text-underline-offset:5px}.nav-cta{border:2px solid var(--ink);padding:10px 14px;box-shadow:4px 4px 0 var(--ink)}
-    .hero{min-height:calc(100vh - 76px);display:grid;grid-template-columns:minmax(0,1.02fr) minmax(420px,.98fr);gap:6vw;align-items:center;padding:80px 0}.kicker{display:flex;gap:10px;align-items:center;font-size:11px;font-weight:900}.kicker:before{content:"";width:32px;height:8px;background:var(--coral);border:2px solid;border-radius:50%}.hero h1{margin:26px 0 28px;font-size:clamp(68px,8.5vw,142px);line-height:.78;letter-spacing:-.085em;max-width:940px}.hero h1 em{font-style:normal;color:var(--violet);display:inline-block;transform:rotate(-2deg)}.hero-copy{max-width:620px;font-size:clamp(18px,1.7vw,25px);line-height:1.42;letter-spacing:-.02em}.actions{display:flex;gap:14px;flex-wrap:wrap;margin-top:38px}.button{display:inline-flex;align-items:center;justify-content:center;gap:14px;min-height:52px;padding:0 20px;border:2px solid var(--ink);color:var(--ink);text-decoration:none;font-weight:900;font-size:12px}.button.primary{background:var(--acid);box-shadow:6px 6px 0 var(--ink)}.button.secondary{background:transparent}.button:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 var(--ink)}
-    .demo-shell{position:relative;border:2px solid var(--ink);background:var(--ink);box-shadow:16px 16px 0 var(--violet);min-width:0}.demo-bar{height:48px;color:var(--paper);display:flex;align-items:center;justify-content:space-between;padding:0 16px;border-bottom:1px solid var(--darkline);font-size:10px}.lights{display:flex;gap:6px}.lights i{width:8px;height:8px;border:1px solid var(--paper);border-radius:50%}.lights i:first-child{background:var(--coral)}.demo-stage{height:420px;position:relative;overflow:hidden;background-color:var(--paper);background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:32px 32px;display:grid;place-items:center}.demo-target{width:210px;height:86px;border:3px solid var(--ink);border-radius:18px;background:var(--acid);box-shadow:9px 9px 0 var(--ink);display:grid;place-items:center;text-align:center;position:relative;z-index:2}.demo-target strong{font-size:21px}.demo-target small{display:block;margin-top:5px;font-size:8px;font-weight:900;letter-spacing:.13em}.demo-controls{display:grid;grid-template-columns:repeat(3,1fr);background:var(--ink)}.demo-controls button{border:0;border-right:1px solid var(--darkline);background:transparent;color:var(--paper);padding:16px 6px;font:800 9px ui-monospace,monospace;text-transform:uppercase;letter-spacing:.07em;cursor:pointer}.demo-controls button:last-child{border:0}.demo-controls button.active{background:var(--acid);color:var(--ink)}
-    .ticker{border-block:2px solid var(--ink);overflow:hidden;background:var(--acid);transform:rotate(-1deg);width:102%;margin-left:-1%}.ticker-track{display:flex;width:max-content;gap:42px;padding:15px 0;animation:ticker 24s linear infinite;font:900 13px ui-monospace,monospace;text-transform:uppercase;letter-spacing:.08em}.ticker-track span:after{content:"✦";margin-left:42px}@keyframes ticker{to{transform:translateX(-50%)}}
-    .section{padding:130px 0}.section-head{display:grid;grid-template-columns:.7fr 1.3fr;gap:50px;align-items:start;margin-bottom:65px}.section-label{font-size:11px;font-weight:900}.section h2{font-size:clamp(48px,7vw,104px);line-height:.88;letter-spacing:-.065em;margin:0}.section-intro{max-width:620px;font-size:18px;line-height:1.5;color:#57584f;margin:28px 0 0}
-    .principles{display:grid;grid-template-columns:repeat(3,1fr);border-top:2px solid;border-left:2px solid}.principle{padding:30px;min-height:290px;border-right:2px solid;border-bottom:2px solid;display:flex;flex-direction:column}.principle-num{font-size:10px;font-weight:900;color:#66675d}.principle-graphic{height:100px;display:flex;align-items:center}.shape{display:block;background:var(--violet);border:2px solid;width:76px;height:48px;border-radius:14px;box-shadow:5px 5px 0}.shape.speed{width:142px;height:30px;border-radius:50% 12px 12px 50%;background:var(--acid)}.shape.pose{transform:rotate(-7deg) scaleX(1.15);background:var(--coral)}.principle h3{font-size:24px;margin:auto 0 10px;letter-spacing:-.035em}.principle p{margin:0;color:#64655c;line-height:1.5;font-size:14px}
-    .dark{background:var(--ink);color:var(--paper)}.dark .wrap{padding-block:120px}.dark .section-head{margin-bottom:50px}.dark .section-intro{color:var(--muted)}.code-window{border:1px solid var(--darkline);display:grid;grid-template-columns:220px 1fr;min-height:410px}.code-aside{border-right:1px solid var(--darkline);padding:26px}.code-aside b{display:block;color:var(--acid);font-size:10px;margin-bottom:25px}.code-step{padding:16px 0;border-top:1px solid var(--darkline);font-size:11px;color:var(--muted)}.code-step.active{color:var(--paper)}pre{margin:0;padding:38px;overflow:auto;font:14px/1.8 ui-monospace,SFMono-Regular,Menlo,monospace;color:#d8d5c8}.token-key{color:var(--violet)}.token-string{color:var(--acid)}.token-comment{color:#73746b}
-    .cta{padding:150px 0;text-align:center;position:relative;overflow:hidden}.cta:before{content:"";position:absolute;width:280px;height:100px;background:var(--coral);border:3px solid;border-radius:50%;left:5%;top:22%;transform:rotate(14deg);z-index:-1}.cta h2{font-size:clamp(62px,10vw,150px);line-height:.8;letter-spacing:-.08em;margin:0 auto 38px;max-width:1200px}.cta h2 span{color:var(--violet)}.cta .actions{justify-content:center}
-    footer{border-top:2px solid;padding:28px 0 42px}.footer-row{display:flex;justify-content:space-between;gap:20px;font-size:11px}.footer-row a{color:inherit}.footer-links{display:flex;gap:20px}
-    @media(max-width:980px){.hero{grid-template-columns:1fr;padding-top:60px}.demo-shell{max-width:700px}.section-head{grid-template-columns:1fr}.principles{grid-template-columns:1fr}.principle{min-height:230px}.code-window{grid-template-columns:1fr}.code-aside{border-right:0;border-bottom:1px solid var(--darkline);display:flex;gap:18px;overflow:auto}.code-aside b{margin:0}.code-step{border:0;padding:0;white-space:nowrap}.nav-links a:not(.nav-cta){display:none}}
-    @media(max-width:600px){.wrap{width:min(100% - 28px,1440px)}.hero h1{font-size:64px}.hero{gap:55px}.demo-stage{height:330px}.demo-target{width:174px;height:74px}.section{padding:90px 0}.principle{padding:24px}pre{padding:24px;font-size:12px}.footer-row{flex-direction:column}.dark .wrap{padding-block:90px}}
-    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.ticker-track{animation:none}}
-  </style>
+  <meta name="description" content="Attach traditional-animation effects to existing web interface elements.">
+  <title>Tradimation — Animation effects for existing UI</title>
+  <link rel="stylesheet" href="./site/site.css">
 </head>
 <body>
-  <div class="wrap">
-    <nav aria-label="Primary navigation">
-      <a class="brand mono" href="./index.html"><span class="brand-mark" aria-hidden="true"></span>Tradimation</a>
-      <div class="nav-links mono"><a href="#principles">Principles</a><a href="https://github.com/tradimation/tradimation">GitHub</a><a class="nav-cta" href="./catalog.html">Explore effects ↗</a></div>
-    </nav>
-    <main class="hero">
-      <div>
-        <div class="kicker mono">Framework-free motion library</div>
-        <h1>Make the web <em>act.</em></h1>
-        <p class="hero-copy">Traditional animation timing for real interface elements. One connected texture, authored poses, and movement that never feels like a generic tween.</p>
-        <div class="actions"><a class="button primary mono" href="./catalog.html">Browse 17 effects <span>→</span></a><a class="button secondary mono" href="#start">See how it works</a></div>
-      </div>
-      <div class="demo-shell" aria-label="Interactive effect preview">
-        <div class="demo-bar mono"><span>Live HTML / Canvas</span><span class="lights"><i></i><i></i><i></i></span></div>
-        <div class="demo-stage"><div class="demo-target" id="hero-target"><div><strong>Same HTML.</strong><small>A DIFFERENT PERFORMANCE.</small></div></div></div>
-        <div class="demo-controls"><button class="active" data-effect="smear">Smear</button><button data-effect="anticipation-take">Anticipation</button><button data-effect="stamp-in">Stamp In</button></div>
-      </div>
-    </main>
-  </div>
+  <header class="site-head"><nav aria-label="Primary navigation"><a class="brand mono" href="./index.html"><span class="brand-dot" aria-hidden="true"></span>Tradimation</a><div class="nav-links mono"><a class="current" href="./index.html">Home</a><a href="./catalog.html">Effects</a><a href="https://github.com/tradimation/tradimation">GitHub</a></div></nav></header>
+  <main class="home">
+    <section class="home-hero">
+      <div><h1>Animation effects for existing UI.</h1><p class="home-lead">Keep your components and state. Tradimation adds the motion layer.</p><div class="home-actions"><a class="home-action primary" href="./catalog.html">Browse effects</a><a class="home-action secondary" href="#quick-start">View usage</a></div></div>
+      <section class="home-preview" aria-labelledby="preview-title"><h2 class="sr-only" id="preview-title">Effect preview</h2><div class="home-preview-stage" id="home-preview-stage"><div class="home-preview-target" id="home-preview-target">Existing element</div></div><div class="home-preview-controls" role="group" aria-label="Preview effect"><button type="button" data-home-effect="smear" aria-pressed="true">Smear</button><button type="button" data-home-effect="anticipation-take" aria-pressed="false">Anticipation</button><button type="button" data-home-effect="squash-stretch" aria-pressed="false">Squash</button></div><p class="home-preview-status" id="home-preview-status" role="status" aria-live="polite">Choose an effect to preview it.</p></section>
+    </section>
+    <section class="home-section" aria-labelledby="scope-title"><h2 id="scope-title">What is included</h2><dl class="scope-list"><div class="scope-row"><dt>Core</dt><dd>Controller lifecycle, timing, cleanup, registry, and renderers.</dd></div><div class="scope-row"><dt>Effects</dt><dd>Reusable visual behavior attached to an existing element.</dd></div><div class="scope-row"><dt>Recipes</dt><dd>State, control, entrance, exit, and spatial integration examples.</dd></div></dl></section>
+    <section class="home-section quick-start" id="quick-start" aria-labelledby="quick-start-title"><div><h2 id="quick-start-title">Use it directly</h2><p>The application owns state and lifecycle. Tradimation returns a controller for the visual effect.</p></div><pre><code>import { playEffect } from "@tradimation/core";
 
-  <div class="ticker" aria-hidden="true"><div class="ticker-track"><span>Authored poses</span><span>Connected texture</span><span>Continuous travel</span><span>Traditional timing</span><span>Framework agnostic</span><span>Authored poses</span><span>Connected texture</span><span>Continuous travel</span><span>Traditional timing</span><span>Framework agnostic</span></div></div>
-
-  <section class="section wrap" id="principles">
-    <div class="section-head"><span class="section-label mono">01 / The difference</span><div><h2>Not smoother.<br>More intentional.</h2><p class="section-intro">Tradimation treats motion as a sequence of readable drawings connected by uninterrupted force—not a start value slowly becoming an end value.</p></div></div>
-    <div class="principles">
-      <article class="principle"><span class="principle-num mono">01 / POSE</span><div class="principle-graphic"><i class="shape pose"></i></div><h3>Draw the extremes</h3><p>Anticipation, take, impact, and correction remain distinct enough to read.</p></article>
-      <article class="principle"><span class="principle-num mono">02 / FLOW</span><div class="principle-graphic"><i class="shape speed"></i></div><h3>Connect the force</h3><p>Stretch overlaps travel. Compression starts during braking. No stitched clips.</p></article>
-      <article class="principle"><span class="principle-num mono">03 / SURFACE</span><div class="principle-graphic"><i class="shape"></i></div><h3>Keep the original</h3><p>Connected WebGL deformation preserves the border, type, and identity of your HTML.</p></article>
-    </div>
-  </section>
-
-  <section class="dark" id="start"><div class="wrap">
-    <div class="section-head"><span class="section-label mono">02 / Framework agnostic</span><div><h2>One element.<br>One line to play.</h2><p class="section-intro">Use the registry directly from JavaScript, or wrap the same controller lifecycle in the framework of your choice.</p></div></div>
-    <div class="code-window"><aside class="code-aside mono"><b>Quick start</b><span class="code-step active">01 / Select</span><span class="code-step">02 / Play</span><span class="code-step">03 / Control</span></aside><pre><code><span class="token-key">import</span> { playEffect } <span class="token-key">from</span> <span class="token-string">'@tradimation/core'</span>;
-
-<span class="token-key">const</span> button = document.querySelector(<span class="token-string">'.checkout'</span>);
-
-<span class="token-comment">// Same API in vanilla JS, React, Vue, Svelte, or anywhere else.</span>
-<span class="token-key">const</span> motion = playEffect(button, <span class="token-string">'smear'</span>, {
-  duration: 700,
-  cleanup: <span class="token-string">'restore'</span>
+const controller = playEffect(button, "anticipation-take", {
+  direction: "right",
+  intensity: 0.9
 });
 
-motion.finished.then(() => motion.destroy());</code></pre></div>
-  </div></section>
-
-  <section class="cta wrap"><h2>Give interfaces<br><span>a performance.</span></h2><div class="actions"><a class="button primary mono" href="./catalog.html">Open effect collection →</a><a class="button secondary mono" href="https://github.com/tradimation/tradimation">View source ↗</a></div></section>
-  <footer><div class="wrap footer-row mono"><span>Tradimation / 2026</span><span class="footer-links"><a href="./catalog.html">Effects</a><a href="https://github.com/tradimation/tradimation">GitHub</a></span></div></footer>
-
-  <script type="module">
-    import { createEffect } from './dist/index.js?v=gallery-v2';
-    const target=document.querySelector('#hero-target');
-    const controls=[...document.querySelectorAll('.demo-controls button')];
-    let activeController;
-    async function preview(effect,button){
-      if(activeController)activeController.destroy();
-      controls.forEach(control=>control.classList.toggle('active',control===button));
-      target.style.visibility='visible';target.style.transform='none';
-      const options={cleanup:'restore'};
-      if(effect==='smear')options.overlayRoot=target.parentElement;
-      activeController=createEffect(target,effect,options);
-      await activeController.play();
-      activeController.destroy();activeController=null;
-    }
-    controls.forEach(button=>button.addEventListener('click',()=>preview(button.dataset.effect,button)));
-    if(!matchMedia('(prefers-reduced-motion: reduce)').matches)setTimeout(()=>preview('smear',controls[0]),650);
-  </script>
+button.addEventListener("pointerleave", () =&gt; controller.reverse());</code></pre></section>
+  </main>
+  <footer class="site-footer"><span>Tradimation</span><span><a href="./catalog.html">Effects</a> · <a href="https://github.com/tradimation/tradimation">GitHub</a></span></footer>
+  <script type="module" src="./site/home.js"></script>
 </body>
 </html>

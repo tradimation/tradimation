@@ -14,10 +14,10 @@ effectDocs.forEach((effect, index) => {
   link.dataset.kind = effect.kind;
   link.dataset.search = `${effect.name} ${effect.id} ${effect.group} ${effect.summary}`.toLowerCase();
   link.innerHTML = `
-    <div class="card-top"><span class="index">${String(index + 1).padStart(2, "0")}</span><span class="pill">${effect.kind}</span></div>
+    <div class="card-top"><span class="index">${String(index + 1).padStart(2, "0")}</span><span class="effect-kind">${effect.kind}</span></div>
     <h2>${effect.name}</h2>
     <p class="card-summary">${effect.summary}</p>
-    <span class="card-meta mono">${effect.group} · Open page ↗</span>`;
+    <span class="card-meta">Open playground</span>`;
   collection.append(link);
 });
 
