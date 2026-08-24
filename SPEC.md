@@ -4,11 +4,11 @@ This revision covers **Smear**, **Suck In**, **Spit Out**, **Launch Away**, **St
 
 ## Framework-neutral library
 
-The catalog now runs through `@tradimation/core`, a dependency-free TypeScript package rather than catalog-local animation functions. Its public API accepts existing `HTMLElement` instances, resolves one of 26 manifest-backed definitions, and returns an imperative controller with play, pause, reverse, seek, finish, cancel, playback-rate, and destroy operations. DOM/SVG effects use WAAPI; the six deformation effects use the connected WebGL renderer. Framework integrations remain optional lifecycle adapters over this API.
+The catalog runs through `@tradimation/core`, a dependency-free TypeScript package rather than catalog-local animation functions. Its public API accepts existing `HTMLElement` instances, resolves one of 17 curated manifest-backed definitions, and returns an imperative controller with play, pause, reverse, seek, finish, cancel, playback-rate, and destroy operations. DOM/SVG effects use WAAPI; the six deformation effects use the connected WebGL renderer. Framework integrations remain optional lifecycle adapters over this API.
 
 ## Complete effect catalog
 
-`catalog.html` restores the complete collection described by the original prototype: six core techniques and twenty web recipes. The six reviewed mesh effects reuse the exact connected-texture maps and authored defaults from the motion lab; the remaining effects use DOM, SVG, mask, or state-layer timelines built around the same uninterrupted travel and readable-pose rules. The catalog includes search, category filters, per-card replay, direct interaction examples, responsive layout, and reduced-motion handling while remaining a self-contained HTML file.
+`catalog.html` is a compact index rather than a wall of embedded demos. Each retained definition has a dedicated page under `effects/` with its actual-library preview, rationale, snippet, and adjacent navigation. Effects cover reusable visual behavior; recipes document contextual control, state, entrance, exit, and spatial usage.
 
 ## Programmable motion lab
 

@@ -23,10 +23,10 @@ test("shape exposure preserves exact endpoints", () => {
   assert.equal(celShapeTime(1, 700), 1);
 });
 
-test("canonical registry contains 26 unique effects", () => {
+test("curated registry contains 17 unique effects", () => {
   const ids = listEffects().map((effect) => effect.id);
-  assert.equal(ids.length, 26);
-  assert.equal(new Set(ids).size, 26);
+  assert.equal(ids.length, 17);
+  assert.equal(new Set(ids).size, 17);
 });
 
 test("connected mesh maps remain finite and connected through every pose", () => {

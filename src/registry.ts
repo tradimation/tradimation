@@ -48,8 +48,10 @@ export class EffectRegistry {
   }
 }
 
-export const effects: EffectDefinition[] = [...domEffects, ...meshEffects];
-export const registry = new EffectRegistry(effects);
+export const definitions: EffectDefinition[] = [...domEffects, ...meshEffects];
+export const effects = definitions.filter((definition) => definition.manifest.level === "effect");
+export const recipes = definitions.filter((definition) => definition.manifest.level === "recipe");
+export const registry = new EffectRegistry(definitions);
 
 export const createEffect = (target: HTMLElement, id: EffectId, options: EffectOptions = {}): EffectController =>
   registry.create(target, id, options);

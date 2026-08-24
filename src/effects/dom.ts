@@ -1,4 +1,4 @@
-import { CompositeController, FrameController, createKeyframeController } from "../controller.js";
+import { FrameController, createKeyframeController } from "../controller.js";
 import { drawingTrack } from "../math.js";
 import { shouldReduceMotion } from "../context.js";
 import type { EffectContext, EffectController, EffectDefinition, EffectId, EffectManifest, EffectOptions } from "../types.js";
@@ -23,7 +23,7 @@ const keyframeEffect = (definition: KeyframeDefinitionOptions): EffectDefinition
   manifest: {
     id: definition.id,
     name: definition.name,
-    level: definition.group === "core" ? "technique" : "recipe",
+    level: definition.group === "core" ? "effect" : "recipe",
     group: definition.group,
     lifecycle: definition.lifecycle,
     techniques: definition.techniques,
@@ -173,15 +173,15 @@ const createDrawingSequence = (
   );
 };
 
-const createSwap = (context: EffectContext, compress = false): EffectController => {
+const createCompressSwap = (context: EffectContext): EffectController => {
   const secondary = context.options.secondary;
   if (!(secondary instanceof HTMLElement)) {
-    throw new Error(`${compress ? "CompressSwap" : "LabelFlipTake"} requires options.secondary`);
+    throw new Error("CompressSwap requires options.secondary");
   }
   const source = context.target;
   const sourceStyle = source.style.cssText;
   const destinationStyle = secondary.style.cssText;
-  const duration = Number(context.options.duration ?? (compress ? 780 : 720));
+  const duration = Number(context.options.duration ?? 780);
   const sourceBase = getComputedStyle(source).transform;
   const destinationBase = getComputedStyle(secondary).transform;
   const sourcePrefix = sourceBase === "none" ? "" : `${sourceBase} `;
@@ -192,31 +192,20 @@ const createSwap = (context: EffectContext, compress = false): EffectController 
         secondary.style.visibility = "hidden";
       },
       render(progress) {
-        if (compress) {
-          const switchAt = 0.43;
-          if (progress < switchAt) {
-            source.style.visibility = "visible";
-            secondary.style.visibility = "hidden";
-            const sourceX = drawingTrack(progress, [[0, 1], [0.24, 1], [0.42, 1.14]]);
-            const sourceY = drawingTrack(progress, [[0, 1], [0.24, 1], [0.42, 0.06]]);
-            source.style.transform = `${sourcePrefix}scale(${sourceX}, ${sourceY})`;
-            return;
-          }
-          source.style.visibility = "hidden";
-          secondary.style.visibility = "visible";
-          const scaleX = drawingTrack(progress, [[0.43, 0.08], [0.64, 1.12], [0.82, 0.96], [1, 1]]);
-          const scaleY = drawingTrack(progress, [[0.43, 1.3], [0.64, 0.92], [0.82, 1.05], [1, 1]]);
-          secondary.style.transform = `${destinationPrefix}scale(${scaleX}, ${scaleY})`;
-        } else {
+        const switchAt = 0.43;
+        if (progress < switchAt) {
           source.style.visibility = progress <= 0.4 ? "visible" : "hidden";
           secondary.style.visibility = progress <= 0.4 ? "hidden" : "visible";
-          const sourceX = drawingTrack(progress, [[0, 1], [0.2, 1], [0.4, 1.24], [1, 1.24]]);
-          const sourceY = drawingTrack(progress, [[0, 1], [0.2, 1], [0.4, 0.25], [1, 0.25]]);
-          const destinationX = drawingTrack(progress, [[0, 0.25], [0.41, 0.25], [0.68, 1.08], [1, 1]]);
-          const destinationY = drawingTrack(progress, [[0, 1.28], [0.41, 1.28], [0.68, 0.94], [1, 1]]);
+          const sourceX = drawingTrack(progress, [[0, 1], [0.24, 1], [0.42, 1.14]]);
+          const sourceY = drawingTrack(progress, [[0, 1], [0.24, 1], [0.42, 0.06]]);
           source.style.transform = `${sourcePrefix}scale(${sourceX}, ${sourceY})`;
-          secondary.style.transform = `${destinationPrefix}scale(${destinationX}, ${destinationY})`;
+          return;
         }
+        source.style.visibility = "hidden";
+        secondary.style.visibility = "visible";
+        const scaleX = drawingTrack(progress, [[0.43, 0.08], [0.64, 1.12], [0.82, 0.96], [1, 1]]);
+        const scaleY = drawingTrack(progress, [[0.43, 1.3], [0.64, 0.92], [0.82, 1.05], [1, 1]]);
+        secondary.style.transform = `${destinationPrefix}scale(${scaleX}, ${scaleY})`;
       },
       complete() {
         source.style.visibility = "hidden";
@@ -297,7 +286,7 @@ export const domEffects: EffectDefinition[] = [
     manifest: {
       id: "concentration-lines",
       name: "Concentration Lines",
-      level: "technique",
+      level: "effect",
       group: "core",
       lifecycle: "interaction",
       techniques: ["drawing exposure", "impact"],
@@ -312,7 +301,7 @@ export const domEffects: EffectDefinition[] = [
     manifest: {
       id: "line-boil",
       name: "Line Boil",
-      level: "technique",
+      level: "effect",
       group: "core",
       lifecycle: "ambient",
       techniques: ["replacement drawing", "held exposure"],
@@ -348,30 +337,6 @@ export const domEffects: EffectDefinition[] = [
       { offset: 0.42, clipPath: "circle(80% at 50% 50%)" },
       { offset: 0.58, clipPath: "circle(80% at 50% 50%)" },
       { clipPath: "circle(0% at 50% 50%)" },
-    ],
-  }),
-  keyframeEffect({
-    id: "underline-snap",
-    name: "UnderlineSnap",
-    group: "interaction",
-    lifecycle: "state",
-    description: "One endpoint passes through overlong and correction drawings.",
-    techniques: ["take", "correction"],
-    duration: 760,
-    easing: "linear",
-    keyframes: [
-      { transformOrigin: "left center", transform: "scaleX(0)" },
-      { offset: 0.07, transform: "scaleX(.035)" },
-      { offset: 0.15, transform: "scaleX(.17)" },
-      { offset: 0.26, transform: "scaleX(.47)" },
-      { offset: 0.38, transform: "scaleX(.84)" },
-      { offset: 0.49, transform: "scaleX(1.105)" },
-      { offset: 0.56, transform: "scaleX(1.18)" },
-      { offset: 0.64, transform: "scaleX(1.115)" },
-      { offset: 0.74, transform: "scaleX(.93)" },
-      { offset: 0.84, transform: "scaleX(.965)" },
-      { offset: 0.92, transform: "scaleX(1.012)" },
-      { transform: "scaleX(1)" },
     ],
   }),
   keyframeEffect({
@@ -418,24 +383,6 @@ export const domEffects: EffectDefinition[] = [
     ),
   },
   keyframeEffect({
-    id: "badge-punch",
-    name: "BadgePunch",
-    group: "interaction",
-    lifecycle: "state",
-    description: "A value change lands through wide and tall impact drawings.",
-    techniques: ["impact", "squash", "correction"],
-    duration: 650,
-    easing: "cubic-bezier(.2,.8,.2,1)",
-    keyframes: [
-      { transform: "scale(1)" },
-      { offset: 0.22, transform: "scale(1.35, .68)" },
-      { offset: 0.46, transform: "scale(1.24)" },
-      { offset: 0.66, transform: "scale(.88, 1.2)" },
-      { offset: 0.83, transform: "scale(1.06, .96)" },
-      { transform: "scale(1)" },
-    ],
-  }),
-  keyframeEffect({
     id: "toggle-snap",
     name: "ToggleSnap",
     group: "interaction",
@@ -460,49 +407,6 @@ export const domEffects: EffectDefinition[] = [
         { offset: 0.5, transform: `translateX(${left ? 2 : distance - 2}px) scale(1.34, .8)` },
         { offset: 0.7, transform: `translateX(${left ? -3 : distance + 3}px) scale(.88, 1.16)` },
         { transform: `translateX(${left ? 0 : distance}px) scale(1)` },
-      ];
-    },
-  }),
-  keyframeEffect({
-    id: "radio-pop",
-    name: "RadioPop",
-    group: "interaction",
-    lifecycle: "state",
-    description: "The indicator passes through horizontal squash and vertical stretch.",
-    techniques: ["squash", "stretch"],
-    duration: 650,
-    easing: "cubic-bezier(.2,.8,.2,1)",
-    keyframes: [
-      { transform: "scale(.08)" },
-      { offset: 0.25, transform: "scale(1.45, .34)" },
-      { offset: 0.53, transform: "scale(.72, 1.48)" },
-      { offset: 0.76, transform: "scale(1.12, .92)" },
-      { transform: "scale(1)" },
-    ],
-  }),
-  keyframeEffect({
-    id: "slam-down",
-    name: "SlamDown",
-    group: "entrance",
-    lifecycle: "entrance",
-    description: "Contact precedes maximum squash so falling and compression overlap.",
-    techniques: ["spacing", "contact", "squash"],
-    duration: 980,
-    easing: "linear",
-    keyframes: (context) => {
-      const dropHeight = Number(context.options.distance ?? 148);
-      return [
-        { transformOrigin: "center bottom", transform: `translateY(${-dropHeight}px) scale(.94, 1.12)` },
-        { offset: 0.12, transform: `translateY(${-dropHeight * (133 / 148)}px) scale(.93, 1.15)` },
-        { offset: 0.25, transform: `translateY(${-dropHeight * (101 / 148)}px) scale(.92, 1.18)` },
-        { offset: 0.38, transform: `translateY(${-dropHeight * (58 / 148)}px) scale(.9, 1.22)` },
-        { offset: 0.5, transform: `translateY(${-dropHeight * (14 / 148)}px) scale(.89, 1.24)` },
-        { offset: 0.53, transform: "translateY(0) scale(.89, 1.24)" },
-        { offset: 0.58, transform: "translateY(0) scale(1.16, .83)" },
-        { offset: 0.64, transform: "translateY(0) scale(1.36, .61)" },
-        { offset: 0.75, transform: "translateY(-10px) scale(.91, 1.14)" },
-        { offset: 0.86, transform: "translateY(2px) scale(1.055, .965)" },
-        { transform: "translateY(0) scale(1)" },
       ];
     },
   }),
@@ -553,129 +457,6 @@ export const domEffects: EffectDefinition[] = [
     },
   }),
   keyframeEffect({
-    id: "hover-take",
-    name: "HoverTake",
-    group: "navigation",
-    lifecycle: "interaction",
-    description: "Press, take, and elevated hold form one interruptible response.",
-    techniques: ["anticipation", "take", "hold"],
-    duration: 650,
-    easing: "cubic-bezier(.18,.8,.2,1)",
-    keyframes: [
-      { transform: "translateY(0) scale(1)" },
-      { offset: 0.17, transform: "translateY(4px) scale(1.03, .97)" },
-      { offset: 0.48, transform: "translateY(-13px) scale(.98, 1.03)" },
-      { offset: 0.68, transform: "translateY(-9px) scale(1)" },
-      { transform: "translateY(-10px) scale(1)" },
-    ],
-  }),
-  {
-    manifest: {
-      id: "label-flip-take",
-      name: "LabelFlipTake",
-      level: "recipe",
-      group: "navigation",
-      lifecycle: "state",
-      techniques: ["compression", "drawing switch"],
-      renderers: ["dom"],
-      description: "The destination drawing appears exactly at source compression.",
-      motionRisk: "low",
-    },
-    create: (context) => createSwap(context),
-  },
-  keyframeEffect({
-    id: "text-punch",
-    name: "TextPunch",
-    group: "navigation",
-    lifecycle: "interaction",
-    description: "A glyph block keeps its content through opposing wide and tall extremes.",
-    techniques: ["typography", "impact"],
-    duration: 650,
-    easing: "cubic-bezier(.2,.8,.2,1)",
-    keyframes: [
-      { transform: "scale(1)" },
-      { offset: 0.25, transform: "scale(1.32, .74)" },
-      { offset: 0.5, transform: "scale(.78, 1.28)" },
-      { offset: 0.72, transform: "scale(1.08, .95)" },
-      { transform: "scale(1)" },
-    ],
-  }),
-  keyframeEffect({
-    id: "icon-kick",
-    name: "IconKick",
-    group: "navigation",
-    lifecycle: "interaction",
-    description: "A directional icon uses one opposing preparation and one correction.",
-    techniques: ["anticipation", "direction", "secondary action"],
-    duration: 730,
-    easing: "cubic-bezier(.18,.8,.2,1)",
-    keyframes: [
-      { transform: "translateX(0) rotate(0)" },
-      { offset: 0.18, transform: "translateX(-8px) rotate(-7deg)" },
-      { offset: 0.48, transform: "translateX(26px) rotate(4deg) scale(1.16, .9)" },
-      { offset: 0.68, transform: "translateX(-3px) rotate(-2deg) scale(1)" },
-      { offset: 0.82, transform: "translateX(2px) rotate(1deg) scale(1)" },
-      { transform: "translateX(0) rotate(0) scale(1)" },
-    ],
-  }),
-  {
-    manifest: {
-      id: "speech-bubble-pop",
-      name: "SpeechBubblePop",
-      level: "recipe",
-      group: "state",
-      lifecycle: "entrance",
-      techniques: ["pop", "secondary action"],
-      renderers: ["dom"],
-      description: "The bubble body establishes before its tail follows.",
-      motionRisk: "low",
-    },
-    create(context) {
-      const body = createKeyframeController(
-        context.target,
-        [
-          { transform: "scale(.05)" },
-          { offset: 0.22, transform: "scale(1.2, .3)" },
-          { offset: 0.45, transform: "scale(.82, 1.24)" },
-          { offset: 0.68, transform: "scale(1.06, .97)" },
-          { transform: "scale(1)" },
-        ],
-        {
-          duration: Number(context.options.duration ?? 760),
-          easing: "cubic-bezier(.18,.8,.2,1)",
-          cleanup: context.options.cleanup ?? "commit",
-          preserveTransform: context.options.preserveTransform !== false,
-          reducedMotion: shouldReduceMotion(context.options, context.window),
-          ...(context.options.playbackRate !== undefined ? { playbackRate: context.options.playbackRate } : {}),
-          ...(context.options.signal ? { signal: context.options.signal } : {}),
-        },
-      );
-      const tail = context.target.querySelector<HTMLElement>("[data-cel-tail]");
-      if (!tail) return body;
-      return new CompositeController([
-        body,
-        createKeyframeController(
-          tail,
-          [
-            { opacity: 0, transform: "rotate(45deg) scale(0)" },
-            { offset: 0.68, opacity: 0, transform: "rotate(45deg) scale(0)" },
-            { offset: 0.78, opacity: 1, transform: "rotate(45deg) scale(1.25)" },
-            { opacity: 1, transform: "rotate(45deg) scale(1)" },
-          ],
-          {
-            duration: Number(context.options.duration ?? 760),
-            easing: "ease",
-            cleanup: context.options.cleanup ?? "commit",
-            preserveTransform: false,
-            reducedMotion: shouldReduceMotion(context.options, context.window),
-            ...(context.options.playbackRate !== undefined ? { playbackRate: context.options.playbackRate } : {}),
-            ...(context.options.signal ? { signal: context.options.signal } : {}),
-          },
-        ),
-      ]);
-    },
-  },
-  keyframeEffect({
     id: "toast-take",
     name: "ToastTake",
     group: "state",
@@ -706,6 +487,6 @@ export const domEffects: EffectDefinition[] = [
       description: "The source disappears at maximum compression and the destination enters stretched.",
       motionRisk: "low",
     },
-    create: (context) => createSwap(context, true),
+    create: createCompressSwap,
   },
 ];

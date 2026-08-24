@@ -1,4 +1,4 @@
-export type EffectLevel = "technique" | "recipe";
+export type EffectLevel = "effect" | "recipe";
 export type EffectGroup = "core" | "interaction" | "entrance" | "navigation" | "state" | "spatial";
 export type EffectLifecycle = "interaction" | "entrance" | "exit" | "state" | "ambient" | "transition";
 export type ControllerState = "idle" | "running" | "paused" | "finished" | "cancelled";
@@ -11,22 +11,13 @@ export type EffectId =
   | "concentration-lines"
   | "line-boil"
   | "iris"
-  | "underline-snap"
   | "pop-out"
   | "cartoon-check"
-  | "badge-punch"
   | "toggle-snap"
-  | "radio-pop"
-  | "slam-down"
   | "launch-away"
   | "stretch-wipe"
   | "stamp-in"
   | "tab-underline-take"
-  | "hover-take"
-  | "label-flip-take"
-  | "text-punch"
-  | "icon-kick"
-  | "speech-bubble-pop"
   | "toast-take"
   | "compress-swap"
   | "suck-in"

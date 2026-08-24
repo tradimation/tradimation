@@ -32,7 +32,7 @@ React, Vue, Svelte, and Web Components can all use that same contract. They must
 - `src/effects/dom.ts`: DOM, SVG, mask, and layered-state timelines.
 - `src/effects/mesh.ts`: connected-texture effect manifests and controller setup.
 - `src/effects/mesh-maps.ts`: the six reviewed programmable deformation maps.
-- `src/registry.ts`: canonical 26-effect registry and public creation API.
+- `src/registry.ts`: curated registry, effect/recipe collections, and public creation API.
 - `src/controller.ts`: pause, reverse, seek, finish, cancel, and cleanup semantics.
 - `src/renderers/connected-texture.ts`: whole-element capture and shared WebGL mesh.
 

@@ -182,7 +182,7 @@ export const meshEffects: EffectDefinition[] = definitions.map((definition) => (
   manifest: {
     id: definition.id,
     name: definition.name,
-    level: definition.group === "core" ? "technique" : "recipe",
+    level: definition.group === "core" ? "effect" : "recipe",
     group: definition.group,
     lifecycle: definition.lifecycle,
     techniques: definition.techniques,

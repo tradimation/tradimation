@@ -2,7 +2,13 @@
 
 Framework-neutral traditional-animation effects for existing web elements. Tradimation uses Web Animations API for DOM/SVG effects and a connected WebGL texture mesh for deformation effects. It has no React dependency and no runtime package dependency.
 
-**Website:** [tradimation.github.io/tradimation](https://tradimation.github.io/tradimation/) · **Effect collection:** [Browse all 26 effects](https://tradimation.github.io/tradimation/catalog.html)
+**Website:** [tradimation.github.io/tradimation](https://tradimation.github.io/tradimation/) · **Collection:** [Browse 17 effects and recipes](https://tradimation.github.io/tradimation/catalog.html)
+
+Tradimation deliberately separates three scopes:
+
+- **Core** owns controllers, timelines, cleanup, the registry, and renderers.
+- **Effects** are reusable visual behaviors that attach to an existing element.
+- **Recipes** show how an effect participates in a real control, state change, entrance, exit, or spatial handoff.
 
 ## Install and build
 
@@ -19,7 +25,7 @@ import { playEffect } from "@tradimation/core";
 const button = document.querySelector<HTMLButtonElement>("#save");
 
 if (button) {
-  const controller = playEffect(button, "hover-take", {
+  const controller = playEffect(button, "anticipation-take", {
     direction: "up",
     intensity: 0.9,
   });
@@ -89,10 +95,13 @@ controller.destroy();
 ## Registry
 
 ```ts
-import { EffectRegistry, effects, listEffects } from "@tradimation/core";
+import { definitions, EffectRegistry, effects, listEffects, recipes } from "@tradimation/core";
 
-const manifests = listEffects(); // 26 canonical effects
-const customRegistry = new EffectRegistry(effects);
+const manifests = listEffects(); // 17 curated definitions
+const customRegistry = new EffectRegistry(definitions);
+
+effects; // reusable visual techniques
+recipes; // contextual UI integrations
 customRegistry.register(myCustomEffect);
 ```
 
@@ -102,4 +111,7 @@ The manifest layer is framework-neutral, so a React, Vue, Svelte, Web Component,
 
 - `index.html`: project landing page and interactive preview
 - `cel-motion-gallery-v2.html`: canonical motion-reference collection
-- `catalog.html`: actual-library collection
+- `catalog.html`: searchable effect and recipe index
+- `effects/*.html`: one focused preview and integration page per definition
+
+See `EFFECTS.md` for the retention criteria and the effects removed during the 17-effect curation pass.
