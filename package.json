@@ -24,7 +24,8 @@
     }
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.json && npm run build:site",
+    "build:site": "node scripts/generate-effect-pages.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "node --test tests/*.test.mjs"
   },
