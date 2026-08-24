@@ -52,11 +52,15 @@ const directionalPoint = (direction: EffectOptions["direction"], x: number, y: n
   return [x * intensity, y * intensity];
 };
 
+const scaled = (value: number, intensity: number): number => 1 + (value - 1) * intensity;
+
 const createConcentrationLines = (context: EffectContext): EffectController => {
   const root = context.options.overlayRoot ?? context.document.body;
   const viewportMode = root === context.document.body || root === context.document.documentElement;
   const originalRootPosition = root.style.position;
   const originalTargetStyle = context.target.style.cssText;
+  const intensity = Number(context.options.intensity ?? 1);
+  const distance = Number(context.options.distance ?? 47);
   const overlay = context.document.createElement("div");
   const lines = Array.from({ length: 12 }, (_, index) => {
     const line = context.document.createElement("i");
@@ -88,15 +92,14 @@ const createConcentrationLines = (context: EffectContext): EffectController => {
       render(progress) {
         positionOverlay();
         const opacity = drawingTrack(progress, [[0, 0], [0.08, 1], [0.82, 1], [0.83, 0], [1, 0]]);
-        const distance = 47;
         const scale = drawingTrack(progress, [[0, 0.04], [0.08, 0.22], [0.18, 1.18], [0.27, 0.94], [0.34, 1], [0.67, 1], [0.73, 0.68], [0.82, 0.2], [0.83, 0.04], [1, 0.04]]);
         const targetScaleX = drawingTrack(progress, [[0, 1], [0.16, 1.13], [0.27, 0.96], [0.38, 1], [0.72, 1], [0.82, 1.025], [1, 1]]);
         const targetScaleY = drawingTrack(progress, [[0, 1], [0.16, 0.89], [0.27, 1.055], [0.38, 1], [0.72, 1], [0.82, 0.985], [1, 1]]);
-        context.target.style.transform = `scale(${targetScaleX}, ${targetScaleY})`;
+        context.target.style.transform = `scale(${scaled(targetScaleX, intensity)}, ${scaled(targetScaleY, intensity)})`;
         lines.forEach((line) => {
           const angle = Number(line.dataset.angle);
           line.style.opacity = String(opacity);
-          line.style.transform = `rotate(${angle}deg) translateX(${distance}px) scaleX(${scale})`;
+          line.style.transform = `rotate(${angle}deg) translateX(${distance * intensity}px) scaleX(${scale * intensity})`;
         });
       },
       complete() {
@@ -273,14 +276,18 @@ export const domEffects: EffectDefinition[] = [
     techniques: ["squash", "stretch", "volume"],
     duration: 760,
     easing: "cubic-bezier(.18,.8,.2,1)",
-    keyframes: [
-      { transform: "scale(1)" },
-      { offset: 0.22, transform: "scale(1.34, .66)" },
-      { offset: 0.48, transform: "scale(.76, 1.35)" },
-      { offset: 0.69, transform: "scale(1.1, .92)" },
-      { offset: 0.84, transform: "scale(.97, 1.04)" },
-      { transform: "scale(1)" },
-    ],
+    keyframes: (context) => {
+      const intensity = Number(context.options.intensity ?? 1);
+      const pose = (x: number, y: number) => `scale(${scaled(x, intensity)}, ${scaled(y, intensity)})`;
+      return [
+        { transform: "scale(1)" },
+        { offset: 0.22, transform: pose(1.34, 0.66) },
+        { offset: 0.48, transform: pose(0.76, 1.35) },
+        { offset: 0.69, transform: pose(1.1, 0.92) },
+        { offset: 0.84, transform: pose(0.97, 1.04) },
+        { transform: "scale(1)" },
+      ];
+    },
   }),
   {
     manifest: {
@@ -348,14 +355,18 @@ export const domEffects: EffectDefinition[] = [
     techniques: ["squash", "stretch", "entrance"],
     duration: 760,
     easing: "cubic-bezier(.18,.8,.2,1)",
-    keyframes: [
-      { transform: "scale(.05)" },
-      { offset: 0.2, transform: "scale(1.18, .24)" },
-      { offset: 0.42, transform: "scale(.74, 1.25)" },
-      { offset: 0.65, transform: "scale(1.08, .95)" },
-      { offset: 0.82, transform: "scale(.98, 1.03)" },
-      { transform: "scale(1)" },
-    ],
+    keyframes: (context) => {
+      const intensity = Number(context.options.intensity ?? 1);
+      const pose = (x: number, y: number = x) => `scale(${scaled(x, intensity)}, ${scaled(y, intensity)})`;
+      return [
+        { transform: pose(0.05) },
+        { offset: 0.2, transform: pose(1.18, 0.24) },
+        { offset: 0.42, transform: pose(0.74, 1.25) },
+        { offset: 0.65, transform: pose(1.08, 0.95) },
+        { offset: 0.82, transform: pose(0.98, 1.03) },
+        { transform: "scale(1)" },
+      ];
+    },
   }),
   {
     manifest: {
