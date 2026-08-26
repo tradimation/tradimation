@@ -1,5 +1,5 @@
 import { FrameController, createKeyframeController } from "../controller.js";
-import { drawingTrack } from "../math.js";
+import { boxEdgeDistance, drawingTrack } from "../math.js";
 import { shouldReduceMotion } from "../context.js";
 import type { EffectContext, EffectController, EffectDefinition, EffectId, EffectManifest, EffectOptions } from "../types.js";
 
@@ -60,7 +60,7 @@ const createConcentrationLines = (context: EffectContext): EffectController => {
   const originalRootPosition = root.style.position;
   const originalTargetStyle = context.target.style.cssText;
   const intensity = Number(context.options.intensity ?? 1);
-  const distance = Number(context.options.distance ?? 47);
+  const distance = Number(context.options.distance ?? 18);
   const overlay = context.document.createElement("div");
   const lines = Array.from({ length: 12 }, (_, index) => {
     const line = context.document.createElement("i");
@@ -96,10 +96,12 @@ const createConcentrationLines = (context: EffectContext): EffectController => {
         const targetScaleX = drawingTrack(progress, [[0, 1], [0.16, 1.13], [0.27, 0.96], [0.38, 1], [0.72, 1], [0.82, 1.025], [1, 1]]);
         const targetScaleY = drawingTrack(progress, [[0, 1], [0.16, 0.89], [0.27, 1.055], [0.38, 1], [0.72, 1], [0.82, 0.985], [1, 1]]);
         context.target.style.transform = `scale(${scaled(targetScaleX, intensity)}, ${scaled(targetScaleY, intensity)})`;
+        const targetRect = context.target.getBoundingClientRect();
         lines.forEach((line) => {
           const angle = Number(line.dataset.angle);
+          const edgeDistance = boxEdgeDistance(targetRect.width, targetRect.height, angle);
           line.style.opacity = String(opacity);
-          line.style.transform = `rotate(${angle}deg) translateX(${distance * intensity}px) scaleX(${scale * intensity})`;
+          line.style.transform = `rotate(${angle}deg) translateX(${edgeDistance + distance * intensity}px) scaleX(${scale * intensity})`;
         });
       },
       complete() {
@@ -298,7 +300,7 @@ export const domEffects: EffectDefinition[] = [
       lifecycle: "interaction",
       techniques: ["drawing exposure", "impact"],
       renderers: ["dom"],
-      description: "Authored seed, impact, correction, and collapse drawings surround a target.",
+      description: "Authored seed, impact, correction, and collapse drawings follow the measured target bounds.",
       requires: { overlay: true },
       motionRisk: "medium",
     },

@@ -71,6 +71,17 @@ export const drawingTrack = (time: number, keys: readonly TrackKey[]): number =>
   return mix(from[1], to[1], segment(time, from[0], to[0]));
 };
 
+export const boxEdgeDistance = (width: number, height: number, angleDegrees: number): number => {
+  const radiusX = Math.max(0, width) / 2;
+  const radiusY = Math.max(0, height) / 2;
+  if (radiusX === 0 || radiusY === 0) return 0;
+
+  const angle = (angleDegrees * Math.PI) / 180;
+  const distanceX = Math.abs(Math.cos(angle)) < Number.EPSILON ? Number.POSITIVE_INFINITY : radiusX / Math.abs(Math.cos(angle));
+  const distanceY = Math.abs(Math.sin(angle)) < Number.EPSILON ? Number.POSITIVE_INFINITY : radiusY / Math.abs(Math.sin(angle));
+  return Math.min(distanceX, distanceY);
+};
+
 export const celExposure = (time: number, duration: number, fps = 18, transition = 0.38): number => {
   if (time >= 1) return 1;
   const drawingCount = (duration / 1000) * fps;

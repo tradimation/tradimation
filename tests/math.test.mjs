@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { celShapeTime, flowTrack, motionCurve } from "../dist/math.js";
+import { boxEdgeDistance, celShapeTime, flowTrack, motionCurve } from "../dist/math.js";
 import { listEffects } from "../dist/registry.js";
 import { meshDefaults, meshMaps } from "../dist/effects/mesh-maps.js";
 import { effectDocs } from "../site/effects.js";
@@ -22,6 +22,12 @@ test("flowTrack remains inside a monotonic track", () => {
 test("shape exposure preserves exact endpoints", () => {
   assert.equal(celShapeTime(0, 700), 0);
   assert.equal(celShapeTime(1, 700), 1);
+});
+
+test("box edge distance follows rectangular target bounds", () => {
+  assert.equal(boxEdgeDistance(200, 80, 0), 100);
+  assert.equal(boxEdgeDistance(200, 80, 90), 40);
+  assert.ok(Math.abs(boxEdgeDistance(200, 80, 45) - Math.SQRT2 * 40) < 0.001);
 });
 
 test("curated registry contains 16 unique effects", () => {
