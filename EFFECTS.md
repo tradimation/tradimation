@@ -10,10 +10,10 @@ Tradimation keeps an effect only when its silhouette, timing, or integration con
 
 ## Removed during curation
 
-- `underline-snap`: superseded by the geometry-aware `tab-underline-take` recipe.
+- `underline-snap`: superseded by the geometry-aware `tab-indicator-sweep` recipe.
 - `badge-punch`, `radio-pop`, `text-punch`, and `pop-out`: visual restatements of `squash-stretch`.
 - `slam-down`: superseded by the connected-texture `stamp-in` recipe.
-- `hover-take` and `icon-kick`: small contextual variations of `anticipation-take`.
+- `hover-take` and `icon-kick`: small contextual variations of `wind-up-shift`.
 - `label-flip-take`: a weaker state-swap variation of `compress-swap`.
 - `speech-bubble-pop`: a component-specific squash-and-stretch entrance.
 - `line-boil`: requires authored replacement drawings but does not communicate a meaningful UI state change.

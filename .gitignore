@@ -1,4 +1,6 @@
 dist/
+site-dist/
+website/effects/
 node_modules/
 artifacts/
 *.tgz

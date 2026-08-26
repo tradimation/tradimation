@@ -5,7 +5,7 @@ export type ControllerState = "idle" | "running" | "paused" | "finished" | "canc
 export type CleanupMode = "restore" | "commit" | "hide";
 
 export type EffectId =
-  | "anticipation-take"
+  | "wind-up-shift"
   | "squash-stretch"
   | "smear"
   | "concentration-lines"
@@ -14,8 +14,8 @@ export type EffectId =
   | "launch-away"
   | "stretch-wipe"
   | "stamp-in"
-  | "tab-underline-take"
-  | "toast-take"
+  | "tab-indicator-sweep"
+  | "toast-snap-in"
   | "compress-swap"
   | "suck-in"
   | "spit-out";

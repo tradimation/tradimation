@@ -3,5 +3,5 @@
   "categories": {
     "correctness": "error"
   },
-  "ignorePatterns": ["dist/**", "effects/**", "artifacts/**"]
+  "ignorePatterns": ["dist/**", "effects/**", "site-dist/**", "website/effects/**", "artifacts/**"]
 }

@@ -28,18 +28,13 @@ jobs:
       - run: corepack enable
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
-      - name: Assemble static site
-        run: |
-          mkdir _site
-          cp index.html catalog.html _site/
-          cp -R dist effects site _site/
-          touch _site/.nojekyll
+      - run: touch site-dist/.nojekyll
       - uses: actions/configure-pages@v5
         with:
           enablement: true
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: _site
+          path: site-dist
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4

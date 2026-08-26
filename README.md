@@ -29,7 +29,7 @@ import { playEffect } from "@tradimation/core";
 const button = document.querySelector<HTMLButtonElement>("#save");
 
 if (button) {
-  const controller = playEffect(button, "anticipation-take", {
+  const controller = playEffect(button, "wind-up-shift", {
     direction: "up",
     intensity: 0.9,
   });
@@ -62,11 +62,11 @@ Existing transforms are preserved by default. Set `preserveTransform: false` onl
 
 ## Stateful controls
 
-Tradimation animates control geometry while the application owns logical state. `toggle-snap` measures the knob's available travel from its track, and `tab-underline-take` measures the destination tab instead of assuming equal-width labels.
+Tradimation animates control geometry while the application owns logical state. `toggle-snap` measures the knob's available travel from its track, and `tab-indicator-sweep` measures the destination tab instead of assuming equal-width labels.
 
 ```ts
 playEffect(toggleKnob, "toggle-snap", { direction: checked ? "right" : "left" });
-playEffect(tabUnderline, "tab-underline-take", { destination: selectedTab });
+playEffect(tabUnderline, "tab-indicator-sweep", { destination: selectedTab });
 ```
 
 ## Explicit control
@@ -99,11 +99,12 @@ customRegistry.register(myCustomEffect);
 
 The manifest layer is framework-neutral, so a React, Vue, Svelte, Web Component, or imperative adapter can wrap the same definitions without owning animation behavior.
 
-## Catalogs
+## Site development
 
-- `index.html`: project landing page and interactive preview
-- `cel-motion-gallery-v2.html`: archived internal motion-reference collection; not deployed
-- `catalog.html`: searchable effect and recipe index
-- `effects/*.html`: one focused playground per definition with live parameters and generated usage
+```bash
+pnpm dev:site
+```
+
+The documentation site is a Svelte 5 multi-page app in `website/`. Production pages are generated into `site-dist/`, so every effect keeps a direct static URL on GitHub Pages. `cel-motion-gallery-v2.html` remains an archived internal motion reference and is not deployed.
 
 See `EFFECTS.md` for the retention criteria and the effects removed during curation.

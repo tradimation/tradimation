@@ -189,8 +189,8 @@ const createCompressSwap = (context: EffectContext): EffectController => {
 
 export const domEffects: EffectDefinition[] = [
   keyframeEffect({
-    id: "anticipation-take",
-    name: "Anticipation → Take",
+    id: "wind-up-shift",
+    name: "Wind-Up Shift",
     group: "core",
     lifecycle: "interaction",
     description: "Opposing preparation flows directly into a directional take.",
@@ -304,7 +304,7 @@ export const domEffects: EffectDefinition[] = [
     },
   }),
   keyframeEffect({
-    id: "tab-underline-take",
+    id: "tab-indicator-sweep",
     name: "TabUnderlineTake",
     group: "navigation",
     lifecycle: "state",
@@ -350,7 +350,7 @@ export const domEffects: EffectDefinition[] = [
     },
   }),
   keyframeEffect({
-    id: "toast-take",
+    id: "toast-snap-in",
     name: "ToastTake",
     group: "state",
     lifecycle: "entrance",

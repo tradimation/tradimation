@@ -25,9 +25,11 @@
     }
   },
   "scripts": {
-    "build": "tsdown && pnpm build:site",
-    "build:site": "node scripts/generate-effect-pages.mjs",
-    "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm build",
+    "build": "pnpm build:core && pnpm build:site",
+    "build:core": "tsdown",
+    "build:site": "node scripts/generate-site-pages.mjs && vite build --config website/vite.config.js",
+    "dev:site": "pnpm build:core && vite --config website/vite.config.js",
+    "check": "pnpm lint && pnpm typecheck && pnpm build:core && pnpm test && pnpm build:site",
     "format": "oxfmt --write .",
     "format:check": "oxfmt --check .",
     "lint": "oxlint . && pnpm lint:site-copy",
@@ -44,9 +46,12 @@
   ],
   "license": "UNLICENSED",
   "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^7.3.0",
     "oxfmt": "0.62.0",
     "oxlint": "1.77.0",
+    "svelte": "^5.56.10",
     "tsdown": "^0.22.14",
-    "typescript": "^7.0.2"
+    "typescript": "^7.0.2",
+    "vite": "^8.2.2"
   }
 }
