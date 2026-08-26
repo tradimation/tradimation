@@ -4,7 +4,7 @@ This revision covers **Smear**, **Suck In**, **Spit Out**, **Launch Away**, **St
 
 ## Framework-neutral library
 
-The catalog runs through `@tradimation/core`, a dependency-free TypeScript package rather than catalog-local animation functions. Its public API accepts existing `HTMLElement` instances, resolves one of 16 curated manifest-backed definitions, and returns an imperative controller with play, pause, reverse, seek, finish, cancel, playback-rate, and destroy operations. DOM/SVG effects use WAAPI; the six deformation effects use the connected WebGL renderer. Framework integrations remain optional lifecycle adapters over this API.
+The catalog runs through `@tradimation/core`, a dependency-free TypeScript package rather than catalog-local animation functions. Its public API accepts existing `HTMLElement` instances, resolves one of 14 curated manifest-backed definitions, and returns an imperative controller with play, pause, reverse, seek, finish, cancel, playback-rate, and destroy operations. DOM/SVG effects use WAAPI; the six deformation effects use the connected WebGL renderer. Framework integrations remain optional lifecycle adapters over this API.
 
 ## Complete effect catalog
 

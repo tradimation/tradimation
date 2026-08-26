@@ -205,18 +205,6 @@
   [data-effect="iris"].run .iris-mask{animation:irisOutIn 1300ms ease-in-out both}
   @keyframes irisOutIn{0%{clip-path:circle(0% at 50% 50%)}42%,58%{clip-path:circle(80% at 50% 50%)}100%{clip-path:circle(0% at 50% 50%)}}
 
-  /* 06 Line Boil */
-  .boil{width:128px;height:82px;position:relative}
-  .boil svg{position:absolute;inset:0;width:100%;height:100%}
-  .boil rect{fill:#fff;stroke:var(--ink);stroke-width:2.3}
-  .boil .b2,.boil .b3{opacity:0}
-  [data-effect="line-boil"].run .boil .b1{animation:boil1 1.5s steps(1) infinite}
-  [data-effect="line-boil"].run .boil .b2{animation:boil2 1.5s steps(1) infinite}
-  [data-effect="line-boil"].run .boil .b3{animation:boil3 1.5s steps(1) infinite}
-  @keyframes boil1{0%,32%{opacity:1}33%,100%{opacity:0}}
-  @keyframes boil2{0%,32%,66%,100%{opacity:0}33%,65%{opacity:1}}
-  @keyframes boil3{0%,65%{opacity:0}66%,99%{opacity:1}}
-
   /* 07 UnderlineSnap v2 — one continuous endpoint */
   .underline-word{font-size:31px;font-weight:950;letter-spacing:-.05em;position:relative}
   .underline-word::after{content:"";position:absolute;left:0;bottom:-8px;width:100%;height:4px;background:var(--accent);border-radius:4px;transform-origin:left;transform:scaleX(0)}
@@ -235,17 +223,6 @@
     92%{transform:scaleX(1.012)}
     100%{transform:scaleX(1)}
   }
-
-  /* 09 CartoonCheck */
-  .check-wrap{width:92px;height:92px;border:2px solid var(--ink);border-radius:24px;background:#fff;display:grid;place-items:center}
-  .check-wrap svg{width:62px;height:62px}
-  .check-wrap path{fill:none;stroke:var(--accent2);stroke-width:8;stroke-linecap:round;stroke-linejoin:round;opacity:0}
-  [data-effect="cartoon-check"].run .check-wrap .c1{animation:c1 760ms steps(1) both}
-  [data-effect="cartoon-check"].run .check-wrap .c2{animation:c2 760ms steps(1) both}
-  [data-effect="cartoon-check"].run .check-wrap .c3{animation:c3 760ms steps(1) both}
-  @keyframes c1{0%,14%{opacity:0}15%,34%{opacity:1}35%,100%{opacity:0}}
-  @keyframes c2{0%,34%{opacity:0}35%,59%{opacity:1}60%,100%{opacity:0}}
-  @keyframes c3{0%,59%{opacity:0}60%,100%{opacity:1}}
 
   /* 10 BadgePunch */
   [data-effect="badge-punch"].run .demo-badge{animation:badgePunch 650ms cubic-bezier(.2,.8,.2,1) both}
@@ -395,9 +372,9 @@
         전통 애니메이션 문법을 웹 인터랙션으로 번역한 효과 모음집.
       </div>
       <div class="stats">
-        <div class="stat"><b>25</b> effects</div>
-        <div class="stat"><b>6</b> core techniques</div>
-        <div class="stat"><b>19</b> web recipes</div>
+        <div class="stat"><b>23</b> effects</div>
+        <div class="stat"><b>5</b> core techniques</div>
+        <div class="stat"><b>18</b> web recipes</div>
         <div class="stat"><b>6</b> upgraded connected effects</div>
       </div>
       <svg class="hero-scribble" viewBox="0 0 180 180" aria-hidden="true">
@@ -441,33 +418,30 @@ const effects = [
   ["03","Smear","smear","core","technique","DOM snapshot을 Canvas surface로 이어 받아 같은 texture를 연속적으로 smear warp한다.",["canvas","warp","continuity"]],
   ["04","Concentration Lines","concentration-lines","core","technique","선이 fade하지 않고 seed → impact drawing → collapse의 limited poses로 집중된다.",["focus","limited","impact"]],
   ["05","Iris In / Out","iris","core","technique","장면 전체를 aperture처럼 열거나 닫는 고전 transition.",["mask","scene"]],
-  ["06","Line Boil","line-boil","core","technique","같은 선의 미세하게 다른 redraw를 교체해 살아 있는 선을 만든다.",["redraw","limited"]],
+  ["06","UnderlineSnap","underline-snap","direct","recipe","하나의 endpoint가 끊김 없이 목표를 지나쳤다가 정확한 길이로 돌아온다.",["continuous","overshoot"]],
 
-  ["07","UnderlineSnap","underline-snap","direct","recipe","하나의 endpoint가 끊김 없이 목표를 지나쳤다가 정확한 길이로 돌아온다.",["continuous","overshoot"]],
-  ["08","CartoonCheck","cartoon-check","direct","recipe","continuous stroke 대신 서로 다른 check pose를 교체한다.",["replacement","check"]],
+  ["07","BadgePunch","badge-punch","controls","recipe","count 변경을 badge 자체의 squash/stretch impact로 강조한다.",["count","impact"]],
+  ["08","ToggleSnap","toggle-snap","controls","recipe","knob가 backstep → stretched travel → compressed landing으로 이동한다.",["state","take"]],
+  ["09","RadioPop","radio-pop","controls","recipe","작은 radio dot에 분명한 squash/stretch pose를 적용한다.",["control","pop"]],
 
-  ["09","BadgePunch","badge-punch","controls","recipe","count 변경을 badge 자체의 squash/stretch impact로 강조한다.",["count","impact"]],
-  ["10","ToggleSnap","toggle-snap","controls","recipe","knob가 backstep → stretched travel → compressed landing으로 이동한다.",["state","take"]],
-  ["11","RadioPop","radio-pop","controls","recipe","작은 radio dot에 분명한 squash/stretch pose를 적용한다.",["control","pop"]],
+  ["10","SlamDown","slam-down","entrance","recipe","낙하 후 contact가 먼저 일어나고, momentum이 조금 늦게 squash로 전환된다.",["contact","compression"]],
+  ["11","LaunchAway","launch-away","entrance","recipe","DOM texture 자체가 발사 방향으로 연속 smear warp되며 화면 밖으로 빠져나간다.",["canvas","exit","warp"]],
+  ["12","StretchWipe","stretch-wipe","entrance","recipe","target identity를 유지한 채 이동 방향으로 과도하게 늘어난다.",["stretch","identity"]],
+  ["13","StampIn","stamp-in","entrance","recipe","도장을 찍듯 접근해 강한 squash 후 표면에 고정된다.",["stamp","landing"]],
 
-  ["12","SlamDown","slam-down","entrance","recipe","낙하 후 contact가 먼저 일어나고, momentum이 조금 늦게 squash로 전환된다.",["contact","compression"]],
-  ["13","LaunchAway","launch-away","entrance","recipe","DOM texture 자체가 발사 방향으로 연속 smear warp되며 화면 밖으로 빠져나간다.",["canvas","exit","warp"]],
-  ["14","StretchWipe","stretch-wipe","entrance","recipe","target identity를 유지한 채 이동 방향으로 과도하게 늘어난다.",["stretch","identity"]],
-  ["15","StampIn","stamp-in","entrance","recipe","도장을 찍듯 접근해 강한 squash 후 표면에 고정된다.",["stamp","landing"]],
+  ["14","TabUnderlineTake","tab-underline-take","navtext","recipe","기존 underline이 anticipation과 stretch로 다음 tab까지 이동한다.",["tab","spatial"]],
+  ["15","HoverTake","hover-take","navtext","recipe","즉시 뜨지 않고 먼저 눌렸다가 위로 take한다.",["hover","anticipation"]],
+  ["16","LabelFlipTake","label-flip-take","navtext","recipe","기존 label을 압축하고 새 label을 stretch pose로 꺼낸다.",["label","state"]],
+  ["17","TextPunch","text-punch","navtext","recipe","내용은 유지한 채 glyph block 전체가 짧은 impact를 받는다.",["text","impact"]],
+  ["18","IconKick","icon-kick","navtext","recipe","방향성 icon이 반대로 당겼다가 의미 방향으로 빠르게 튄다.",["icon","direction"]],
 
-  ["16","TabUnderlineTake","tab-underline-take","navtext","recipe","기존 underline이 anticipation과 stretch로 다음 tab까지 이동한다.",["tab","spatial"]],
-  ["17","HoverTake","hover-take","navtext","recipe","즉시 뜨지 않고 먼저 눌렸다가 위로 take한다.",["hover","anticipation"]],
-  ["18","LabelFlipTake","label-flip-take","navtext","recipe","기존 label을 압축하고 새 label을 stretch pose로 꺼낸다.",["label","state"]],
-  ["19","TextPunch","text-punch","navtext","recipe","내용은 유지한 채 glyph block 전체가 짧은 impact를 받는다.",["text","impact"]],
-  ["20","IconKick","icon-kick","navtext","recipe","방향성 icon이 반대로 당겼다가 의미 방향으로 빠르게 튄다.",["icon","direction"]],
+  ["19","SpeechBubblePop","speech-bubble-pop","floating","recipe","body가 먼저 펼쳐지고 tail이 secondary action으로 늦게 따라온다.",["popover","secondary"]],
+  ["20","ToastTake","toast-take","floating","recipe","Anticipation·Smear·Squash를 결합한 characterful toast entrance.",["composite","toast"]],
 
-  ["21","SpeechBubblePop","speech-bubble-pop","floating","recipe","body가 먼저 펼쳐지고 tail이 secondary action으로 늦게 따라온다.",["popover","secondary"]],
-  ["22","ToastTake","toast-take","floating","recipe","Anticipation·Smear·Squash를 결합한 characterful toast entrance.",["composite","toast"]],
+  ["21","CompressSwap","compress-swap","state","recipe","Source compression의 에너지가 Destination stretch로 전환된다.",["swap","compression"]],
 
-  ["23","CompressSwap","compress-swap","state","recipe","Source compression의 에너지가 Destination stretch로 전환된다.",["swap","compression"]],
-
-  ["24","SuckIn","suck-in","object","recipe","같은 DOM texture가 destination-facing edge부터 mesh funnel로 연속 붕괴한다.",["canvas","destination","funnel"]],
-  ["25","SpitOut","spit-out","object","recipe","source에 압축된 동일 texture가 filament에서 silhouette로 연속 복원되어 착지한다.",["canvas","source","recovery"]]
+  ["22","SuckIn","suck-in","object","recipe","같은 DOM texture가 destination-facing edge부터 mesh funnel로 연속 붕괴한다.",["canvas","destination","funnel"]],
+  ["23","SpitOut","spit-out","object","recipe","source에 압축된 동일 texture가 filament에서 silhouette로 연속 복원되어 착지한다.",["canvas","source","recovery"]]
 ].map(([num,name,id,section,level,desc,tags])=>({num,name,id,section,level,desc,tags}));
 
 function stage(id){
@@ -477,13 +451,7 @@ function stage(id){
     case "smear": return `<div class="warp-box" data-warp="smear"><div class="canvas-card smear-source warp-source"><strong>Card</strong><small>same source texture</small></div><canvas class="warp-canvas"></canvas><div class="canvas-hint">Element → canvas → element</div></div>`;
     case "concentration-lines": return `<div class="lines">${Array.from({length:12},(_,i)=>`<i style="--rot:${i*30}deg;--len:${70+(i%4)*8}px;--d:${(i%3)*9}ms"></i>`).join("")}</div><div class="focus-dot">Focus</div>`;
     case "iris": return `<div class="iris-scene"><div class="iris-target">◎</div></div><div class="iris-mask"></div>`;
-    case "line-boil": return `<div class="boil">
-      <svg class="b1" viewBox="0 0 128 82"><rect x="4" y="5" rx="18" width="120" height="72"/></svg>
-      <svg class="b2" viewBox="0 0 128 82"><rect x="5.5" y="3.5" rx="17" width="118" height="74"/></svg>
-      <svg class="b3" viewBox="0 0 128 82"><rect x="3" y="6" rx="19" width="121" height="70.5"/></svg></div>`;
     case "underline-snap": return `<div class="underline-word">Explore</div>`;
-    case "cartoon-check": return `<div class="check-wrap"><svg viewBox="0 0 64 64">
-      <path class="c1" d="M18 34 L29 44 L42 20"/><path class="c2" d="M10 32 L27 48 L50 14"/><path class="c3" d="M14 32 L27 44 L49 18"/></svg></div>`;
     case "badge-punch": return `<button class="demo-badge" data-action="badge">3</button>`;
     case "toggle-snap": return `<div class="toggle" data-action="toggle" role="switch" aria-checked="false" tabindex="0"><div class="toggle-knob"></div></div>`;
     case "radio-pop": return `<div class="radio-shell"><div class="radio-dot"></div></div>`;

@@ -130,54 +130,6 @@ const createConcentrationLines = (context: EffectContext): EffectController => {
   );
 };
 
-const createDrawingSequence = (
-  context: EffectContext,
-  selector: string,
-  duration: number,
-  exposureEnds: number[],
-  fallback: Keyframe[],
-): EffectController => {
-  const drawings = Array.from(context.target.querySelectorAll<HTMLElement | SVGElement>(selector));
-  if (drawings.length < 2) {
-    return createKeyframeController(context.target, fallback, {
-      duration: Number(context.options.duration ?? duration),
-      easing: "steps(1, end)",
-      cleanup: context.options.cleanup ?? "commit",
-      preserveTransform: context.options.preserveTransform !== false,
-      reducedMotion: shouldReduceMotion(context.options, context.window),
-      ...(context.options.playbackRate !== undefined ? { playbackRate: context.options.playbackRate } : {}),
-      ...(context.options.signal ? { signal: context.options.signal } : {}),
-    });
-  }
-  const originalStyles = drawings.map((drawing) => drawing.getAttribute("style"));
-  drawings.forEach((drawing, index) => { drawing.style.opacity = index === 0 ? "1" : "0"; });
-  const cleanup = context.options.cleanup ?? "commit";
-  const restore = () => drawings.forEach((drawing, index) => {
-    const style = originalStyles[index];
-    if (style == null) drawing.removeAttribute("style");
-    else drawing.setAttribute("style", style);
-  });
-  return new FrameController(
-    {
-      render(progress) {
-        const foundIndex = exposureEnds.findIndex((end) => progress <= end);
-        const activeIndex = Math.min(drawings.length - 1, foundIndex < 0 ? drawings.length - 1 : foundIndex);
-        drawings.forEach((drawing, index) => { drawing.style.opacity = index === activeIndex ? "1" : "0"; });
-      },
-      complete() {
-        if (cleanup === "restore") restore();
-      },
-      cancel: restore,
-      destroy: restore,
-    },
-    {
-      duration: shouldReduceMotion(context.options, context.window) ? 180 : Number(context.options.duration ?? duration),
-      ...(context.options.playbackRate !== undefined ? { playbackRate: context.options.playbackRate } : {}),
-      ...(context.options.signal ? { signal: context.options.signal } : {}),
-    },
-  );
-};
-
 const createCompressSwap = (context: EffectContext): EffectController => {
   const secondary = context.options.secondary;
   if (!(secondary instanceof HTMLElement)) {
@@ -306,31 +258,6 @@ export const domEffects: EffectDefinition[] = [
     },
     create: createConcentrationLines,
   },
-  {
-    manifest: {
-      id: "line-boil",
-      name: "Line Boil",
-      level: "effect",
-      group: "core",
-      lifecycle: "ambient",
-      techniques: ["replacement drawing", "held exposure"],
-      renderers: ["svg", "dom"],
-      description: "Three restrained redraws replace one another on held thirds.",
-      motionRisk: "low",
-    },
-    create: (context) => createDrawingSequence(
-      context,
-      ":scope > [data-tradimation-drawing], :scope > svg",
-      1500,
-      [0.32, 0.65, 1],
-      [
-        { outlineOffset: "4px", borderRadius: "18px", transform: "translate(0, 0)" },
-        { offset: 0.33, outlineOffset: "3px", borderRadius: "17px", transform: "translate(1.5px, -1.5px)" },
-        { offset: 0.66, outlineOffset: "5px", borderRadius: "19px", transform: "translate(-1px, 1px)" },
-        { outlineOffset: "4px", borderRadius: "18px", transform: "translate(0, 0)" },
-      ],
-    ),
-  },
   keyframeEffect({
     id: "iris",
     name: "Iris",
@@ -348,31 +275,6 @@ export const domEffects: EffectDefinition[] = [
       { clipPath: "circle(0% at 50% 50%)" },
     ],
   }),
-  {
-    manifest: {
-      id: "cartoon-check",
-      name: "CartoonCheck",
-      level: "recipe",
-      group: "interaction",
-      lifecycle: "state",
-      techniques: ["replacement drawing", "SVG"],
-      renderers: ["svg"],
-      description: "Three authored check drawings replace one another instead of tracing one path.",
-      motionRisk: "low",
-    },
-    create: (context) => createDrawingSequence(
-      context,
-      "[data-tradimation-drawing], svg > path",
-      760,
-      [0.34, 0.59, 1],
-      [
-        { strokeDashoffset: 120, transform: "scale(.8)" },
-        { offset: 0.35, strokeDashoffset: 56, transform: "scale(.94)" },
-        { offset: 0.6, strokeDashoffset: 0, transform: "scale(1.08)" },
-        { strokeDashoffset: 0, transform: "scale(1)" },
-      ],
-    ),
-  },
   keyframeEffect({
     id: "toggle-snap",
     name: "ToggleSnap",

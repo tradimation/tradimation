@@ -30,10 +30,10 @@ test("box edge distance follows rectangular target bounds", () => {
   assert.ok(Math.abs(boxEdgeDistance(200, 80, 45) - Math.SQRT2 * 40) < 0.001);
 });
 
-test("curated registry contains 16 unique effects", () => {
+test("curated registry contains 14 unique effects", () => {
   const ids = listEffects().map((effect) => effect.id);
-  assert.equal(ids.length, 16);
-  assert.equal(new Set(ids).size, 16);
+  assert.equal(ids.length, 14);
+  assert.equal(new Set(ids).size, 14);
 });
 
 test("every effect page exposes valid live parameters", () => {

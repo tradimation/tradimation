@@ -6,7 +6,7 @@
 
 Framework-neutral traditional-animation effects for existing web elements. Tradimation uses Web Animations API for DOM/SVG effects and a connected WebGL texture mesh for deformation effects. It has no React dependency and no runtime package dependency.
 
-**Website:** [tradimation.github.io/tradimation](https://tradimation.github.io/tradimation/) · **Collection:** [Browse 16 effects and recipes](https://tradimation.github.io/tradimation/catalog.html)
+**Website:** [tradimation.github.io/tradimation](https://tradimation.github.io/tradimation/) · **Collection:** [Browse 14 effects and recipes](https://tradimation.github.io/tradimation/catalog.html)
 
 Tradimation deliberately separates three scopes:
 
@@ -69,18 +69,6 @@ playEffect(toggleKnob, "toggle-snap", { direction: checked ? "right" : "left" })
 playEffect(tabUnderline, "tab-underline-take", { destination: selectedTab });
 ```
 
-## Replacement drawings
-
-`line-boil` and `cartoon-check` use held replacement drawings rather than morphing one path. Mark two or more child drawings with `data-tradimation-drawing`; Tradimation exposes them in sequence while keeping the parent's layout stable.
-
-```html
-<svg class="check" viewBox="0 0 100 100">
-  <path data-tradimation-drawing d="M22 55 L39 71 L70 30" />
-  <path data-tradimation-drawing d="M12 52 L39 78 L88 20" />
-  <path data-tradimation-drawing d="M16 52 L39 74 L84 24" />
-</svg>
-```
-
 ## Explicit control
 
 ```ts
@@ -101,7 +89,7 @@ controller.destroy();
 ```ts
 import { definitions, EffectRegistry, effects, listEffects, recipes } from "@tradimation/core";
 
-const manifests = listEffects(); // 16 curated definitions
+const manifests = listEffects(); // 14 curated definitions
 const customRegistry = new EffectRegistry(definitions);
 
 effects; // reusable visual techniques
