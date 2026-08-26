@@ -17,13 +17,14 @@ interface KeyframeDefinitionOptions {
   renderer?: "dom" | "svg" | "mask";
   motionRisk?: EffectManifest["motionRisk"];
   preserveTransform?: boolean;
+  level?: EffectManifest["level"];
 }
 
 const keyframeEffect = (definition: KeyframeDefinitionOptions): EffectDefinition => ({
   manifest: {
     id: definition.id,
     name: definition.name,
-    level: definition.group === "core" ? "effect" : "recipe",
+    level: definition.level ?? (definition.group === "core" ? "effect" : "recipe"),
     group: definition.group,
     lifecycle: definition.lifecycle,
     techniques: definition.techniques,
@@ -277,6 +278,7 @@ export const domEffects: EffectDefinition[] = [
   }),
   keyframeEffect({
     id: "toggle-snap",
+    level: "component",
     name: "ToggleSnap",
     group: "interaction",
     lifecycle: "state",
@@ -305,6 +307,7 @@ export const domEffects: EffectDefinition[] = [
   }),
   keyframeEffect({
     id: "tab-indicator-sweep",
+    level: "component",
     name: "TabUnderlineTake",
     group: "navigation",
     lifecycle: "state",
@@ -351,6 +354,7 @@ export const domEffects: EffectDefinition[] = [
   }),
   keyframeEffect({
     id: "toast-snap-in",
+    level: "component",
     name: "ToastTake",
     group: "state",
     lifecycle: "entrance",

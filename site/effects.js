@@ -1,11 +1,22 @@
-const button = (label) => `<div class="demo-center"><button class="demo-button" type="button">${label}</button></div>`;
-const card = (label, tone = "acid") => `<div class="demo-card ${tone}"><b>${label}</b><small>Original element</small></div>`;
-const range = (key, label, value, min, max, step, suffix = "") => ({ type: "range", key, label, value, min, max, step, suffix });
+const button = (label, className = "") =>
+  `<div class="demo-center"><button class="demo-button ${className}" type="button">${label}</button></div>`;
+const card = (className, content) =>
+  `<div class="demo-center ${className}-scene"><div class="demo-card ${className}">${content}</div></div>`;
+const range = (key, label, value, min, max, step, suffix = "") => ({
+  type: "range",
+  key,
+  label,
+  value,
+  min,
+  max,
+  step,
+  suffix,
+});
 const select = (key, label, value, options) => ({ type: "select", key, label, value, options });
 const duration = (value, max = 1800) => range("duration", "Duration", value, 200, max, 10, "ms");
 const playback = () => range("playbackRate", "Playback", 1, 0.25, 2, 0.05, "×");
 
-export const effectDocs = [
+const docs = [
   {
     id: "wind-up-shift",
     name: "Wind-Up Shift",
@@ -14,8 +25,16 @@ export const effectDocs = [
     summary: "Pull back briefly, then shift decisively in the chosen direction.",
     why: "Use it when an action needs a readable sense of intent before moving.",
     target: ".demo-button",
-    markup: button("Shift"),
-    controls: [duration(900), playback(), range("intensity", "Intensity", 1, 0.35, 1.5, 0.05), select("direction", "Direction", "right", ["left", "right", "up", "down"])],
+    markup: button(
+      `<span class="arrow-mark">↗</span><span><small>Next stop</small>Moonbase</span>`,
+      "route-button",
+    ),
+    controls: [
+      duration(900),
+      playback(),
+      range("intensity", "Intensity", 1, 0.35, 1.5, 0.05),
+      select("direction", "Direction", "right", ["left", "right", "up", "down"]),
+    ],
     code: `playEffect(target, "wind-up-shift", { direction: "right", intensity: 0.8 });`,
   },
   {
@@ -26,7 +45,7 @@ export const effectDocs = [
     summary: "Shift mass through wide contact and tall release poses.",
     why: "Use it when an element should feel elastic, weighty, or physically responsive.",
     target: ".demo-button",
-    markup: button("Mass"),
+    markup: `<div class="demo-center"><button class="demo-button squash-mascot" type="button" aria-label="Bounce mascot"><span class="mascot-face"><i></i><i></i></span><b>Boing!</b></button></div>`,
     controls: [duration(760), playback(), range("intensity", "Intensity", 1, 0.35, 1.5, 0.05)],
     code: `playEffect(target, "squash-stretch", { intensity: 0.9 });`,
   },
@@ -38,10 +57,19 @@ export const effectDocs = [
     summary: "Turn an existing element into a connected velocity drawing.",
     why: "Use it for the deformation that ordinary CSS transforms cannot express.",
     target: ".demo-card",
-    markup: card("Cel motion"),
+    markup: card(
+      "album-card",
+      `<span class="album-art"><i></i></span><span class="album-copy"><small>Now playing</small><b>Velocity<br />Drawing</b></span>`,
+    ),
     options: { overlay: true },
     restoreAfterPlay: true,
-    controls: [duration(670), playback(), range("distance", "Distance", 180, 60, 240, 5, "px"), range("stretch", "Stretch", 1.64, 1.1, 2.5, 0.02), range("height", "Height", 0.72, 0.35, 1, 0.01)],
+    controls: [
+      duration(670),
+      playback(),
+      range("distance", "Distance", 180, 60, 240, 5, "px"),
+      range("stretch", "Stretch", 1.64, 1.1, 2.5, 0.02),
+      range("height", "Height", 0.72, 0.35, 1, 0.01),
+    ],
     code: `playEffect(target, "smear", { overlayRoot: stage });`,
   },
   {
@@ -52,9 +80,17 @@ export const effectDocs = [
     summary: "Fit an authored impact burst around the target's measured bounds.",
     why: "Use it as a short accent on a meaningful confirmation or impact without crossing the target.",
     target: ".demo-button",
-    markup: button("Focus"),
+    markup: button(
+      `<span class="focus-star">★</span><span><small>Milestone</small>Perfect timing</span>`,
+      "award-chip",
+    ),
     options: { overlay: true },
-    controls: [duration(1050), playback(), range("intensity", "Intensity", 1, 0.4, 1.6, 0.05), range("distance", "Edge gap", 18, 4, 64, 1, "px")],
+    controls: [
+      duration(1050),
+      playback(),
+      range("intensity", "Intensity", 1, 0.4, 1.6, 0.05),
+      range("distance", "Edge gap", 18, 4, 64, 1, "px"),
+    ],
     code: `playEffect(target, "concentration-lines", { overlayRoot: stage });`,
   },
   {
@@ -65,19 +101,19 @@ export const effectDocs = [
     summary: "Open and close a circular aperture around existing content.",
     why: "Use it for an intentionally graphic scene transition, not a routine content reveal.",
     target: ".iris",
-    markup: `<div class="iris-context">Scene transition</div><div class="iris"><b>Iris</b></div>`,
+    markup: `<div class="iris-context"><span>Act I</span><b>The long way home</b></div><div class="iris"><span class="iris-moon"></span><small>Night falls over the valley</small></div>`,
     controls: [duration(1300, 2600), playback()],
     code: `playEffect(target, "iris");`,
   },
   {
     id: "toggle-snap",
-    name: "Toggle Snap",
-    kind: "recipe",
+    name: "Animated Switch",
+    kind: "component",
     group: "Control",
-    summary: "Animate a switch knob using its measured track geometry.",
-    why: "The application owns checked state; the recipe only performs the visual handoff.",
+    summary: "A complete preference switch with accessible state and a measured snap transition.",
+    why: "Use it when checked state, accessible semantics, and expressive motion should ship as one interaction.",
     target: ".knob",
-    markup: `<div class="demo-center"><button class="toggle" type="button" role="switch" aria-checked="false"><span class="knob"></span><span class="sr-only">Toggle motion</span></button></div>`,
+    markup: `<div class="demo-center"><div class="component-sample"><div class="component-label"><span>Sound effects <b class="switch-state">Off</b></span><small>Make every action audible</small></div><button class="toggle" data-demo-action="toggle" type="button" role="switch" aria-checked="false"><span class="knob"><span>♪</span></span><span class="sr-only">Toggle sound effects</span></button></div></div>`,
     interactive: "toggle",
     controls: [duration(620), playback()],
     code: `playEffect(knob, "toggle-snap", { direction: checked ? "right" : "left" });`,
@@ -90,10 +126,19 @@ export const effectDocs = [
     summary: "Stretch an element through one uninterrupted offscreen exit.",
     why: "Use it for a playful dismissal where disappearance should carry velocity.",
     target: ".demo-card",
-    markup: card("Launch away", "orange"),
+    markup: card(
+      "boarding-pass",
+      `<span class="ticket-route"><small>Seoul</small><b>→</b><small>Moon</small></span><span class="ticket-code">Trd · 0816</span>`,
+    ),
     options: { overlay: true },
     restoreAfterPlay: true,
-    controls: [duration(690), playback(), range("stretch", "Stretch", 1.9, 1.2, 2.8, 0.05), range("height", "Height", 0.62, 0.3, 1, 0.02), range("accelCurve", "Acceleration", 1.15, 0.65, 1.8, 0.05)],
+    controls: [
+      duration(690),
+      playback(),
+      range("stretch", "Stretch", 1.9, 1.2, 2.8, 0.05),
+      range("height", "Height", 0.62, 0.3, 1, 0.02),
+      range("accelCurve", "Acceleration", 1.15, 0.65, 1.8, 0.05),
+    ],
     code: `playEffect(target, "launch-away", { overlayRoot: stage });`,
   },
   {
@@ -104,9 +149,18 @@ export const effectDocs = [
     summary: "Restore a long offscreen speed drawing while it brakes into place.",
     why: "Use it when an entrance should communicate travel rather than simple opacity.",
     target: ".demo-card",
-    markup: card("Stretch wipe", "blue"),
+    markup: card(
+      "story-banner",
+      `<span class="story-number">07</span><span><small>Field notes</small><b>Ideas move<br />at full speed.</b></span><i>→</i>`,
+    ),
     options: { overlay: true },
-    controls: [duration(820), playback(), range("stretch", "Stretch", 1.6, 1.15, 2.5, 0.05), range("height", "Height", 0.56, 0.3, 1, 0.02), range("rearCatch", "Rear catch", 0.15, 0, 0.45, 0.01)],
+    controls: [
+      duration(820),
+      playback(),
+      range("stretch", "Stretch", 1.6, 1.15, 2.5, 0.05),
+      range("height", "Height", 0.56, 0.3, 1, 0.02),
+      range("rearCatch", "Rear catch", 0.15, 0, 0.45, 0.01),
+    ],
     code: `playEffect(target, "stretch-wipe", { overlayRoot: stage });`,
   },
   {
@@ -117,33 +171,44 @@ export const effectDocs = [
     summary: "Drop an element into a planted, connected-texture impact.",
     why: "Use it for an entrance that should land with a visible sense of weight.",
     target: ".demo-card",
-    markup: card("Stamp in", "orange"),
+    markup: card(
+      "wax-seal",
+      `<span class="seal-ring"><b>T</b></span><small>Approved by<br />the motion guild</small>`,
+    ),
     options: { overlay: true },
-    controls: [duration(770), playback(), range("dropHeight", "Drop", 76, 35, 180, 1, "px"), range("squashWidth", "Squash width", 1.36, 1.05, 1.8, 0.02), range("squashHeight", "Squash height", 0.62, 0.35, 0.9, 0.01)],
+    controls: [
+      duration(770),
+      playback(),
+      range("dropHeight", "Drop", 76, 35, 180, 1, "px"),
+      range("squashWidth", "Squash width", 1.36, 1.05, 1.8, 0.02),
+      range("squashHeight", "Squash height", 0.62, 0.35, 0.9, 0.01),
+    ],
     code: `playEffect(target, "stamp-in", { overlayRoot: stage });`,
   },
   {
     id: "tab-indicator-sweep",
-    name: "Tab Indicator Sweep",
-    kind: "recipe",
+    name: "Animated Tabs",
+    kind: "component",
     group: "Control",
-    summary: "Move one shared underline across measured tab geometry.",
-    why: "Use it when a shared indicator needs to travel between tabs of different widths.",
+    summary:
+      "A tablist that owns selection while one shared indicator travels across measured labels.",
+    why: "Use it when navigation state and its geometry-aware transition belong to the same component.",
     target: ".tab-line",
-    markup: `<div class="demo-center"><div class="tabs" role="tablist"><button class="tab active" role="tab" aria-selected="true">Overview</button><button class="tab" role="tab" aria-selected="false">Motion lab</button><button class="tab" role="tab" aria-selected="false">Reference</button><div class="tab-line"></div></div></div>`,
+    markup: `<div class="demo-center"><div class="tabs-shell"><span class="tabs-title">Studio / 04</span><div class="tabs" role="tablist"><button class="tab active" data-demo-action="tab" data-panel-copy="Project pulse and recent activity" role="tab" aria-selected="true"><span>01</span>Overview</button><button class="tab" data-demo-action="tab" data-panel-copy="Tune spacing, drawings, and timing" role="tab" aria-selected="false"><span>02</span>Motion lab</button><button class="tab" data-demo-action="tab" data-panel-copy="Principles and implementation notes" role="tab" aria-selected="false"><span>03</span>Reference</button><div class="tab-line"></div></div><p class="tabs-hint">Project pulse and recent activity</p></div></div>`,
     interactive: "tabs",
     controls: [duration(650), playback()],
     code: `playEffect(underline, "tab-indicator-sweep", { destination: selectedTab });`,
   },
   {
     id: "toast-snap-in",
-    name: "Toast Snap-In",
-    kind: "recipe",
+    name: "Motion Toast",
+    kind: "component",
     group: "Entrance",
-    summary: "Bring a toast onscreen with one speed drawing and one landing.",
-    why: "Use it for transient feedback that can support a deliberately playful tone.",
+    summary:
+      "A live notification surface with a trigger, status semantics, and one decisive landing.",
+    why: "Use it when transient feedback needs a clear cause, accessible announcement, and playful arrival.",
     target: ".toast",
-    markup: `<div class="demo-center"><div class="toast">Project saved</div></div>`,
+    markup: `<div class="demo-center"><div class="toast-workspace"><button class="toast-trigger" data-demo-action="toast" type="button">Save changes</button><div class="toast" role="status"><span class="toast-check">✓</span><span><b>Project saved</b><small>All frames are safely synced.</small></span><button data-demo-action="toast-dismiss" type="button" aria-label="Dismiss notification">×</button></div></div></div>`,
     controls: [duration(950), playback()],
     code: `playEffect(toast, "toast-snap-in");`,
   },
@@ -155,7 +220,7 @@ export const effectDocs = [
     summary: "Exchange two drawings at maximum compression without a crossfade.",
     why: "Use it when two states should exchange at one clear, tactile midpoint.",
     target: ".swap-a",
-    markup: `<div class="demo-center"><button class="swap" type="button"><span class="swap-a">Day</span><span class="swap-b">Night</span></button></div>`,
+    markup: `<div class="demo-center"><button class="swap" type="button"><span class="swap-a"><i>☀</i><b>Day shift</b></span><span class="swap-b"><i>☾</i><b>Night shift</b></span></button></div>`,
     interactive: "swap",
     controls: [duration(780), playback()],
     code: `playEffect(current, "compress-swap", { secondary: next });`,
@@ -168,10 +233,16 @@ export const effectDocs = [
     summary: "Ingest one connected element into a destination point.",
     why: "Use it when the UI already has a meaningful source-to-destination relationship.",
     target: ".demo-card",
-    markup: `${card("Same object", "blue")}<span class="spatial-target right"></span>`,
+    markup: `<div class="spatial-scene cart-scene">${card("photo-card", `<span class="photo-sky"></span><small>Weekend.jpg</small>`)}<span class="spatial-target right"><span>＋</span></span><span class="target-caption">Collection</span></div>`,
     options: { overlay: true, destination: ".spatial-target" },
     restoreAfterPlay: true,
-    controls: [duration(830), playback(), range("bodyTravel", "Body travel", 0.52, 0.2, 0.8, 0.02), range("tongue", "Lead stretch", 0.44, 0.15, 0.8, 0.02), range("columnLag", "Column lag", 0.31, 0.08, 0.6, 0.01)],
+    controls: [
+      duration(830),
+      playback(),
+      range("bodyTravel", "Body travel", 0.52, 0.2, 0.8, 0.02),
+      range("tongue", "Lead stretch", 0.44, 0.15, 0.8, 0.02),
+      range("columnLag", "Column lag", 0.31, 0.08, 0.6, 0.01),
+    ],
     code: `playEffect(card, "suck-in", { destination: cart, overlayRoot: stage });`,
   },
   {
@@ -182,11 +253,21 @@ export const effectDocs = [
     summary: "Release a connected element from a pressure point into a readable body.",
     why: "Use it as the spatial inverse of Suck In when an origin exists in the interface.",
     target: ".demo-card",
-    markup: `<span class="spatial-target left"></span>${card("Full energy", "orange")}`,
+    markup: `<div class="spatial-scene inbox-scene"><span class="spatial-target left"><span>✦</span></span><span class="source-caption">New idea</span>${card("idea-note", `<span class="idea-spark">✦</span><b>Make it<br />feel alive.</b><small>Note 08</small>`)}</div>`,
     options: { overlay: true, source: ".spatial-target" },
-    controls: [duration(840), playback(), range("releaseForce", "Release force", 1.4, 0.6, 2.4, 0.05), range("columnLag", "Column lag", 0.3, 0.08, 0.6, 0.01), range("spear", "Spear", 0.24, 0, 0.65, 0.01)],
+    controls: [
+      duration(840),
+      playback(),
+      range("releaseForce", "Release force", 1.4, 0.6, 2.4, 0.05),
+      range("columnLag", "Column lag", 0.3, 0.08, 0.6, 0.01),
+      range("spear", "Spear", 0.24, 0, 0.65, 0.01),
+    ],
     code: `playEffect(card, "spit-out", { source: origin, overlayRoot: stage });`,
   },
 ];
+
+export const componentDocs = docs.filter((effect) => effect.kind === "component");
+export const motionDocs = docs.filter((effect) => effect.kind !== "component");
+export const effectDocs = [...motionDocs, ...componentDocs];
 
 export const findEffectDoc = (id) => effectDocs.find((effect) => effect.id === id);

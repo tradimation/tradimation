@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { boxEdgeDistance, celShapeTime, flowTrack, motionCurve } from "../dist/math.js";
-import { listEffects } from "../dist/registry.js";
+import { components, effects, listEffects, recipes } from "../dist/registry.js";
 import { meshDefaults, meshMaps } from "../dist/effects/mesh-maps.js";
 import { effectDocs } from "../site/effects.js";
 
@@ -34,6 +34,12 @@ test("curated registry contains 14 unique effects", () => {
   const ids = listEffects().map((effect) => effect.id);
   assert.equal(ids.length, 14);
   assert.equal(new Set(ids).size, 14);
+});
+
+test("state-owning UI components are separate from effects and recipes", () => {
+  assert.deepEqual(components.map(({ manifest }) => manifest.id).sort(), ["tab-indicator-sweep", "toast-snap-in", "toggle-snap"]);
+  assert.equal(effects.length, 5);
+  assert.equal(recipes.length, 6);
 });
 
 test("every effect page exposes valid live parameters", () => {

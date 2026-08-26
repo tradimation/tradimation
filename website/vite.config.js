@@ -8,7 +8,7 @@ const root = fileURLToPath(new URL(".", import.meta.url));
 const input = {
   home: resolve(root, "index.html"),
   catalog: resolve(root, "catalog.html"),
-  ...Object.fromEntries(effectDocs.map((effect) => [effect.id, resolve(root, `effects/${effect.id}.html`)])),
+  ...Object.fromEntries(effectDocs.map((effect) => [effect.id, resolve(root, `${effect.kind === "component" ? "components" : "effects"}/${effect.id}.html`)])),
 };
 
 export default defineConfig({

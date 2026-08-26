@@ -1,4 +1,4 @@
-export type EffectLevel = "effect" | "recipe";
+export type EffectLevel = "effect" | "recipe" | "component";
 export type EffectGroup = "core" | "interaction" | "entrance" | "navigation" | "state" | "spatial";
 export type EffectLifecycle = "interaction" | "entrance" | "exit" | "state" | "ambient" | "transition";
 export type ControllerState = "idle" | "running" | "paused" | "finished" | "cancelled";

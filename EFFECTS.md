@@ -6,7 +6,8 @@ Tradimation keeps an effect only when its silhouette, timing, or integration con
 
 - **Core**: controller lifecycle, timing math, registry, cleanup, and renderers.
 - **Effects**: five reusable visual behaviors with no UI-specific state contract.
-- **Recipes**: nine contextual applications for controls, entrances, exits, state swaps, and spatial handoffs.
+- **Recipes**: six contextual applications for entrances, exits, state swaps, and spatial handoffs.
+- **Components**: three state-owning UI examples for switches, tabs, and transient notifications. Their internal timelines remain reusable, but discovery presents the complete interaction rather than a loose preset.
 
 ## Removed during curation
 

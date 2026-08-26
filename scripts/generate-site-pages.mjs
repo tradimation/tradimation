@@ -1,8 +1,16 @@
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, rm, writeFile } from "node:fs/promises";
 import { effectDocs } from "../site/effects.js";
 
-const output = new URL("../website/effects/", import.meta.url);
-await mkdir(output, { recursive: true });
+const effectsOutput = new URL("../website/effects/", import.meta.url);
+const componentsOutput = new URL("../website/components/", import.meta.url);
+await Promise.all([
+  rm(effectsOutput, { recursive: true, force: true }),
+  rm(componentsOutput, { recursive: true, force: true }),
+]);
+await Promise.all([
+  mkdir(effectsOutput, { recursive: true }),
+  mkdir(componentsOutput, { recursive: true }),
+]);
 
 const page = (effect) => `<!doctype html>
 <html lang="en">
@@ -15,4 +23,11 @@ const page = (effect) => `<!doctype html>
   <body data-page="detail" data-effect="${effect.id}"><div id="app"></div><script type="module" src="/src/main.js"></script></body>
 </html>`;
 
-await Promise.all(effectDocs.map((effect) => writeFile(new URL(`${effect.id}.html`, output), page(effect))));
+await Promise.all(
+  effectDocs.map((effect) =>
+    writeFile(
+      new URL(`${effect.id}.html`, effect.kind === "component" ? componentsOutput : effectsOutput),
+      page(effect),
+    ),
+  ),
+);
