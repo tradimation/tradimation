@@ -236,10 +236,6 @@
     100%{transform:scaleX(1)}
   }
 
-  /* 08 PopOut */
-  [data-effect="pop-out"].run .demo-card{animation:popOut 760ms cubic-bezier(.18,.8,.2,1) both}
-  @keyframes popOut{0%{transform:scale(.05)}20%{transform:scaleX(1.18) scaleY(.24)}42%{transform:scaleX(.74) scaleY(1.25)}65%{transform:scaleX(1.08) scaleY(.95)}82%{transform:scaleX(.98) scaleY(1.03)}100%{transform:scale(1)}}
-
   /* 09 CartoonCheck */
   .check-wrap{width:92px;height:92px;border:2px solid var(--ink);border-radius:24px;background:#fff;display:grid;place-items:center}
   .check-wrap svg{width:62px;height:62px}
@@ -399,9 +395,9 @@
         전통 애니메이션 문법을 웹 인터랙션으로 번역한 효과 모음집.
       </div>
       <div class="stats">
-        <div class="stat"><b>26</b> effects</div>
+        <div class="stat"><b>25</b> effects</div>
         <div class="stat"><b>6</b> core techniques</div>
-        <div class="stat"><b>20</b> web recipes</div>
+        <div class="stat"><b>19</b> web recipes</div>
         <div class="stat"><b>6</b> upgraded connected effects</div>
       </div>
       <svg class="hero-scribble" viewBox="0 0 180 180" aria-hidden="true">
@@ -411,7 +407,7 @@
     </section>
 
     <div class="toolbar">
-      <input class="search" id="search" type="search" placeholder="Search effect — Smear, PopOut, SuckIn…" />
+      <input class="search" id="search" type="search" placeholder="Search effect — Smear, StampIn, SuckIn…" />
       <button class="pill active" data-filter="all">All</button>
       <button class="pill" data-filter="technique">Techniques</button>
       <button class="pill" data-filter="recipe">Recipes</button>
@@ -448,31 +444,30 @@ const effects = [
   ["06","Line Boil","line-boil","core","technique","같은 선의 미세하게 다른 redraw를 교체해 살아 있는 선을 만든다.",["redraw","limited"]],
 
   ["07","UnderlineSnap","underline-snap","direct","recipe","하나의 endpoint가 끊김 없이 목표를 지나쳤다가 정확한 길이로 돌아온다.",["continuous","overshoot"]],
-  ["08","PopOut","pop-out","direct","recipe","dot → flat/wide → tall/stretch → settle로 제자리 등장한다.",["squash","entrance"]],
-  ["09","CartoonCheck","cartoon-check","direct","recipe","continuous stroke 대신 서로 다른 check pose를 교체한다.",["replacement","check"]],
+  ["08","CartoonCheck","cartoon-check","direct","recipe","continuous stroke 대신 서로 다른 check pose를 교체한다.",["replacement","check"]],
 
-  ["10","BadgePunch","badge-punch","controls","recipe","count 변경을 badge 자체의 squash/stretch impact로 강조한다.",["count","impact"]],
-  ["11","ToggleSnap","toggle-snap","controls","recipe","knob가 backstep → stretched travel → compressed landing으로 이동한다.",["state","take"]],
-  ["12","RadioPop","radio-pop","controls","recipe","작은 radio dot에 분명한 squash/stretch pose를 적용한다.",["control","pop"]],
+  ["09","BadgePunch","badge-punch","controls","recipe","count 변경을 badge 자체의 squash/stretch impact로 강조한다.",["count","impact"]],
+  ["10","ToggleSnap","toggle-snap","controls","recipe","knob가 backstep → stretched travel → compressed landing으로 이동한다.",["state","take"]],
+  ["11","RadioPop","radio-pop","controls","recipe","작은 radio dot에 분명한 squash/stretch pose를 적용한다.",["control","pop"]],
 
-  ["13","SlamDown","slam-down","entrance","recipe","낙하 후 contact가 먼저 일어나고, momentum이 조금 늦게 squash로 전환된다.",["contact","compression"]],
-  ["14","LaunchAway","launch-away","entrance","recipe","DOM texture 자체가 발사 방향으로 연속 smear warp되며 화면 밖으로 빠져나간다.",["canvas","exit","warp"]],
-  ["15","StretchWipe","stretch-wipe","entrance","recipe","target identity를 유지한 채 이동 방향으로 과도하게 늘어난다.",["stretch","identity"]],
-  ["16","StampIn","stamp-in","entrance","recipe","도장을 찍듯 접근해 강한 squash 후 표면에 고정된다.",["stamp","landing"]],
+  ["12","SlamDown","slam-down","entrance","recipe","낙하 후 contact가 먼저 일어나고, momentum이 조금 늦게 squash로 전환된다.",["contact","compression"]],
+  ["13","LaunchAway","launch-away","entrance","recipe","DOM texture 자체가 발사 방향으로 연속 smear warp되며 화면 밖으로 빠져나간다.",["canvas","exit","warp"]],
+  ["14","StretchWipe","stretch-wipe","entrance","recipe","target identity를 유지한 채 이동 방향으로 과도하게 늘어난다.",["stretch","identity"]],
+  ["15","StampIn","stamp-in","entrance","recipe","도장을 찍듯 접근해 강한 squash 후 표면에 고정된다.",["stamp","landing"]],
 
-  ["17","TabUnderlineTake","tab-underline-take","navtext","recipe","기존 underline이 anticipation과 stretch로 다음 tab까지 이동한다.",["tab","spatial"]],
-  ["18","HoverTake","hover-take","navtext","recipe","즉시 뜨지 않고 먼저 눌렸다가 위로 take한다.",["hover","anticipation"]],
-  ["19","LabelFlipTake","label-flip-take","navtext","recipe","기존 label을 압축하고 새 label을 stretch pose로 꺼낸다.",["label","state"]],
-  ["20","TextPunch","text-punch","navtext","recipe","내용은 유지한 채 glyph block 전체가 짧은 impact를 받는다.",["text","impact"]],
-  ["21","IconKick","icon-kick","navtext","recipe","방향성 icon이 반대로 당겼다가 의미 방향으로 빠르게 튄다.",["icon","direction"]],
+  ["16","TabUnderlineTake","tab-underline-take","navtext","recipe","기존 underline이 anticipation과 stretch로 다음 tab까지 이동한다.",["tab","spatial"]],
+  ["17","HoverTake","hover-take","navtext","recipe","즉시 뜨지 않고 먼저 눌렸다가 위로 take한다.",["hover","anticipation"]],
+  ["18","LabelFlipTake","label-flip-take","navtext","recipe","기존 label을 압축하고 새 label을 stretch pose로 꺼낸다.",["label","state"]],
+  ["19","TextPunch","text-punch","navtext","recipe","내용은 유지한 채 glyph block 전체가 짧은 impact를 받는다.",["text","impact"]],
+  ["20","IconKick","icon-kick","navtext","recipe","방향성 icon이 반대로 당겼다가 의미 방향으로 빠르게 튄다.",["icon","direction"]],
 
-  ["22","SpeechBubblePop","speech-bubble-pop","floating","recipe","body가 먼저 PopOut되고 tail이 secondary action으로 늦게 따라온다.",["popover","secondary"]],
-  ["23","ToastTake","toast-take","floating","recipe","Anticipation·Smear·Squash를 결합한 characterful toast entrance.",["composite","toast"]],
+  ["21","SpeechBubblePop","speech-bubble-pop","floating","recipe","body가 먼저 펼쳐지고 tail이 secondary action으로 늦게 따라온다.",["popover","secondary"]],
+  ["22","ToastTake","toast-take","floating","recipe","Anticipation·Smear·Squash를 결합한 characterful toast entrance.",["composite","toast"]],
 
-  ["24","CompressSwap","compress-swap","state","recipe","Source compression의 에너지가 Destination stretch로 전환된다.",["swap","compression"]],
+  ["23","CompressSwap","compress-swap","state","recipe","Source compression의 에너지가 Destination stretch로 전환된다.",["swap","compression"]],
 
-  ["25","SuckIn","suck-in","object","recipe","같은 DOM texture가 destination-facing edge부터 mesh funnel로 연속 붕괴한다.",["canvas","destination","funnel"]],
-  ["26","SpitOut","spit-out","object","recipe","source에 압축된 동일 texture가 filament에서 silhouette로 연속 복원되어 착지한다.",["canvas","source","recovery"]]
+  ["24","SuckIn","suck-in","object","recipe","같은 DOM texture가 destination-facing edge부터 mesh funnel로 연속 붕괴한다.",["canvas","destination","funnel"]],
+  ["25","SpitOut","spit-out","object","recipe","source에 압축된 동일 texture가 filament에서 silhouette로 연속 복원되어 착지한다.",["canvas","source","recovery"]]
 ].map(([num,name,id,section,level,desc,tags])=>({num,name,id,section,level,desc,tags}));
 
 function stage(id){
@@ -487,7 +482,6 @@ function stage(id){
       <svg class="b2" viewBox="0 0 128 82"><rect x="5.5" y="3.5" rx="17" width="118" height="74"/></svg>
       <svg class="b3" viewBox="0 0 128 82"><rect x="3" y="6" rx="19" width="121" height="70.5"/></svg></div>`;
     case "underline-snap": return `<div class="underline-word">Explore</div>`;
-    case "pop-out": return `<div class="demo-card">Pop!</div>`;
     case "cartoon-check": return `<div class="check-wrap"><svg viewBox="0 0 64 64">
       <path class="c1" d="M18 34 L29 44 L42 20"/><path class="c2" d="M10 32 L27 48 L50 14"/><path class="c3" d="M14 32 L27 44 L49 18"/></svg></div>`;
     case "badge-punch": return `<button class="demo-badge" data-action="badge">3</button>`;

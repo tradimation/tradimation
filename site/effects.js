@@ -82,18 +82,6 @@ export const effectDocs = [
     code: `playEffect(target, "iris");`,
   },
   {
-    id: "pop-out",
-    name: "Pop Out",
-    kind: "recipe",
-    group: "Entrance",
-    summary: "Introduce a compact status object from a point through uneven poses.",
-    why: "A practical recipe for badges, markers, and compact floating UI.",
-    target: ".demo-badge",
-    markup: `<div class="demo-center"><div class="demo-badge">New</div></div>`,
-    controls: [duration(760), playback(), range("intensity", "Intensity", 1, 0.5, 1.35, 0.05)],
-    code: `playEffect(badge, "pop-out");`,
-  },
-  {
     id: "cartoon-check",
     name: "Cartoon Check",
     kind: "recipe",

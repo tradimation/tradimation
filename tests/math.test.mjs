@@ -24,10 +24,10 @@ test("shape exposure preserves exact endpoints", () => {
   assert.equal(celShapeTime(1, 700), 1);
 });
 
-test("curated registry contains 17 unique effects", () => {
+test("curated registry contains 16 unique effects", () => {
   const ids = listEffects().map((effect) => effect.id);
-  assert.equal(ids.length, 17);
-  assert.equal(new Set(ids).size, 17);
+  assert.equal(ids.length, 16);
+  assert.equal(new Set(ids).size, 16);
 });
 
 test("every effect page exposes valid live parameters", () => {

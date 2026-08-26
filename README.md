@@ -2,7 +2,7 @@
 
 Framework-neutral traditional-animation effects for existing web elements. Tradimation uses Web Animations API for DOM/SVG effects and a connected WebGL texture mesh for deformation effects. It has no React dependency and no runtime package dependency.
 
-**Website:** [tradimation.github.io/tradimation](https://tradimation.github.io/tradimation/) · **Collection:** [Browse 17 effects and recipes](https://tradimation.github.io/tradimation/catalog.html)
+**Website:** [tradimation.github.io/tradimation](https://tradimation.github.io/tradimation/) · **Collection:** [Browse 16 effects and recipes](https://tradimation.github.io/tradimation/catalog.html)
 
 Tradimation deliberately separates three scopes:
 
@@ -97,7 +97,7 @@ controller.destroy();
 ```ts
 import { definitions, EffectRegistry, effects, listEffects, recipes } from "@tradimation/core";
 
-const manifests = listEffects(); // 17 curated definitions
+const manifests = listEffects(); // 16 curated definitions
 const customRegistry = new EffectRegistry(definitions);
 
 effects; // reusable visual techniques
@@ -114,4 +114,4 @@ The manifest layer is framework-neutral, so a React, Vue, Svelte, Web Component,
 - `catalog.html`: searchable effect and recipe index
 - `effects/*.html`: one focused playground per definition with live parameters and generated usage
 
-See `EFFECTS.md` for the retention criteria and the effects removed during the 17-effect curation pass.
+See `EFFECTS.md` for the retention criteria and the effects removed during curation.

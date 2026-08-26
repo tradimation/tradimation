@@ -11,7 +11,6 @@ export type EffectId =
   | "concentration-lines"
   | "line-boil"
   | "iris"
-  | "pop-out"
   | "cartoon-check"
   | "toggle-snap"
   | "launch-away"

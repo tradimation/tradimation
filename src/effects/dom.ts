@@ -346,28 +346,6 @@ export const domEffects: EffectDefinition[] = [
       { clipPath: "circle(0% at 50% 50%)" },
     ],
   }),
-  keyframeEffect({
-    id: "pop-out",
-    name: "PopOut",
-    group: "interaction",
-    lifecycle: "entrance",
-    description: "A point expands through unequal wide and tall drawings.",
-    techniques: ["squash", "stretch", "entrance"],
-    duration: 760,
-    easing: "cubic-bezier(.18,.8,.2,1)",
-    keyframes: (context) => {
-      const intensity = Number(context.options.intensity ?? 1);
-      const pose = (x: number, y: number = x) => `scale(${scaled(x, intensity)}, ${scaled(y, intensity)})`;
-      return [
-        { transform: pose(0.05) },
-        { offset: 0.2, transform: pose(1.18, 0.24) },
-        { offset: 0.42, transform: pose(0.74, 1.25) },
-        { offset: 0.65, transform: pose(1.08, 0.95) },
-        { offset: 0.82, transform: pose(0.98, 1.03) },
-        { transform: "scale(1)" },
-      ];
-    },
-  }),
   {
     manifest: {
       id: "cartoon-check",
