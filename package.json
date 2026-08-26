@@ -30,7 +30,8 @@
     "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm build",
     "format": "oxfmt --write .",
     "format:check": "oxfmt --check .",
-    "lint": "oxlint .",
+    "lint": "oxlint . && pnpm lint:site-copy",
+    "lint:site-copy": "node scripts/check-site-casing.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "node --test tests/*.test.mjs"
   },

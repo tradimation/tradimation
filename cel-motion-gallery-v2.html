@@ -43,7 +43,7 @@
   }
   .brand strong{display:block;font-size:15px;letter-spacing:-.02em}
   .brand span{font:11px/1.3 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--muted)}
-  .side-label{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:22px 10px 8px}
+  .side-label{font-size:10px;letter-spacing:.04em;color:var(--muted);margin:22px 10px 8px}
   .side-nav button{
     width:100%;text-align:left;border:0;background:transparent;padding:9px 10px;border-radius:10px;
     cursor:pointer;font-size:13px;display:flex;justify-content:space-between;gap:10px
@@ -57,7 +57,7 @@
 
   main{min-width:0}
   .hero{padding:58px 48px 34px;border-bottom:1px solid var(--line);position:relative;overflow:hidden}
-  .eyebrow{font:11px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+  .eyebrow{font:11px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--muted);letter-spacing:.03em}
   h1{font-size:clamp(48px,8vw,108px);letter-spacing:-.075em;line-height:.82;margin:18px 0 24px;max-width:1050px}
   h1 em{font-style:normal;color:var(--accent)}
   .hero-copy{max-width:760px;font-size:16px;line-height:1.65;color:#4f4e49}
@@ -477,36 +477,36 @@ const effects = [
 
 function stage(id){
   switch(id){
-    case "anticipation-take": return `<div class="demo-card">TAKE</div>`;
-    case "squash-stretch": return `<div class="demo-badge">S&S</div>`;
-    case "smear": return `<div class="warp-box" data-warp="smear"><div class="canvas-card smear-source warp-source"><strong>CARD</strong><small>same DOM texture</small></div><canvas class="warp-canvas"></canvas><div class="canvas-hint">HTML → Canvas → HTML</div></div>`;
-    case "concentration-lines": return `<div class="lines">${Array.from({length:12},(_,i)=>`<i style="--rot:${i*30}deg;--len:${70+(i%4)*8}px;--d:${(i%3)*9}ms"></i>`).join("")}</div><div class="focus-dot">FOCUS</div>`;
+    case "anticipation-take": return `<div class="demo-card">Take</div>`;
+    case "squash-stretch": return `<div class="demo-badge">Squash</div>`;
+    case "smear": return `<div class="warp-box" data-warp="smear"><div class="canvas-card smear-source warp-source"><strong>Card</strong><small>same source texture</small></div><canvas class="warp-canvas"></canvas><div class="canvas-hint">Element → canvas → element</div></div>`;
+    case "concentration-lines": return `<div class="lines">${Array.from({length:12},(_,i)=>`<i style="--rot:${i*30}deg;--len:${70+(i%4)*8}px;--d:${(i%3)*9}ms"></i>`).join("")}</div><div class="focus-dot">Focus</div>`;
     case "iris": return `<div class="iris-scene"><div class="iris-target">◎</div></div><div class="iris-mask"></div>`;
     case "line-boil": return `<div class="boil">
       <svg class="b1" viewBox="0 0 128 82"><rect x="4" y="5" rx="18" width="120" height="72"/></svg>
       <svg class="b2" viewBox="0 0 128 82"><rect x="5.5" y="3.5" rx="17" width="118" height="74"/></svg>
       <svg class="b3" viewBox="0 0 128 82"><rect x="3" y="6" rx="19" width="121" height="70.5"/></svg></div>`;
     case "underline-snap": return `<div class="underline-word">Explore</div>`;
-    case "pop-out": return `<div class="demo-card">POP!</div>`;
+    case "pop-out": return `<div class="demo-card">Pop!</div>`;
     case "cartoon-check": return `<div class="check-wrap"><svg viewBox="0 0 64 64">
       <path class="c1" d="M18 34 L29 44 L42 20"/><path class="c2" d="M10 32 L27 48 L50 14"/><path class="c3" d="M14 32 L27 44 L49 18"/></svg></div>`;
     case "badge-punch": return `<button class="demo-badge" data-action="badge">3</button>`;
     case "toggle-snap": return `<div class="toggle" data-action="toggle" role="switch" aria-checked="false" tabindex="0"><div class="toggle-knob"></div></div>`;
     case "radio-pop": return `<div class="radio-shell"><div class="radio-dot"></div></div>`;
-    case "slam-down": return `<div class="floor"></div><div class="slam-rig"><div class="demo-card">SLAM</div></div>`;
-    case "launch-away": return `<div class="warp-box" data-warp="launch"><div class="canvas-card launch-source warp-source"><strong>BYE</strong><small>continuous surface</small></div><canvas class="warp-canvas"></canvas><div class="canvas-hint">DOM texture → offscreen warp</div></div>`;
-    case "stretch-wipe": return `<div class="warp-box" data-warp="wipe"><div class="canvas-card wipe-source warp-source"><strong>WIPE</strong><small>connected entrance</small></div><canvas class="warp-canvas"></canvas><div class="canvas-hint">offscreen stretch → braking restore</div></div>`;
-    case "stamp-in": return `<div class="warp-box stamp" data-warp="stamp"><div class="canvas-card stamp-source warp-source"><strong>STAMP</strong><small>planted impact</small></div><canvas class="warp-canvas"></canvas><div class="canvas-hint">visible hang → contact → squash</div></div>`;
+    case "slam-down": return `<div class="floor"></div><div class="slam-rig"><div class="demo-card">Slam</div></div>`;
+    case "launch-away": return `<div class="warp-box" data-warp="launch"><div class="canvas-card launch-source warp-source"><strong>Bye</strong><small>continuous surface</small></div><canvas class="warp-canvas"></canvas><div class="canvas-hint">Source texture → offscreen warp</div></div>`;
+    case "stretch-wipe": return `<div class="warp-box" data-warp="wipe"><div class="canvas-card wipe-source warp-source"><strong>Wipe</strong><small>connected entrance</small></div><canvas class="warp-canvas"></canvas><div class="canvas-hint">offscreen stretch → braking restore</div></div>`;
+    case "stamp-in": return `<div class="warp-box stamp" data-warp="stamp"><div class="canvas-card stamp-source warp-source"><strong>Stamp</strong><small>planted impact</small></div><canvas class="warp-canvas"></canvas><div class="canvas-hint">visible hang → contact → squash</div></div>`;
     case "tab-underline-take": return `<div class="tabs" data-action="tabs"><button>A</button><button>B</button><div class="tab-line"></div></div>`;
     case "hover-take": return `<div class="demo-button hover-take">Hover me</div>`;
-    case "label-flip-take": return `<div class="label-box" data-action="label"><span class="old">SAVE</span><span class="new">SAVED</span></div>`;
+    case "label-flip-take": return `<div class="label-box" data-action="label"><span class="old">Save</span><span class="new">Saved</span></div>`;
     case "text-punch": return `<div class="punch-text">42%</div>`;
     case "icon-kick": return `<div class="demo-icon">→</div>`;
     case "speech-bubble-pop": return `<div class="bubble">Hello!<div class="bubble-tail"></div></div>`;
     case "toast-take": return `<div class="toast-demo"><b>✓</b><span>Project saved</span></div>`;
-    case "compress-swap": return `<div class="swap-box" data-action="swap"><span class="state-a">GRID</span><span class="state-b">LIST</span></div>`;
-    case "suck-in": return `<div class="warp-box spatial" data-warp="suck"><div class="canvas-card suck-source warp-source"><strong>CARD</strong><small>drag me into cart</small></div><div class="warp-destination suck-destination">🛒</div><canvas class="warp-canvas"></canvas><div class="canvas-hint">edge capture → funnel → point</div></div>`;
-    case "spit-out": return `<div class="warp-box spatial" data-warp="spit"><div class="warp-destination spit-origin">•</div><div class="canvas-card spit-source warp-source"><strong>CARD</strong><small>same compressed texture</small></div><canvas class="warp-canvas"></canvas><div class="canvas-hint">point → filament → silhouette</div></div>`;
+    case "compress-swap": return `<div class="swap-box" data-action="swap"><span class="state-a">Grid</span><span class="state-b">List</span></div>`;
+    case "suck-in": return `<div class="warp-box spatial" data-warp="suck"><div class="canvas-card suck-source warp-source"><strong>Card</strong><small>drag me into cart</small></div><div class="warp-destination suck-destination">🛒</div><canvas class="warp-canvas"></canvas><div class="canvas-hint">edge capture → funnel → point</div></div>`;
+    case "spit-out": return `<div class="warp-box spatial" data-warp="spit"><div class="warp-destination spit-origin">•</div><div class="canvas-card spit-source warp-source"><strong>Card</strong><small>same compressed texture</small></div><canvas class="warp-canvas"></canvas><div class="canvas-hint">point → filament → silhouette</div></div>`;
   }
 }
 
