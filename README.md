@@ -1,4 +1,8 @@
-# Tradimation
+<p align="center">
+  <img src="assets/brand/tradimation-symbol.png" alt="Tradimation Cel Runner symbol" width="180">
+</p>
+
+<h1 align="center">Tradimation</h1>
 
 Framework-neutral traditional-animation effects for existing web elements. Tradimation uses Web Animations API for DOM/SVG effects and a connected WebGL texture mesh for deformation effects. It has no React dependency and no runtime package dependency.
 
