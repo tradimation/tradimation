@@ -25,9 +25,11 @@ export class ConnectedTextureSurface {
     this.canvas = target.ownerDocument.createElement("canvas");
     this.canvas.setAttribute("aria-hidden", "true");
     const documentElement = target.ownerDocument.documentElement;
-    this.viewportMode = overlayRoot === target.ownerDocument.body || overlayRoot === documentElement;
+    this.viewportMode =
+      overlayRoot === target.ownerDocument.body || overlayRoot === documentElement;
     this.originalRootPosition = overlayRoot.style.position;
-    if (!this.viewportMode && getComputedStyle(overlayRoot).position === "static") overlayRoot.style.position = "relative";
+    if (!this.viewportMode && getComputedStyle(overlayRoot).position === "static")
+      overlayRoot.style.position = "relative";
     this.canvas.style.cssText = this.viewportMode
       ? "position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:2147483646;"
       : "position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2147483646;";
@@ -43,7 +45,8 @@ export class ConnectedTextureSurface {
     const uvBuffer = gl.createBuffer();
     const indexBuffer = gl.createBuffer();
     const texture = gl.createTexture();
-    if (!positionBuffer || !uvBuffer || !indexBuffer || !texture) throw new Error("Unable to allocate WebGL resources");
+    if (!positionBuffer || !uvBuffer || !indexBuffer || !texture)
+      throw new Error("Unable to allocate WebGL resources");
     this.positionBuffer = positionBuffer;
     this.uvBuffer = uvBuffer;
     this.indexBuffer = indexBuffer;
@@ -59,7 +62,12 @@ export class ConnectedTextureSurface {
     const padding = 12;
     const textureWidth = rect.width + padding * 2;
     const textureHeight = rect.height + padding * 2;
-    this.base = { x: rect.left - origin.x - padding, y: rect.top - origin.y - padding, w: textureWidth, h: textureHeight };
+    this.base = {
+      x: rect.left - origin.x - padding,
+      y: rect.top - origin.y - padding,
+      w: textureWidth,
+      h: textureHeight,
+    };
 
     const clone = this.target.cloneNode(true) as HTMLElement;
     const sourceElements = [this.target, ...this.target.querySelectorAll<HTMLElement>("*")];
@@ -83,7 +91,8 @@ export class ConnectedTextureSurface {
     clone.style.setProperty("box-sizing", "border-box", "important");
 
     const renderScale = Math.min(3, Math.max(2, (devicePixelRatio || 1) * 1.5));
-    const body = `<div xmlns="http://www.w3.org/1999/xhtml" style="width:${textureWidth}px;height:${textureHeight}px;padding:${padding}px;box-sizing:border-box;overflow:visible;">${clone.outerHTML}</div>`;
+    const serializedClone = new XMLSerializer().serializeToString(clone);
+    const body = `<div xmlns="http://www.w3.org/1999/xhtml" style="width:${textureWidth}px;height:${textureHeight}px;padding:${padding}px;box-sizing:border-box;overflow:visible;">${serializedClone}</div>`;
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${textureWidth * renderScale}" height="${textureHeight * renderScale}" viewBox="0 0 ${textureWidth} ${textureHeight}"><foreignObject width="100%" height="100%">${body}</foreignObject></svg>`;
     const image = new Image();
     image.decoding = "async";
@@ -164,8 +173,12 @@ export class ConnectedTextureSurface {
 
   private resize(): void {
     const dpr = Math.min(2, devicePixelRatio || 1);
-    this.width = this.viewportMode ? this.target.ownerDocument.documentElement.clientWidth : this.overlayRoot.clientWidth;
-    this.height = this.viewportMode ? this.target.ownerDocument.documentElement.clientHeight : this.overlayRoot.clientHeight;
+    this.width = this.viewportMode
+      ? this.target.ownerDocument.documentElement.clientWidth
+      : this.overlayRoot.clientWidth;
+    this.height = this.viewportMode
+      ? this.target.ownerDocument.documentElement.clientHeight
+      : this.overlayRoot.clientHeight;
     this.canvas.width = Math.round(this.width * dpr);
     this.canvas.height = Math.round(this.height * dpr);
     this.gl.viewport(0, 0, this.canvas.width, this.canvas.height);
@@ -183,7 +196,10 @@ export class ConnectedTextureSurface {
   private origin(): DOMPoint {
     if (this.viewportMode) return new DOMPoint(0, 0);
     const rect = this.overlayRoot.getBoundingClientRect();
-    return new DOMPoint(rect.left + this.overlayRoot.clientLeft, rect.top + this.overlayRoot.clientTop);
+    return new DOMPoint(
+      rect.left + this.overlayRoot.clientLeft,
+      rect.top + this.overlayRoot.clientTop,
+    );
   }
 
   private shader(type: number, source: string): WebGLShader {
@@ -198,8 +214,14 @@ export class ConnectedTextureSurface {
   }
 
   private createProgram(): WebGLProgram {
-    const vertex = this.shader(this.gl.VERTEX_SHADER, "attribute vec2 p;attribute vec2 uv;varying vec2 v;void main(){gl_Position=vec4(p,0.,1.);v=uv;}");
-    const fragment = this.shader(this.gl.FRAGMENT_SHADER, "precision mediump float;uniform sampler2D tex;varying vec2 v;void main(){gl_FragColor=texture2D(tex,v);}");
+    const vertex = this.shader(
+      this.gl.VERTEX_SHADER,
+      "attribute vec2 p;attribute vec2 uv;varying vec2 v;void main(){gl_Position=vec4(p,0.,1.);v=uv;}",
+    );
+    const fragment = this.shader(
+      this.gl.FRAGMENT_SHADER,
+      "precision mediump float;uniform sampler2D tex;varying vec2 v;void main(){gl_FragColor=texture2D(tex,v);}",
+    );
     const program = this.gl.createProgram();
     if (!program) throw new Error("Unable to create WebGL program");
     this.gl.attachShader(program, vertex);

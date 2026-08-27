@@ -3,7 +3,13 @@ import { resolvePoint, shouldReduceMotion } from "../context.js";
 import { ConnectedTextureSurface } from "../renderers/connected-texture.js";
 import { meshDefaults, meshMaps } from "./mesh-maps.js";
 import type { MeshEffectName, MeshParameterMap } from "./mesh-maps.js";
-import type { EffectContext, EffectController, EffectDefinition, EffectId, EffectManifest } from "../types.js";
+import type {
+  EffectContext,
+  EffectController,
+  EffectDefinition,
+  EffectId,
+  EffectManifest,
+} from "../types.js";
 
 interface MeshDefinition {
   id: EffectId;
@@ -36,7 +42,10 @@ const createMeshController = <Name extends MeshEffectName>(
   name: Name,
   defaultCleanup: MeshDefinition["cleanup"],
 ): EffectController => {
-  const surface = new ConnectedTextureSurface(context.target, context.options.overlayRoot ?? context.document.body);
+  const surface = new ConnectedTextureSurface(
+    context.target,
+    context.options.overlayRoot ?? context.document.body,
+  );
   const params = mergeParams(name, context);
   const target = context.target;
   const originalStyle = target.style.cssText;
@@ -46,14 +55,21 @@ const createMeshController = <Name extends MeshEffectName>(
   const viewportSpace = space === context.document.documentElement;
   if (name === "suck") {
     const fallbackX = viewportSpace ? context.window.innerWidth - 24 : spaceRect.right - 24;
-    const point = surface.toLocalPoint(resolvePoint(context.options.destination, new DOMPoint(fallbackX, rect.top + rect.height / 2)));
+    const point = surface.toLocalPoint(
+      resolvePoint(
+        context.options.destination,
+        new DOMPoint(fallbackX, rect.top + rect.height / 2),
+      ),
+    );
     const suckParams = params as MeshParameterMap["suck"];
     suckParams.targetX = point.x;
     suckParams.targetY = point.y;
   }
   if (name === "spit") {
     const fallbackX = viewportSpace ? 24 : spaceRect.left + 24;
-    const point = surface.toLocalPoint(resolvePoint(context.options.source, new DOMPoint(fallbackX, rect.top + rect.height / 2)));
+    const point = surface.toLocalPoint(
+      resolvePoint(context.options.source, new DOMPoint(fallbackX, rect.top + rect.height / 2)),
+    );
     const spitParams = params as MeshParameterMap["spit"];
     spitParams.sourceX = point.x;
     spitParams.sourceY = point.y;
@@ -65,7 +81,13 @@ const createMeshController = <Name extends MeshEffectName>(
     {
       async prepare() {
         target.style.visibility = "visible";
-        await surface.capture();
+        try {
+          await surface.capture();
+        } catch (error) {
+          target.style.cssText = originalStyle;
+          surface.destroy();
+          throw error;
+        }
         target.style.visibility = "hidden";
       },
       render(progress) {
@@ -73,7 +95,13 @@ const createMeshController = <Name extends MeshEffectName>(
           progress: number,
           u: number,
           v: number,
-          base: Parameters<typeof surface.draw>[0] extends (u: number, v: number, base: infer Base) => unknown ? Base : never,
+          base: Parameters<typeof surface.draw>[0] extends (
+            u: number,
+            v: number,
+            base: infer Base,
+          ) => unknown
+            ? Base
+            : never,
           stage: HTMLElement,
           params: MeshParameterMap[Name],
         ) => { x: number; y: number };
@@ -90,7 +118,8 @@ const createMeshController = <Name extends MeshEffectName>(
           return;
         }
         target.style.visibility = "visible";
-        if (name === "smear") target.style.transform = `translateX(${(params as MeshParameterMap["smear"]).distance}px)`;
+        if (name === "smear")
+          target.style.transform = `translateX(${(params as MeshParameterMap["smear"]).distance}px)`;
       },
       cancel() {
         surface.clear();
@@ -103,7 +132,9 @@ const createMeshController = <Name extends MeshEffectName>(
     },
     {
       duration,
-      ...(context.options.playbackRate !== undefined ? { playbackRate: context.options.playbackRate } : {}),
+      ...(context.options.playbackRate !== undefined
+        ? { playbackRate: context.options.playbackRate }
+        : {}),
       ...(context.options.signal ? { signal: context.options.signal } : {}),
     },
   );
@@ -188,7 +219,12 @@ export const meshEffects: EffectDefinition[] = definitions.map((definition) => (
     techniques: definition.techniques,
     renderers: ["webgl"],
     description: definition.description,
-    requires: definition.mesh === "suck" ? { destination: true, overlay: true } : definition.mesh === "spit" ? { source: true, overlay: true } : { overlay: true },
+    requires:
+      definition.mesh === "suck"
+        ? { destination: true, overlay: true }
+        : definition.mesh === "spit"
+          ? { source: true, overlay: true }
+          : { overlay: true },
     motionRisk: definition.motionRisk,
   },
   create: (context) => createMeshController(context, definition.mesh, definition.cleanup),
