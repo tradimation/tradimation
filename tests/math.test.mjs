@@ -1,9 +1,58 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { KeyframeController } from "../dist/controller.js";
 import { boxEdgeDistance, celShapeTime, flowTrack, motionCurve } from "../dist/math.js";
 import { components, effects, listEffects, recipes } from "../dist/registry.js";
 import { meshDefaults, meshMaps } from "../dist/effects/mesh-maps.js";
 import { componentDocs, effectDocs, motionDocs } from "../site/effects.js";
+
+test("keyframe cleanup commits the visible final pose without commitStyles", async () => {
+  const originalGetComputedStyle = globalThis.getComputedStyle;
+  const committed = new Map();
+  let animationActive = true;
+  const animation = {
+    currentTime: 0,
+    playbackRate: 1,
+    finished: Promise.resolve(),
+    play() {},
+    pause() {},
+    cancel() {
+      animationActive = false;
+    },
+  };
+  const target = {
+    style: {
+      cssText: "",
+      setProperty(property, value) {
+        committed.set(property, value);
+      },
+    },
+    animate() {
+      return animation;
+    },
+  };
+  globalThis.getComputedStyle = () => ({
+    display: "block",
+    transform: "none",
+    getPropertyValue(property) {
+      return animationActive && property === "transform" ? "matrix(1, 0, 0, 1, 112, -34)" : "";
+    },
+  });
+
+  try {
+    const controller = new KeyframeController(
+      target,
+      [{ transform: "translate(0, 0)" }, { transform: "translate(112px, -34px)" }],
+      { duration: 980 },
+    );
+    await controller.play();
+    assert.equal(committed.get("transform"), "matrix(1, 0, 0, 1, 112, -34)");
+    assert.equal(controller.state, "finished");
+  } finally {
+    if (originalGetComputedStyle) globalThis.getComputedStyle = originalGetComputedStyle;
+    else delete globalThis.getComputedStyle;
+  }
+});
 
 test("motionCurve reaches exact endpoints", () => {
   const keys = [

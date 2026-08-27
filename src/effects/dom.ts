@@ -215,7 +215,7 @@ export const domEffects: EffectDefinition[] = [
     lifecycle: "interaction",
     description: "Opposing preparation flows directly into a directional take.",
     techniques: ["anticipation", "take", "overlap"],
-    duration: 900,
+    duration: 980,
     easing: "linear",
     keyframes: (context) => {
       const intensity = Number(context.options.intensity ?? 1);
@@ -227,18 +227,17 @@ export const domEffects: EffectDefinition[] = [
       };
       return [
         { transform: "translate(0, 0) scale(1) rotate(0deg)" },
-        { offset: 0.07, transform: pose(-2, 1, "scale(1.012, .988) rotate(-.2deg)") },
-        { offset: 0.14, transform: pose(-6, 2.5, "scale(1.035, .965) rotate(-.7deg)") },
-        { offset: 0.2, transform: pose(-9, 3.5, "scale(1.055, .947) rotate(-1deg)") },
-        { offset: 0.24, transform: pose(-8, 3, "scale(1.045, .955) rotate(-.8deg)") },
-        { offset: 0.3, transform: "translate(0, 0) scale(1.01, .99) rotate(0deg)" },
-        { offset: 0.38, transform: pose(19, -7, "scale(.95, 1.06) rotate(-1.5deg)") },
-        { offset: 0.48, transform: pose(45, -16, "scale(.91, 1.1) rotate(-2.3deg)") },
-        { offset: 0.58, transform: pose(61, -21, "scale(.95, 1.055) rotate(-1.3deg)") },
-        { offset: 0.66, transform: pose(64, -22, "scale(.985, 1.018) rotate(-.5deg)") },
-        { offset: 0.76, transform: pose(56, -18, "scale(1.018, .985) rotate(.3deg)") },
-        { offset: 0.88, transform: pose(51, -16, "scale(.995, 1.005) rotate(0deg)") },
-        { transform: pose(52, -16, "scale(1) rotate(0deg)") },
+        { offset: 0.1, transform: pose(-3, 1, "scale(1.015, .985) rotate(-.3deg)") },
+        { offset: 0.18, transform: pose(-10, 3, "scale(1.045, .96) rotate(-.8deg)") },
+        { offset: 0.26, transform: pose(-14, 5, "scale(1.07, .94) rotate(-1.3deg)") },
+        { offset: 0.32, transform: pose(-12, 4, "scale(1.05, .95) rotate(-1deg)") },
+        { offset: 0.37, transform: "translate(0, 0) scale(1.01, .99) rotate(0deg)" },
+        { offset: 0.48, transform: pose(38, -11, "scale(.92, 1.08) rotate(-2deg)") },
+        { offset: 0.6, transform: pose(86, -26, "scale(.88, 1.12) rotate(-2.8deg)") },
+        { offset: 0.68, transform: pose(120, -37, "scale(.95, 1.05) rotate(-1.2deg)") },
+        { offset: 0.76, transform: pose(108, -32, "scale(1.025, .98) rotate(.4deg)") },
+        { offset: 0.88, transform: pose(114, -35, "scale(.995, 1.005) rotate(0deg)") },
+        { transform: pose(112, -34, "scale(1) rotate(0deg)") },
       ];
     },
   }),

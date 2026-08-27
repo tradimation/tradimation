@@ -12,7 +12,6 @@ const range = (key, label, value, min, max, step, suffix = "") => ({
   step,
   suffix,
 });
-const select = (key, label, value, options) => ({ type: "select", key, label, value, options });
 const duration = (value, max = 1800) => range("duration", "Duration", value, 200, max, 10, "ms");
 const playback = () => range("playbackRate", "Playback", 1, 0.25, 2, 0.05, "×");
 
@@ -22,17 +21,12 @@ const docs = [
     name: "Wind-Up Shift",
     kind: "effect",
     group: "Motion",
-    summary: "Pull back briefly, then shift decisively in the chosen direction.",
-    why: "Use it when an action needs a readable sense of intent before moving.",
-    target: ".demo-button",
-    markup: `<div class="demo-center route-scene"><span class="route-point route-origin" aria-hidden="true">Start</span>${button(`<span class="arrow-mark">↗</span><span><small>Next stop</small>Moonbase</span>`, "route-button")}<span class="route-point route-destination" aria-hidden="true">Dock 07</span></div>`,
-    controls: [
-      duration(900),
-      playback(),
-      range("intensity", "Intensity", 1, 0.35, 1.5, 0.05),
-      select("direction", "Direction", "right", ["left", "right", "up", "down"]),
-    ],
-    code: `playEffect(target, "wind-up-shift", { direction: "right", intensity: 0.8 });`,
+    summary: "Recoil a parcel, then send it decisively into a nearby dispatch queue.",
+    why: "Use it for a visible spatial handoff—send, assign, or move to queue—where the new resting place matters.",
+    target: ".courier-parcel",
+    markup: `<div class="demo-center route-scene"><span class="route-origin" aria-hidden="true">Packing table</span><span class="route-destination" aria-hidden="true"><span>Dispatch queue</span></span><button class="courier-parcel" type="button" aria-label="Send priority parcel to dispatch queue"><span class="parcel-tape"></span><small>Priority</small><b>Parcel 08</b></button></div>`,
+    controls: [duration(980), playback(), range("intensity", "Intensity", 1, 0.35, 1.5, 0.05)],
+    code: `playEffect(parcel, "wind-up-shift", { intensity: 1 });`,
   },
   {
     id: "squash-stretch",
@@ -191,7 +185,7 @@ const docs = [
       "A tablist that owns selection while one shared indicator travels across measured labels.",
     why: "Use it when navigation state and its geometry-aware transition belong to the same component.",
     target: ".tab-line",
-    markup: `<div class="demo-center"><div class="tabs-shell"><span class="tabs-title">Studio / 04</span><div class="tabs" role="tablist" aria-label="Studio sections"><button class="tab active" id="demo-tab-overview" data-demo-action="tab" data-panel-copy="Project pulse and recent activity" role="tab" aria-controls="demo-tab-panel" aria-selected="true" tabindex="0"><span>01</span>Overview</button><button class="tab" id="demo-tab-motion" data-demo-action="tab" data-panel-copy="Tune spacing, drawings, and timing" role="tab" aria-controls="demo-tab-panel" aria-selected="false" tabindex="-1"><span>02</span>Motion lab</button><button class="tab" id="demo-tab-reference" data-demo-action="tab" data-panel-copy="Principles and implementation notes" role="tab" aria-controls="demo-tab-panel" aria-selected="false" tabindex="-1"><span>03</span>Reference</button><div class="tab-line"></div></div><div class="tabs-panel" id="demo-tab-panel" role="tabpanel" aria-labelledby="demo-tab-overview"><span class="tabs-hint">Project pulse and recent activity</span><b>12 drawings ready for review</b></div></div></div>`,
+    markup: `<div class="demo-center"><div class="tabs-shell"><div class="tabs" role="tablist" aria-label="Studio sections"><button class="tab active" id="demo-tab-overview" data-demo-action="tab" data-panel-copy="Project pulse and recent activity" role="tab" aria-controls="demo-tab-panel" aria-selected="true" tabindex="0">Overview</button><button class="tab" id="demo-tab-motion" data-demo-action="tab" data-panel-copy="Tune spacing, drawings, and timing" role="tab" aria-controls="demo-tab-panel" aria-selected="false" tabindex="-1">Motion lab</button><button class="tab" id="demo-tab-reference" data-demo-action="tab" data-panel-copy="Principles and implementation notes" role="tab" aria-controls="demo-tab-panel" aria-selected="false" tabindex="-1">Reference</button><div class="tab-line"></div></div><div class="tabs-panel" id="demo-tab-panel" role="tabpanel" aria-labelledby="demo-tab-overview"><span class="tabs-hint">Project pulse and recent activity</span><b>12 drawings ready for review</b></div></div></div>`,
     interactive: "tabs",
     controls: [duration(650), playback()],
     code: `playEffect(underline, "tab-indicator-sweep", { destination: selectedTab });`,
@@ -206,7 +200,7 @@ const docs = [
     why: "Use it when transient feedback needs a clear cause, accessible announcement, and playful arrival.",
     target: ".toast",
     markup: `<div class="demo-center"><div class="toast-workspace"><button class="toast-trigger" data-demo-action="toast" type="button">Save changes</button><div class="toast" role="status"><span class="toast-check">✓</span><span><b>Project saved</b><small>All frames are safely synced.</small></span><button data-demo-action="toast-dismiss" type="button" aria-label="Dismiss notification">×</button></div></div></div>`,
-    controls: [duration(950), playback()],
+    controls: [duration(1080), playback()],
     code: `playEffect(toast, "toast-snap-in");`,
   },
   {

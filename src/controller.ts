@@ -62,7 +62,8 @@ export class FrameController implements EffectController {
 
   reverse(): void {
     this.direction *= -1;
-    if (this.state === "idle" || this.state === "finished" || this.state === "cancelled") void this.play();
+    if (this.state === "idle" || this.state === "finished" || this.state === "cancelled")
+      void this.play();
   }
 
   seek(progress: number): void {
@@ -87,7 +88,8 @@ export class FrameController implements EffectController {
   }
 
   setPlaybackRate(rate: number): void {
-    if (!Number.isFinite(rate) || rate === 0) throw new Error("playbackRate must be a finite non-zero number");
+    if (!Number.isFinite(rate) || rate === 0)
+      throw new Error("playbackRate must be a finite non-zero number");
     this.playbackRate = Math.abs(rate);
     if (rate < 0) this.direction = -1;
   }
@@ -99,7 +101,8 @@ export class FrameController implements EffectController {
 
   private readonly tick = (now: number): void => {
     if (this.state !== "running") return;
-    const delta = ((now - this.lastTime) / this.options.duration) * this.playbackRate * this.direction;
+    const delta =
+      ((now - this.lastTime) / this.options.duration) * this.playbackRate * this.direction;
     this.lastTime = now;
     this.progress = clamp(this.progress + delta);
     this.driver.render(this.progress);
@@ -138,6 +141,7 @@ export class KeyframeController implements EffectController {
   private animation: Animation | null = null;
   private readonly originalStyle: string;
   private readonly animatedKeyframes: Keyframe[];
+  private readonly animatedProperties: string[];
 
   constructor(
     private readonly target: HTMLElement,
@@ -147,11 +151,24 @@ export class KeyframeController implements EffectController {
     this.playbackRate = options.playbackRate ?? 1;
     this.originalStyle = target.style.cssText;
     const underlyingTransform = getComputedStyle(target).transform;
-    const transformPrefix = options.preserveTransform !== false && underlyingTransform !== "none" ? `${underlyingTransform} ` : "";
+    const transformPrefix =
+      options.preserveTransform !== false && underlyingTransform !== "none"
+        ? `${underlyingTransform} `
+        : "";
     this.animatedKeyframes = keyframes.map((keyframe) => {
       if (!transformPrefix || typeof keyframe.transform !== "string") return keyframe;
       return { ...keyframe, transform: `${transformPrefix}${keyframe.transform}` };
     });
+    this.animatedProperties = [
+      ...new Set(
+        this.animatedKeyframes
+          .flatMap((keyframe) => Object.keys(keyframe))
+          .filter(
+            (property) => !["offset", "easing", "composite", "computedOffset"].includes(property),
+          )
+          .map((property) => property.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`)),
+      ),
+    ];
     options.signal?.addEventListener("abort", () => this.cancel(), { once: true });
   }
 
@@ -205,7 +222,8 @@ export class KeyframeController implements EffectController {
   }
 
   setPlaybackRate(rate: number): void {
-    if (!Number.isFinite(rate) || rate === 0) throw new Error("playbackRate must be a finite non-zero number");
+    if (!Number.isFinite(rate) || rate === 0)
+      throw new Error("playbackRate must be a finite non-zero number");
     this.playbackRate = rate;
     if (this.animation) this.animation.playbackRate = rate;
   }
@@ -216,11 +234,14 @@ export class KeyframeController implements EffectController {
   }
 
   private get duration(): number {
-    return this.options.reducedMotion ? Math.min(180, this.options.duration) : this.options.duration;
+    return this.options.reducedMotion
+      ? Math.min(180, this.options.duration)
+      : this.options.duration;
   }
 
   private createAnimation(): void {
-    if (getComputedStyle(this.target).display === "inline") this.target.style.display = "inline-block";
+    if (getComputedStyle(this.target).display === "inline")
+      this.target.style.display = "inline-block";
     this.animation = this.target.animate(this.animatedKeyframes, {
       duration: this.duration,
       easing: this.options.easing ?? "linear",
@@ -241,8 +262,13 @@ export class KeyframeController implements EffectController {
       this.target.style.visibility = "hidden";
       return;
     }
-    this.animation?.commitStyles?.();
-    this.animation?.cancel();
+    if (!this.animation) return;
+    const computed = getComputedStyle(this.target);
+    const committed = this.animatedProperties.map(
+      (property) => [property, computed.getPropertyValue(property)] as const,
+    );
+    this.animation.cancel();
+    committed.forEach(([property, value]) => this.target.style.setProperty(property, value));
   }
 }
 
@@ -259,7 +285,8 @@ export class CompositeController implements EffectController {
     if (this.controllers.some((controller) => controller.state === "running")) return "running";
     if (this.controllers.some((controller) => controller.state === "paused")) return "paused";
     if (this.controllers.every((controller) => controller.state === "finished")) return "finished";
-    if (this.controllers.every((controller) => controller.state === "cancelled")) return "cancelled";
+    if (this.controllers.every((controller) => controller.state === "cancelled"))
+      return "cancelled";
     return "idle";
   }
 

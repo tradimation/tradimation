@@ -39,7 +39,9 @@
     if (panel) panel.querySelector(".tabs-hint").textContent = selected.dataset.panelCopy;
   }
   async function play(overrides = {}, resetDemo = true) {
-    controller?.destroy();
+    const keepComponentState = !resetDemo && effect.kind === "component" && controller?.state === "finished";
+    if (!keepComponentState) controller?.destroy();
+    controller = undefined;
     if (resetDemo) resetMarkup();
     status = effect.kind === "component" ? "Updating component…" : "Playing effect…";
     const target = demoRoot.querySelector(effect.target);
@@ -63,6 +65,7 @@
   async function interact(event) {
     const action = event.target.closest("[data-demo-action]");
     if (!action || !demoRoot.contains(action)) return;
+    if (["toggle", "tab"].includes(action.dataset.demoAction) && controller?.state === "running") return;
     if (action.dataset.demoAction === "toggle") {
       const checked = action.getAttribute("aria-checked") === "true";
       action.setAttribute("aria-checked", String(!checked));
@@ -100,7 +103,7 @@
   <main class="detail-main">
     <p class="eyebrow">{effect.kind} / {effect.group}</p><h1>{effect.name}</h1><p class="detail-summary">{effect.summary}</p>
     <section><div class="playground-heading"><h2>Playground</h2><p aria-live="polite">{status}</p></div>
-      <div class="playground"><div class="demo-stage" class:component-stage={effect.kind === "component"} bind:this={stage}><span class="stage-label">{effect.kind === "component" ? "Interactive component" : "Live cel"}</span><div class="demo-root" bind:this={demoRoot}></div></div>
+      <div class="playground"><div class="demo-stage" class:component-stage={effect.kind === "component"} bind:this={stage}><div class="demo-root" bind:this={demoRoot}></div></div>
         <form class="controls" on:submit|preventDefault>
           <p class="control-intro">{effect.kind === "component" ? "Interact with the demo or tune its internal motion." : "Tune the drawing. Changes replay automatically."}</p>
           {#each effect.controls as control}<label class="parameter"><span>{control.label}<output>{parameters[control.key]}{control.suffix ?? ""}</output></span>
