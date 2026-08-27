@@ -1,5 +1,5 @@
 import { mkdir, rm, writeFile } from "node:fs/promises";
-import { effectDocs } from "../site/effects.js";
+import { componentDocs, motionDocs } from "../site/effects.js";
 
 const effectsOutput = new URL("../website/effects/", import.meta.url);
 const componentsOutput = new URL("../website/components/", import.meta.url);
@@ -23,11 +23,11 @@ const page = (effect) => `<!doctype html>
   <body data-page="detail" data-effect="${effect.id}"><div id="app"></div><script type="module" src="/src/main.js"></script></body>
 </html>`;
 
-await Promise.all(
-  effectDocs.map((effect) =>
-    writeFile(
-      new URL(`${effect.id}.html`, effect.kind === "component" ? componentsOutput : effectsOutput),
-      page(effect),
-    ),
+await Promise.all([
+  ...motionDocs.map((effect) =>
+    writeFile(new URL(`${effect.id}.html`, effectsOutput), page(effect)),
   ),
-);
+  ...componentDocs.map((effect) =>
+    writeFile(new URL(`${effect.id}.html`, componentsOutput), page(effect)),
+  ),
+]);

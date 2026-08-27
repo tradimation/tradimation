@@ -1,24 +1,30 @@
 export type EffectLevel = "effect" | "recipe" | "component";
 export type EffectGroup = "core" | "interaction" | "entrance" | "navigation" | "state" | "spatial";
-export type EffectLifecycle = "interaction" | "entrance" | "exit" | "state" | "ambient" | "transition";
+export type EffectLifecycle =
+  | "interaction"
+  | "entrance"
+  | "exit"
+  | "state"
+  | "ambient"
+  | "transition";
 export type ControllerState = "idle" | "running" | "paused" | "finished" | "cancelled";
 export type CleanupMode = "restore" | "commit" | "hide";
 
-export type EffectId =
+export type MotionId =
   | "wind-up-shift"
   | "squash-stretch"
   | "smear"
   | "concentration-lines"
   | "iris"
-  | "toggle-snap"
   | "launch-away"
   | "stretch-wipe"
   | "stamp-in"
-  | "tab-indicator-sweep"
-  | "toast-snap-in"
   | "compress-swap"
   | "suck-in"
   | "spit-out";
+
+export type ComponentId = "toggle-snap" | "tab-indicator-sweep" | "toast-snap-in";
+export type EffectId = MotionId | ComponentId;
 
 export interface EffectManifest {
   id: EffectId;

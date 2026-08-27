@@ -1,10 +1,11 @@
 <script>
   import { onMount } from "svelte";
   import { createEffect } from "../../../dist/index.js";
-  import { effectDocs, findEffectDoc } from "../../../site/effects.js";
+  import { componentDocs, findEffectDoc, motionDocs } from "../../../site/effects.js";
   export let id = "";
   const effect = findEffectDoc(id);
-  const next = effectDocs[(effectDocs.indexOf(effect) + 1) % effectDocs.length];
+  const collection = effect.kind === "component" ? componentDocs : motionDocs;
+  const next = collection[(collection.indexOf(effect) + 1) % collection.length];
   const hrefFor = (item) => `../${item.kind === "component" ? "components" : "effects"}/${item.id}.html`;
   let stage = null;
   let demoRoot = null;
@@ -12,10 +13,31 @@
   let status = "Ready.";
   let parameters = Object.fromEntries(effect.controls.map((control) => [control.key, control.value]));
 
-  $: code = `playEffect(target, "${effect.id}", {\n${effect.controls.map(({ key }) => `  ${key}: ${typeof parameters[key] === "string" ? `"${parameters[key]}"` : parameters[key]}`).concat(effect.options?.overlay ? ["  overlayRoot: stage"] : []).join(",\n")}\n});`;
+  function codeFor(parameters) {
+    const options = effect.controls.map(({ key }) => `  ${key}: ${typeof parameters[key] === "string" ? `"${parameters[key]}"` : parameters[key]}`);
+    if (effect.options?.overlay) options.push("  overlayRoot: stage");
+    if (effect.options?.destination) options.push("  destination: destinationElement");
+    if (effect.options?.source) options.push("  source: sourceElement");
+    if (effect.interactive === "swap") options.push("  secondary: nextElement");
+    if (effect.interactive === "tabs") options.push("  destination: selectedTab");
+    if (effect.interactive === "toggle") options.push('  direction: checked ? "right" : "left"');
+    return `playEffect(target, "${effect.id}", {\n${options.join(",\n")}\n});`;
+  }
+  $: code = codeFor(parameters);
 
   function resetMarkup() { demoRoot.innerHTML = effect.markup; }
   function optionFor(selector) { return selector ? demoRoot.querySelector(selector) : undefined; }
+  function selectTab(selected) {
+    demoRoot.querySelectorAll(".tab").forEach((tab) => {
+      const active = tab === selected;
+      tab.classList.toggle("active", active);
+      tab.setAttribute("aria-selected", String(active));
+      tab.setAttribute("tabindex", active ? "0" : "-1");
+    });
+    const panel = demoRoot.querySelector(".tabs-panel");
+    panel?.setAttribute("aria-labelledby", selected.id);
+    if (panel) panel.querySelector(".tabs-hint").textContent = selected.dataset.panelCopy;
+  }
   async function play(overrides = {}, resetDemo = true) {
     controller?.destroy();
     if (resetDemo) resetMarkup();
@@ -29,7 +51,7 @@
     if (effect.interactive === "tabs" && !options.destination) options.destination = optionFor(".tab:nth-child(2)");
     if (effect.interactive === "toggle" && !options.direction) options.direction = "right";
     if (effect.interactive === "toggle") { const checked = options.direction === "right"; target.closest("[role=switch]")?.setAttribute("aria-checked", String(checked)); demoRoot.querySelector(".switch-state").textContent = checked ? "On" : "Off"; }
-    if (effect.interactive === "tabs" && resetDemo && options.destination) { demoRoot.querySelectorAll(".tab").forEach((tab) => { const active = tab === options.destination; tab.classList.toggle("active", active); tab.setAttribute("aria-selected", String(active)); }); demoRoot.querySelector(".tabs-hint").textContent = options.destination.dataset.panelCopy; }
+    if (effect.interactive === "tabs" && resetDemo && options.destination) selectTab(options.destination);
     try {
       controller = createEffect(target, effect.id, options);
       await controller.play();
@@ -50,8 +72,7 @@
     }
     if (action.dataset.demoAction === "tab") {
       if (action.classList.contains("active")) return;
-      demoRoot.querySelectorAll(".tab").forEach((tab) => { const active = tab === action; tab.classList.toggle("active", active); tab.setAttribute("aria-selected", String(active)); });
-      demoRoot.querySelector(".tabs-hint").textContent = action.dataset.panelCopy;
+      selectTab(action);
       await play({ destination: action }, false);
       return;
     }
@@ -75,7 +96,7 @@
 </script>
 
 <div class="detail-layout">
-  <aside class="effect-nav"><a class="back-link" href="../catalog.html">← Motion library</a>{#each effectDocs as item}<a class:active={item.id === effect.id} aria-current={item.id === effect.id ? "page" : undefined} href={hrefFor(item)}>{item.name}</a>{/each}</aside>
+  <aside class="effect-nav"><a class="back-link" href="../catalog.html">← Motion library</a><p class="effect-nav-label">Effects & recipes</p>{#each motionDocs as item}<a class:active={item.id === effect.id} aria-current={item.id === effect.id ? "page" : undefined} href={hrefFor(item)}>{item.name}</a>{/each}<p class="effect-nav-label component-nav-label">Animated components</p>{#each componentDocs as item}<a class:active={item.id === effect.id} aria-current={item.id === effect.id ? "page" : undefined} href={hrefFor(item)}>{item.name}</a>{/each}</aside>
   <main class="detail-main">
     <p class="eyebrow">{effect.kind} / {effect.group}</p><h1>{effect.name}</h1><p class="detail-summary">{effect.summary}</p>
     <section><div class="playground-heading"><h2>Playground</h2><p aria-live="polite">{status}</p></div>
@@ -89,7 +110,7 @@
         </form>
       </div>
     </section>
-    <section class="usage"><div><p class="eyebrow">Use when</p><h2>{effect.why}</h2></div><div><div class="code-heading"><span>Usage</span><button on:click={copy}>Copy code</button></div><pre><code>{code}</code></pre></div></section>
-    <a class="next-effect" href={hrefFor(next)}><span>Next motion</span><strong>{next.name}</strong><b>→</b></a>
+    <section class="usage"><div><p class="eyebrow">Use when</p><h2>{effect.why}</h2></div><div><div class="code-heading"><span>{effect.kind === "component" ? "Internal motion hook" : "Usage"}</span><button on:click={copy}>Copy code</button></div><pre><code>{code}</code></pre></div></section>
+    <a class="next-effect" href={hrefFor(next)}><span>{effect.kind === "component" ? "Next component" : "Next motion"}</span><strong>{next.name}</strong><b>→</b></a>
   </main>
 </div>

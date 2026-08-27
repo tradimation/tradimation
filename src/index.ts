@@ -1,10 +1,37 @@
-export { FrameController, KeyframeController, CompositeController, createKeyframeController } from "./controller.js";
-export { EffectRegistry, components, createEffect, definitions, effects, listEffects, playEffect, recipes, registry } from "./registry.js";
+export {
+  FrameController,
+  KeyframeController,
+  CompositeController,
+  createKeyframeController,
+} from "./controller.js";
+export {
+  EffectRegistry,
+  components,
+  createEffect,
+  definitions,
+  effects,
+  listEffects,
+  playEffect,
+  recipes,
+  registry,
+} from "./registry.js";
 export { ConnectedTextureSurface } from "./renderers/connected-texture.js";
 export { meshDefaults, meshMaps } from "./effects/mesh-maps.js";
-export { clamp, mix, smoother, outCubic, segment, motionCurve, flowTrack, drawingTrack, celExposure, celShapeTime } from "./math.js";
+export {
+  clamp,
+  mix,
+  smoother,
+  outCubic,
+  segment,
+  motionCurve,
+  flowTrack,
+  drawingTrack,
+  celExposure,
+  celShapeTime,
+} from "./math.js";
 export type {
   CleanupMode,
+  ComponentId,
   ControllerState,
   EffectContext,
   EffectController,
@@ -19,4 +46,5 @@ export type {
   MeshBase,
   MeshMapper,
   MeshPoint,
+  MotionId,
 } from "./types.js";

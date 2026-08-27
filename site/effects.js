@@ -25,10 +25,7 @@ const docs = [
     summary: "Pull back briefly, then shift decisively in the chosen direction.",
     why: "Use it when an action needs a readable sense of intent before moving.",
     target: ".demo-button",
-    markup: button(
-      `<span class="arrow-mark">↗</span><span><small>Next stop</small>Moonbase</span>`,
-      "route-button",
-    ),
+    markup: `<div class="demo-center route-scene"><span class="route-point route-origin" aria-hidden="true">Start</span>${button(`<span class="arrow-mark">↗</span><span><small>Next stop</small>Moonbase</span>`, "route-button")}<span class="route-point route-destination" aria-hidden="true">Dock 07</span></div>`,
     controls: [
       duration(900),
       playback(),
@@ -45,7 +42,7 @@ const docs = [
     summary: "Shift mass through wide contact and tall release poses.",
     why: "Use it when an element should feel elastic, weighty, or physically responsive.",
     target: ".demo-button",
-    markup: `<div class="demo-center"><button class="demo-button squash-mascot" type="button" aria-label="Bounce mascot"><span class="mascot-face"><i></i><i></i></span><b>Boing!</b></button></div>`,
+    markup: `<div class="demo-center mascot-scene"><button class="demo-button squash-mascot" type="button" aria-label="Bounce mascot"><span class="mascot-face"><i></i><i></i></span><b>Boing!</b></button><span class="mascot-ground" aria-hidden="true"></span></div>`,
     controls: [duration(760), playback(), range("intensity", "Intensity", 1, 0.35, 1.5, 0.05)],
     code: `playEffect(target, "squash-stretch", { intensity: 0.9 });`,
   },
@@ -81,7 +78,7 @@ const docs = [
     why: "Use it as a short accent on a meaningful confirmation or impact without crossing the target.",
     target: ".demo-button",
     markup: button(
-      `<span class="focus-star">★</span><span><small>Milestone</small>Perfect timing</span>`,
+      `<span class="focus-star">★</span><span class="award-copy"><small>Milestone</small><b>Perfect!</b></span>`,
       "award-chip",
     ),
     options: { overlay: true },
@@ -194,7 +191,7 @@ const docs = [
       "A tablist that owns selection while one shared indicator travels across measured labels.",
     why: "Use it when navigation state and its geometry-aware transition belong to the same component.",
     target: ".tab-line",
-    markup: `<div class="demo-center"><div class="tabs-shell"><span class="tabs-title">Studio / 04</span><div class="tabs" role="tablist"><button class="tab active" data-demo-action="tab" data-panel-copy="Project pulse and recent activity" role="tab" aria-selected="true"><span>01</span>Overview</button><button class="tab" data-demo-action="tab" data-panel-copy="Tune spacing, drawings, and timing" role="tab" aria-selected="false"><span>02</span>Motion lab</button><button class="tab" data-demo-action="tab" data-panel-copy="Principles and implementation notes" role="tab" aria-selected="false"><span>03</span>Reference</button><div class="tab-line"></div></div><p class="tabs-hint">Project pulse and recent activity</p></div></div>`,
+    markup: `<div class="demo-center"><div class="tabs-shell"><span class="tabs-title">Studio / 04</span><div class="tabs" role="tablist" aria-label="Studio sections"><button class="tab active" id="demo-tab-overview" data-demo-action="tab" data-panel-copy="Project pulse and recent activity" role="tab" aria-controls="demo-tab-panel" aria-selected="true" tabindex="0"><span>01</span>Overview</button><button class="tab" id="demo-tab-motion" data-demo-action="tab" data-panel-copy="Tune spacing, drawings, and timing" role="tab" aria-controls="demo-tab-panel" aria-selected="false" tabindex="-1"><span>02</span>Motion lab</button><button class="tab" id="demo-tab-reference" data-demo-action="tab" data-panel-copy="Principles and implementation notes" role="tab" aria-controls="demo-tab-panel" aria-selected="false" tabindex="-1"><span>03</span>Reference</button><div class="tab-line"></div></div><div class="tabs-panel" id="demo-tab-panel" role="tabpanel" aria-labelledby="demo-tab-overview"><span class="tabs-hint">Project pulse and recent activity</span><b>12 drawings ready for review</b></div></div></div>`,
     interactive: "tabs",
     controls: [duration(650), playback()],
     code: `playEffect(underline, "tab-indicator-sweep", { destination: selectedTab });`,
@@ -233,7 +230,7 @@ const docs = [
     summary: "Ingest one connected element into a destination point.",
     why: "Use it when the UI already has a meaningful source-to-destination relationship.",
     target: ".demo-card",
-    markup: `<div class="spatial-scene cart-scene">${card("photo-card", `<span class="photo-sky"></span><small>Weekend.jpg</small>`)}<span class="spatial-target right"><span>＋</span></span><span class="target-caption">Collection</span></div>`,
+    markup: `<div class="spatial-scene cart-scene">${card("photo-card", `<span class="photo-sky"></span><small>Weekend.jpg</small>`)}<span class="spatial-target album-slot right" aria-label="Photo album slot"><span></span></span><span class="target-caption">Album slot</span></div>`,
     options: { overlay: true, destination: ".spatial-target" },
     restoreAfterPlay: true,
     controls: [
@@ -253,7 +250,7 @@ const docs = [
     summary: "Release a connected element from a pressure point into a readable body.",
     why: "Use it as the spatial inverse of Suck In when an origin exists in the interface.",
     target: ".demo-card",
-    markup: `<div class="spatial-scene inbox-scene"><span class="spatial-target left"><span>✦</span></span><span class="source-caption">New idea</span>${card("idea-note", `<span class="idea-spark">✦</span><b>Make it<br />feel alive.</b><small>Note 08</small>`)}</div>`,
+    markup: `<div class="spatial-scene inbox-scene"><span class="spatial-target pencil-source left" aria-label="Pencil tip"><span>✎</span></span><span class="source-caption">Idea pencil</span>${card("idea-note", `<span class="idea-spark">✦</span><b>Make it<br />feel alive.</b><small>Note 08</small>`)}</div>`,
     options: { overlay: true, source: ".spatial-target" },
     controls: [
       duration(840),

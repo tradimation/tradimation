@@ -6,13 +6,14 @@
 
 Framework-neutral traditional-animation effects for existing web elements. Tradimation uses Web Animations API for DOM/SVG effects and a connected WebGL texture mesh for deformation effects. It has no React dependency and no runtime package dependency.
 
-**Website:** [tradimation.github.io/tradimation](https://tradimation.github.io/tradimation/) · **Collection:** [Browse 14 effects and recipes](https://tradimation.github.io/tradimation/catalog.html)
+**Website:** [tradimation.github.io/tradimation](https://tradimation.github.io/tradimation/) · **Collection:** [Browse 14 motions and components](https://tradimation.github.io/tradimation/catalog.html)
 
-Tradimation deliberately separates three scopes:
+Tradimation deliberately separates four scopes:
 
 - **Core** owns controllers, timelines, cleanup, the registry, and renderers.
 - **Effects** are reusable visual behaviors that attach to an existing element.
 - **Recipes** show how an effect participates in a real control, state change, entrance, exit, or spatial handoff.
+- **Components** own state, semantics, geometry, and one or more internal effects as a complete interaction example.
 
 ## Install and build
 
@@ -60,9 +61,9 @@ The element is captured as one texture, rendered on one shared 32×14 WebGL mesh
 
 Existing transforms are preserved by default. Set `preserveTransform: false` only when an effect should replace the target's current transform completely.
 
-## Stateful controls
+## Component motion hooks
 
-Tradimation animates control geometry while the application owns logical state. `toggle-snap` measures the knob's available travel from its track, and `tab-indicator-sweep` measures the destination tab instead of assuming equal-width labels.
+The documentation presents switches, tabs, and toasts as complete components that own state and semantics. Their internal motion hooks remain independently reusable: `toggle-snap` measures the knob's available travel from its track, and `tab-indicator-sweep` measures the destination tab instead of assuming equal-width labels.
 
 ```ts
 playEffect(toggleKnob, "toggle-snap", { direction: checked ? "right" : "left" });
@@ -87,13 +88,21 @@ controller.destroy();
 ## Registry
 
 ```ts
-import { definitions, EffectRegistry, effects, listEffects, recipes } from "@tradimation/core";
+import {
+  components,
+  definitions,
+  EffectRegistry,
+  effects,
+  listEffects,
+  recipes,
+} from "@tradimation/core";
 
 const manifests = listEffects(); // 14 curated definitions
 const customRegistry = new EffectRegistry(definitions);
 
 effects; // reusable visual techniques
 recipes; // contextual UI integrations
+components; // complete state-owning UI patterns
 customRegistry.register(myCustomEffect);
 ```
 

@@ -1,7 +1,14 @@
 import { createEffectContext } from "./context.js";
+import { componentEffects } from "./components/dom.js";
 import { domEffects } from "./effects/dom.js";
 import { meshEffects } from "./effects/mesh.js";
-import type { EffectController, EffectDefinition, EffectId, EffectManifest, EffectOptions } from "./types.js";
+import type {
+  EffectController,
+  EffectDefinition,
+  EffectId,
+  EffectManifest,
+  EffectOptions,
+} from "./types.js";
 
 export class EffectRegistry {
   private readonly definitions = new Map<EffectId, EffectDefinition>();
@@ -48,16 +55,24 @@ export class EffectRegistry {
   }
 }
 
-export const definitions: EffectDefinition[] = [...domEffects, ...meshEffects];
+export const definitions: EffectDefinition[] = [...domEffects, ...meshEffects, ...componentEffects];
 export const effects = definitions.filter((definition) => definition.manifest.level === "effect");
 export const recipes = definitions.filter((definition) => definition.manifest.level === "recipe");
-export const components = definitions.filter((definition) => definition.manifest.level === "component");
+export const components = definitions.filter(
+  (definition) => definition.manifest.level === "component",
+);
 export const registry = new EffectRegistry(definitions);
 
-export const createEffect = (target: HTMLElement, id: EffectId, options: EffectOptions = {}): EffectController =>
-  registry.create(target, id, options);
+export const createEffect = (
+  target: HTMLElement,
+  id: EffectId,
+  options: EffectOptions = {},
+): EffectController => registry.create(target, id, options);
 
-export const playEffect = (target: HTMLElement, id: EffectId, options: EffectOptions = {}): EffectController =>
-  registry.play(target, id, options);
+export const playEffect = (
+  target: HTMLElement,
+  id: EffectId,
+  options: EffectOptions = {},
+): EffectController => registry.play(target, id, options);
 
 export const listEffects = (): EffectManifest[] => registry.list();

@@ -11,7 +11,7 @@ Tradimation keeps an effect only when its silhouette, timing, or integration con
 
 ## Removed during curation
 
-- `underline-snap`: superseded by the geometry-aware `tab-indicator-sweep` recipe.
+- `underline-snap`: superseded by the geometry-aware `tab-indicator-sweep` component.
 - `badge-punch`, `radio-pop`, `text-punch`, and `pop-out`: visual restatements of `squash-stretch`.
 - `slam-down`: superseded by the connected-texture `stamp-in` recipe.
 - `hover-take` and `icon-kick`: small contextual variations of `wind-up-shift`.
